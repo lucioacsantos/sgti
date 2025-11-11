@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CMDB - Configuration Management Database</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <nav class="navbar navbar-dark bg-primary mb-4">
+      <div class="container-fluid">
+        <span class="navbar-brand mb-0 h1">
+          <i class="bi bi-server"></i> CMDB - Configuration Management Database
+        </span>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-12">
+          <ul class="nav nav-tabs mb-3" id="mainTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="assets-tab" data-bs-toggle="tab" data-bs-target="#assets" type="button" role="tab">
+                <i class="bi bi-database"></i> Ativos de TI
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="relationships-tab" data-bs-toggle="tab" data-bs-target="#relationships" type="button" role="tab">
+                <i class="bi bi-diagram-3"></i> Relacionamentos
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content" id="mainTabContent">
+            <div class="tab-pane fade show active" id="assets" role="tabpanel">
+              <div class="row mb-3">
+                <div class="col-md-8">
+                  <h3>Gerenciamento de Ativos</h3>
+                </div>
+                <div class="col-md-4 text-end">
+                  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#assetModal" onclick="openAssetModal()">
+                    <i class="bi bi-plus-circle"></i> Novo Ativo
+                  </button>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-4">
+                  <label class="form-label">Filtrar por Tipo:</label>
+                  <select class="form-select" id="filterType" onchange="loadAssets()">
+                    <option value="">Todos</option>
+                    <option value="Máquina Virtual">Máquina Virtual</option>
+                    <option value="Container">Container</option>
+                    <option value="Switch">Switch</option>
+                    <option value="Aplicativo">Aplicativo</option>
+                    <option value="Banco de Dados">Banco de Dados</option>
+                    <option value="Servidor">Servidor</option>
+                    <option value="Firewall">Firewall</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Filtrar por Proprietário:</label>
+                  <input type="text" class="form-control" id="filterOwner" placeholder="Digite o proprietário">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                  <button class="btn btn-secondary w-100" onclick="loadAssets()">
+                    <i class="bi bi-search"></i> Buscar
+                  </button>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                  <thead class="table-dark">
+                    <tr>
+                      <th>ID</th>
+                      <th>Nome</th>
+                      <th>Tipo</th>
+                      <th>Descrição</th>
+                      <th>Proprietário</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="assetsTableBody">
+                    <tr>
+                      <td colspan="6" class="text-center">Carregando...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="relationships" role="tabpanel">
+              <div class="row mb-3">
+                <div class="col-md-8">
+                  <h3>Relacionamentos entre Ativos</h3>
+                </div>
+                <div class="col-md-4 text-end">
+                  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#relationshipModal" onclick="loadAssetsForRelationship()">
+                    <i class="bi bi-plus-circle"></i> Novo Relacionamento
+                  </button>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                  <thead class="table-dark">
+                    <tr>
+                      <th>Ativo Origem</th>
+                      <th>Tipo de Relacionamento</th>
+                      <th>Ativo Destino</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="relationshipsTableBody">
+                    <tr>
+                      <td colspan="4" class="text-center">Carregando...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="assetModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="assetModalTitle">Novo Ativo</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form id="assetForm">
+              <input type="hidden" id="assetId">
+              <div class="mb-3">
+                <label class="form-label">Nome *</label>
+                <input type="text" class="form-control" id="assetName" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Tipo *</label>
+                <select class="form-select" id="assetType" required>
+                  <option value="">Selecione...</option>
+                  <option value="Máquina Virtual">Máquina Virtual</option>
+                  <option value="Container">Container</option>
+                  <option value="Switch">Switch</option>
+                  <option value="Aplicativo">Aplicativo</option>
+                  <option value="Banco de Dados">Banco de Dados</option>
+                  <option value="Servidor">Servidor</option>
+                  <option value="Firewall">Firewall</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Descrição</label>
+                <textarea class="form-control" id="assetDescription" rows="3"></textarea>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Proprietário *</label>
+                <input type="text" class="form-control" id="assetOwner" required>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-primary" onclick="saveAsset()">Salvar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="relationshipModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Novo Relacionamento</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form id="relationshipForm">
+              <div class="mb-3">
+                <label class="form-label">Ativo Origem *</label>
+                <select class="form-select" id="sourceAssetId" required>
+                  <option value="">Selecione...</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Tipo de Relacionamento *</label>
+                <select class="form-select" id="relationshipType" required>
+                  <option value="">Selecione...</option>
+                  <option value="hospeda">Hospeda</option>
+                  <option value="depende">Depende de</option>
+                  <option value="conecta">Conecta a</option>
+                  <option value="gerencia">Gerencia</option>
+                  <option value="monitora">Monitora</option>
+                  <option value="backup">Backup de</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Ativo Destino *</label>
+                <select class="form-select" id="targetAssetId" required>
+                  <option value="">Selecione...</option>
+                </select>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-primary" onclick="saveRelationship()">Criar Relacionamento</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
