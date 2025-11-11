@@ -1,6 +1,6 @@
 import './style.css'
 
-const API_URL = 'http://localhost:8000'
+const API_URL = '/api'
 
 window.openAssetModal = function() {
   document.getElementById('assetModalTitle').innerText = 'Novo Ativo'
