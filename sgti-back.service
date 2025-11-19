@@ -1,0 +1,21 @@
+### Alterar o Caminho_Para_Aplicacao
+### Copiar para /etc/systemd/system/
+### Executar sudo systemctl daemon-reload
+### Inicializar com sudo systemctl start sgti-back.service
+
+[Unit]
+Description=CMDB FastAPI Service
+After=network.target
+
+[Service]
+User=lucio
+Group=lucio
+WorkingDirectory=/Caminho_Para_Aplicacao/backend
+Environment="PATH=/Caminho_Para_Aplicacao/venv/bin"
+ExecStart=/Caminho_Para_Aplicacao/venv/bin/uvicorn main:app --reload
+
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

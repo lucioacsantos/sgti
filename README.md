@@ -27,6 +27,12 @@ Os workflows já estão configurados e devem iniciar automaticamente:
 
 ## 📚 Documentação
 
+- **Python Virtual Environment**: no diretório inicial da aplicação "pyhton3 -m venv venv"
+- **Ativar Python Virtual Environment**: no diretório inicial "source venv/bin/activate" 
+- **Instalar dependências com pip**: a partir do diretório do backend "pip install -r requirements.txt"
+- **Instalar dependências do nodejs**: no diretório do frontend "npm install && npm run build"
+- **Configurar inicialização**: configurar sgti-back.service e sgti-front.service seguindo as instruções contidas neles
+- **Inicializar os serviços**: sudo systemctl start sgti-back.service sgti-front.service
 
 
 ## 🛠️ Tecnologias

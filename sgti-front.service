@@ -1,0 +1,30 @@
+### Executar which node e alterar o Caminho_Para_NODE_BIN (não adicionar o node)
+### Alterar o Caminho_Para_Aplicacao
+### Copiar para /etc/systemd/system/
+### Executar sudo systemctl daemon-reload
+### Inicializar com sudo systemctl start sgti-front.service
+
+[Unit]
+Description=SGTI Frontend (Vite - Production)
+After=network.target
+
+[Service]
+User=lucio
+Group=lucio
+WorkingDirectory=/Caminho_Para_Aplicacao/frontend
+
+# PATH para o Node e NPM instalados via NVM
+Environment="PATH=/Caminho_Para_NODE_BIN/bin:/usr/bin"
+
+# Executa o script "start" do package.json (vite preview)
+ExecStart=/Caminho_Para_NODE_BIN/bin/npm run start
+
+Restart=always
+RestartSec=3
+
+# Garante que o processo não será encerrado caso não encontre TTY
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
