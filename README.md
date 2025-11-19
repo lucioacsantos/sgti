@@ -45,4 +45,4 @@ Os workflows já estão configurados e devem iniciar automaticamente:
 
 ## 📝 Licença
 
-MIT
+GNU General Public License v3.0
