@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, Table
 from sqlalchemy.orm import relationship
-from backend.database import Base
+from database import Base
 
 asset_relationships = Table(
     'asset_relationships',
@@ -30,3 +30,15 @@ class Asset(Base):
 
     def __repr__(self):
         return f"<Asset(id={self.id}, name='{self.name}', type='{self.type}')>"
+
+class DadosServico(Base):
+    __tablename__ = 'dados_servico'
+
+    id = Column(Integer, primary_key=True, index=True)
+    servico_stop = Column(String(200), nullable=False)
+    servico_start = Column(String(100), nullable=False)
+    servico_validacao = Column(Text, nullable=True)
+    servico_usuario = Column(String(200), nullable=False)
+
+    def __repr__(self):
+        return f"<DadosServico(id={self.id}, servico_stop='{self.servico_stop}', servico_start='{self.servico_start}', servico_validacao='{self.servico_validacao}', servico_usuario='{self.servico_usuario}')>"

@@ -10,7 +10,7 @@ build/
 .venv/
 venv/
 ENV/
-
+.local/
 node_modules/
 .npm
 frontend/dist/

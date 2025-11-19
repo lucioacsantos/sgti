@@ -36,3 +36,21 @@ class RelationshipResponse(BaseModel):
     relationship_type: str
     source_asset: AssetResponse
     target_asset: AssetResponse
+
+class DadosServicoBase(BaseModel):
+    servico_stop: str = Field(..., min_length=1, max_length=200, description="Comando ou procedimento para parar o serviço")
+    servico_start: str = Field(..., min_length=1, max_length=100, description="Comando ou procedimento para iniciar o serviço")
+    servico_validacao: Optional[str] = Field(None, description="Procedimento para validar se o serviço está funcionando corretamente")
+    servico_usuario: str = Field(..., min_length=1, max_length=200, description="Usuário responsável pelo serviço")
+
+class DadosServicoCreate(DadosServicoBase):
+    pass
+
+class DadosServicoUpdate(DadosServicoBase):
+    pass
+
+class DadosServicoResponse(DadosServicoBase):
+    id: int
+
+    class Config:
+        from_attributes = True

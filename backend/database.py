@@ -1,6 +1,12 @@
 import os
+import dotenv
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import declarative_base
+
+
+
+dotenv.load_dotenv()
+
 
 DATABASE_URL = os.getenv("DATABASE_URL", "")
 if "sslmode" in DATABASE_URL:

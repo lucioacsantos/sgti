@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, insert, delete
 from typing import List
-from backend.database import get_db
-from backend.models import Asset, asset_relationships
-from backend.schemas import RelationshipCreate, RelationshipResponse
+from database import get_db
+from models import Asset, asset_relationships
+from schemas import RelationshipCreate, RelationshipResponse
 
 router = APIRouter(prefix="/relationships", tags=["Relationships"])
 
