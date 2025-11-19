@@ -27,7 +27,7 @@ Os workflows já estão configurados e devem iniciar automaticamente:
 
 ## 📚 Documentação
 
-Veja [replit.md](replit.md) para documentação completa.
+
 
 ## 🛠️ Tecnologias
 
