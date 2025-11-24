@@ -11,5 +11,9 @@
   },
   "devDependencies": {
     "vite": "^7.2.2"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.8",
+    "vis-network": "^10.0.2"
   }
 }
