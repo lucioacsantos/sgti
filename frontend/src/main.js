@@ -1,4 +1,4 @@
-import './style.css'
+//import './style.css'
 
 window.bootstrap = bootstrap;
 
@@ -288,131 +288,6 @@ document.addEventListener('DOMContentLoaded', () => {
 })
 
 /* -----------------------
-      Mapa CMDB
------------------------- */
-
-let globalData = [];
-let filterTypes = new Set();
-
-const COLOR_BY_TYPE = {
-  "Máquina Virtual": "#ff7777",
-  "Container": "#ffaa77",
-  "Switch": "#77aaff",
-  "Aplicativo": "#aaff77",
-  "Banco de Dados": "#aa77ff",
-  "Servidor": "#ffcc00",
-  "Firewall": "#00ccaa",
-  "default": "#cccccc"
-};
-
-window.loadGraph = async function () {
-  const resp = await fetch(`${API_URL}/relationships`);
-  globalData = await resp.json();
-
-  filterTypes = new Set(globalData.flatMap(r => [
-    r.source_asset.type,
-    r.target_asset.type
-  ]));
-
-  renderFilters();
-  buildGraph();
-}
-
-function renderFilters() {
-  const container = document.getElementById("filters");
-  container.innerHTML = "";
-
-  filterTypes.forEach(type => {
-    container.innerHTML += `
-      <label>
-        <input type="checkbox" class="fcheck" checked value="${type}" onchange="buildGraph()">
-        ${type}
-      </label> &nbsp;
-    `;
-  });
-}
-
-window.buildGraph = function () {
-  const layoutMode = document.getElementById("layoutSelect").value;
-
-  const nodesMap = new Map();
-  const edges = [];
-
-  globalData.forEach(rel => {
-
-    function makeNode(asset) {
-      return {
-        id: asset.id,
-        label: asset.name,
-        type: asset.type,
-        owner: asset.owner,
-        description: asset.description,
-        color: COLOR_BY_TYPE[asset.type] || COLOR_BY_TYPE.default,
-        shape: "box"
-      };
-    }
-
-    nodesMap.set(rel.source_asset.id, makeNode(rel.source_asset));
-    nodesMap.set(rel.target_asset.id, makeNode(rel.target_asset));
-
-    edges.push({
-      from: rel.source_asset_id,
-      to: rel.target_asset_id,
-      label: rel.relationship_type,
-      arrows: "to"
-    });
-  });
-
-  const activeFilters = [...document.querySelectorAll(".fcheck")]
-    .filter(c => c.checked)
-    .map(c => c.value);
-
-  const filteredNodes = [...nodesMap.values()].filter(n => activeFilters.includes(n.type));
-
-  renderNetwork(filteredNodes, edges, layoutMode);
-}
-
-function renderNetwork(nodes, edges, layoutMode) {
-
-  const container = document.getElementById("network");
-  if (!container) return;
-
-  const data = {
-    nodes: new vis.DataSet(nodes),
-    edges: new vis.DataSet(edges),
-  };
-
-  const options = {
-    layout: layoutMode === "hierarchical"
-      ? { hierarchical: { direction: "LR", sortMethod: "directed" } }
-      : {},
-
-    physics: layoutMode === "force"
-      ? { enabled: true, solver: "forceAtlas2Based" }
-      : { enabled: false }
-  };
-
-  const network = new vis.Network(container, data, options);
-
-  network.on("doubleClick", p => {
-    if (p.nodes.length > 0) {
-      const id = p.nodes[0];
-      const node = nodes.find(n => n.id === id);
-      openMapModal(node);
-    }
-  });
-}
-
-function openMapModal(n) {
-  document.getElementById("mapModalTitle").innerText = n.label;
-  document.getElementById("mapModalType").innerText = n.type;
-  document.getElementById("mapModalOwner").innerText = n.owner;
-  document.getElementById("mapModalDesc").innerText = n.description;
-
-  new bootstrap.Modal(document.getElementById("mapModal")).show();
-}
-
-/* -----------------------
     EVENTOS DE ABAS
 ------------------------ */
 
@@ -509,41 +384,38 @@ window.loadServices = async function() {
 }
 
 // Editar (carrega dados no modal)
-window.editService = async function(id) {
+window.editService = async function (id) {
   try {
     const res = await fetch(`${SERVICE_URL}/${id}`);
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text || 'Erro ao buscar serviço');
-    }
+    if (!res.ok) throw new Error(await res.text());
+
     const s = await res.json();
 
-    document.getElementById('serviceId').value = s.id;
-    document.getElementById('tipo_servico').value = s.tipo_servico || '';
-    document.getElementById('nome_servico').value = s.nome_servico || '';
-    document.getElementById('servico_stop').value = s.servico_stop || '';
-    document.getElementById('servico_start').value = s.servico_start || '';
-    document.getElementById('servico_validacao').value = s.servico_validacao || '';
-    document.getElementById('servico_usuario').value = s.servico_usuario || '';
+    document.getElementById("serviceId").value = s.id;
+    document.getElementById("serviceNome").value = s.nome_servico;
+    document.getElementById("serviceTipo").value = s.tipo_servico;
+    document.getElementById("serviceStop").value = s.servico_stop;
+    document.getElementById("serviceStart").value = s.servico_start;
+    document.getElementById("serviceValidacao").value = s.servico_validacao || "";
 
-    await populateAssetsSelect();
+    // popula hosts
+    const selectHosts = document.getElementById("serviceHosts");
+    selectHosts.innerHTML = "";
+    (s.hosts || []).forEach(h => {
+      const opt = document.createElement("option");
+      opt.value = h.id;
+      opt.textContent = h.name;
+      opt.selected = true;
+      selectHosts.appendChild(opt);
+    });
 
-    // Seleciona os hosts que já existem
-    const sel = document.getElementById('servico_hosts');
-    const hostIds = (s.hosts || []).map(h => String(h.id));
-    for (let i = 0; i < sel.options.length; i++) {
-      const opt = sel.options[i];
-      opt.selected = hostIds.includes(opt.value);
-    }
+    // Agora o botão existe e pode ser configurado
+    document.getElementById("btnSaveService").onclick = saveService;
 
-    document.getElementById('serviceModalTitle').innerText = 'Editar Serviço';
-    new window.bootstrap.Modal(document.getElementById('serviceModal')).show();
-
-    document.getElementById('serviceSaveBtn').onclick = saveService;
+    new bootstrap.Modal(document.getElementById("serviceModal")).show();
 
   } catch (err) {
-    console.error('Erro ao carregar serviço:', err);
-    alert('Erro ao carregar serviço: ' + (err.message || 'ver logs'));
+    console.error("Erro ao carregar serviço:", err);
   }
 }
 

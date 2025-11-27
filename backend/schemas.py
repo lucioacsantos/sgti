@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
+
 class AssetBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=200, description="Nome do ativo")
     type: str = Field(..., min_length=1, max_length=100, description="Tipo do ativo (VM, Container, Switch, etc)")

@@ -5,29 +5,20 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CMDB - SGTI</title>
-
     <meta name="description" content="Módulo Gerenciamento Configurações para Ativos de TI" />
     <meta name="author" content="010.XXX.X54-XX - Lucio Alexandre Correia dos Santos - LACS TECH - XX.XXX.XXX/0001-XX" />
-
-    <!-- Bootstrap CSS -->
-    <link href="src/css/bootstrap.css" rel="stylesheet">
-
-    <!-- Vis Network -->
-    <script src="src/js/vis-network.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   </head>
-
   <body>
-    <!-- NAVBAR -->
     <nav class="navbar navbar-dark bg-primary mb-4">
       <div class="container-fluid">
         <span class="navbar-brand mb-0 h1">
-          SGTI - CMDB
+          <i class="bi bi-server"></i> SGTI - CMDB
         </span>
       </div>
     </nav>
-    <!-- END NAVBAR -->
 
-    <!-- CONTAINER -->
     <div class="container-fluid">
       <div class="row">
         <div class="col-md-12">
@@ -36,19 +27,25 @@
           <ul class="nav nav-tabs mb-3" id="mainTabs" role="tablist">
             <li class="nav-item" role="presentation">
               <button class="nav-link active" id="assets-tab" data-bs-toggle="tab" data-bs-target="#assets" type="button" role="tab">
-                Ativos de TI
+                <i class="bi bi-database"></i> Ativos de TI
               </button>
             </li>
 
             <li class="nav-item" role="presentation">
               <button class="nav-link" id="relationships-tab" data-bs-toggle="tab" data-bs-target="#relationships" type="button" role="tab">
-                Relacionamentos
+                <i class="bi bi-diagram-3"></i> Relacionamentos
               </button>
             </li>
 
             <li class="nav-item" role="presentation">
               <button class="nav-link" id="services-tab" data-bs-toggle="tab" data-bs-target="#services" type="button" role="tab">
-                Serviços
+                <i class="bi bi-map"></i> Serviços
+              </button>
+            </li>
+
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="map-tab" data-bs-toggle="tab" data-bs-target="#map" type="button" role="tab">
+                <i class="bi bi-pin-map"></i> Mapa CMDB
               </button>
             </li>
           </ul>
@@ -64,7 +61,7 @@
                 </div>
                 <div class="col-md-4 text-end">
                   <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#assetModal" onclick="openAssetModal()">
-                    Novo Ativo
+                    <i class="bi bi-plus-circle"></i> Novo Ativo
                   </button>
                 </div>
               </div>
@@ -123,7 +120,7 @@
                 </div>
                 <div class="col-md-4 text-end">
                   <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#relationshipModal" onclick="loadAssetsForRelationship()">
-                    Novo Relacionamento
+                    <i class="bi bi-plus-circle"></i> Novo Relacionamento
                   </button>
                 </div>
               </div>
@@ -155,7 +152,7 @@
                 </div>
                 <div class="col-md-4 text-end">
                   <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#serviceModal" onclick="openServiceModal()">
-                    Novo Serviço
+                    <i class="bi bi-plus-circle"></i> Novo Serviço
                 </button>
               </div>
 
@@ -178,12 +175,41 @@
                 </table>
               </div>
             </div>
+
+            <!-- TAB 4: MAPA CMDB -->
+            <div class="tab-pane fade" id="map" role="tabpanel">              
+              <div class="row mb-3">
+                <div class="col-md-8">
+                  <h3>Visualização do Mapa CMDB</h3>
+                </div>
+                <div class="col-md-4 text-end">
+                  <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#mapModal" onclick="loadGraph()">
+                    <i class="bi bi-arrow-clockwise"></i> Recarregar Mapa
+                  </button>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-3">
+                  <label class="form-label">Layout:</label>
+                  <select class="form-select" id="layoutSelect" onchange="buildGraph()">
+                    <option value="force">Livre (ForceAtlas2)</option>
+                    <option value="hierarchical">Hierárquico</option>
+                  </select>
+                </div>
+                <div class="col-md-9">
+                  <label class="form-label">Filtros de Tipo:</label><br>
+                  <span id="filters"></span>
+                </div>
+              </div>
+
+              <div id="network" style="width: 100%; height: 600px; background: #fff; border: 1px solid #ccc;"></div>
+            </div>
           </div>
-          <!-- END TABS CONTENT -->
+
         </div>
       </div>
     </div>
-    <!-- END CONTAINER -->
 
     <!-- MODAIS -->
     <!-- Modal Assets -->
@@ -276,55 +302,81 @@
       </div>
     </div>
 
-    <!-- Modal de Serviço -->
-    <div class="modal fade" id="serviceModal" tabindex="-1">
+    <!-- Modal Map -->
+    <div id="mapModal" class="modal fade" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="serviceModalLabel">Serviço</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <h5 id="mapModalTitle" class="modal-title"></h5>
+            <button class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <input type="hidden" id="serviceId">
-            <div class="mb-3">
-              <label class="form-label">Nome do Serviço</label>
-              <input id="serviceNome" type="text" class="form-control">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Tipo</label>
-              <input id="serviceTipo" type="text" class="form-control">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Hosts</label>
-              <select id="serviceHosts" class="form-select" multiple></select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Comando Stop</label>
-              <input id="serviceStop" class="form-control">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Comando Start</label>
-              <input id="serviceStart" class="form-control">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Validação</label>
-              <textarea id="serviceValidacao" class="form-control"></textarea>
-            </div>
+            <p><b>Tipo:</b> <span id="mapModalType"></span></p>
+            <p><b>Proprietário:</b> <span id="mapModalOwner"></span></p>
+            <p><b>Descrição:</b><br><span id="mapModalDesc"></span></p>
           </div>
           <div class="modal-footer">
-            <button id="btnSaveService" class="btn btn-primary">Salvar</button>
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
           </div>
         </div>
       </div>
     </div>
-    <!-- END MODAIS -->
 
-    <!-- Bootstrap JS -->
-    <script defer src="src/js/bootstrap.bundle.min.js"></script>
-    <script defer src="src/js/prism.js"></script>
-    <script defer src="src/js/custom.js"></script>
+    <!-- Modal Services -->
+    <div class="modal fade" id="serviceModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="serviceModalTitle">Novo Serviço</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form id="serviceForm">
+              <input type="hidden" id="serviceId">
+              <div class="mb-3">
+                <label class="form-label">Tipo de Serviço *</label>
+                <input type="text" id="tipo_servico" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Nome do Serviço *</label>
+                <input type="text" id="nome_servico" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Comando Stop *</label>
+                <input type="text" id="servico_stop" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Comando Start *</label>
+                <input type="text" id="servico_start" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Validação</label>
+                <textarea id="servico_validacao" class="form-control" rows="2"></textarea>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Usuário</label>
+                <input type="text" id="servico_usuario" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Hosts (selecione um ou mais)</label>
+                <select id="servico_hosts" class="form-select" multiple size="6"></select>
+                <div class="form-text">Segure Ctrl/Cmd para selecionar múltiplos</div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-primary" id="serviceSaveBtn">Salvar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Bootstrap JS (defer corrigido) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- App JS -->
-    <script type="module" src="/src/main.js"></script> 
+    <script type="module" src="/src/graph.js"></script>    
   </body>
 </html>

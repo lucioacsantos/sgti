@@ -27,6 +27,16 @@ class Asset(Base):
     description = Column(Text, nullable=True)
     owner = Column(String(100), nullable=True)
 
+    # Relações onde este asset é a origem
+    related_to = relationship(
+        "Asset",
+        secondary=asset_relationships,
+        primaryjoin=id == asset_relationships.c.source_asset_id,
+        secondaryjoin=id == asset_relationships.c.target_asset_id,
+        lazy="selectin",
+        backref="related_from"
+    )
+
     # Serviços associados a este asset
     services = relationship(
         "DadosServico",
@@ -37,6 +47,7 @@ class Asset(Base):
 
     def __repr__(self):
         return f"<Asset id={self.id} name='{self.name}'>"
+
 
 class DadosServico(Base):
     __tablename__ = 'dados_servico'
