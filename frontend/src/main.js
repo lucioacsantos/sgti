@@ -308,23 +308,27 @@ const SERVICE_URL = `${API_URL}/services`;
 
 // Abre modal limpo para novo serviço
 window.openServiceModal = async function() {
-  // Limpa campos manualmente (pois não existe <form>)
   document.getElementById('serviceId').value = "";
   document.getElementById('serviceNome').value = "";
   document.getElementById('serviceTipo').value = "";
   document.getElementById('serviceStop').value = "";
   document.getElementById('serviceStart').value = "";
   document.getElementById('serviceValidacao').value = "";
+  document.getElementById('serviceUsuario').value = "";
 
   document.getElementById('serviceModalLabel').innerText = 'Novo Serviço';
 
-  // Carrega lista de hosts / assets
   await populateAssetsSelect();
 
-  // Abre modal
-  new bootstrap.Modal(document.getElementById('serviceModal')).show();
+  const modalEl = document.getElementById('serviceModal');
+  let modal = bootstrap.Modal.getInstance(modalEl);
 
-  // Handler do botão
+  if (!modal) {
+    modal = new bootstrap.Modal(modalEl);
+  }
+
+  modal.show();
+
   document.getElementById('btnSaveService').onclick = saveService;
 };
 
@@ -350,7 +354,6 @@ async function populateAssetsSelect() {
         sel.appendChild(opt);
     });
 }
-
 
 
 // Carrega lista de serviços e renderiza tabela
@@ -405,6 +408,7 @@ window.editService = async function (id) {
     document.getElementById("serviceStop").value = s.servico_stop;
     document.getElementById("serviceStart").value = s.servico_start;
     document.getElementById("serviceValidacao").value = s.servico_validacao || "";
+    document.getElementById("serviceUsuario").value = s.servico_usuario;
 
     // popula hosts
     const selectHosts = document.getElementById("serviceHosts");
@@ -430,19 +434,23 @@ window.editService = async function (id) {
 // Salvar (create ou update)
 async function saveService() {
   const id = document.getElementById('serviceId').value;
+
   const payload = {
-    tipo_servico: document.getElementById('tipo_servico').value,
-    nome_servico: document.getElementById('nome_servico').value,
-    servico_stop: document.getElementById('servico_stop').value,
-    servico_start: document.getElementById('servico_start').value,
-    servico_validacao: document.getElementById('servico_validacao').value || null,
-    servico_usuario: document.getElementById('servico_usuario').value,
-    host_ids: Array.from(document.getElementById('servico_hosts').selectedOptions).map(o => parseInt(o.value))
+    tipo_servico: document.getElementById('serviceTipo').value,
+    nome_servico: document.getElementById('serviceNome').value,
+    servico_stop: document.getElementById('serviceStop').value,
+    servico_start: document.getElementById('serviceStart').value,
+    servico_validacao: document.getElementById('serviceValidacao').value || null,
+    servico_usuario: document.getElementById('serviceUsuario').value,
+    host_ids: Array.from(document.getElementById('serviceHosts').selectedOptions)
+                   .map(el => parseInt(el.value))
   };
 
-  // validações simples
-  if (!payload.tipo_servico || !payload.nome_servico || !payload.servico_stop || !payload.servico_start || !payload.servico_usuario) {
-    alert('Preencha todos os campos obrigatórios');
+  // Validação obrigatória baseado na API
+  if (!payload.nome_servico || !payload.tipo_servico ||
+      !payload.servico_stop || !payload.servico_start ||
+      !payload.servico_usuario) {
+    alert("Preencha todos os campos obrigatórios.");
     return;
   }
 
@@ -451,34 +459,45 @@ async function saveService() {
     if (id) {
       res = await fetch(`${SERVICE_URL}/${id}`, {
         method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(payload)
       });
     } else {
       res = await fetch(SERVICE_URL, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(payload)
       });
     }
 
     if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text || 'Erro ao salvar serviço');
+      const erro = await res.text();
+      throw new Error(erro);
     }
 
-    // fecha modal
     const modalEl = document.getElementById('serviceModal');
-    const modalInst = window.bootstrap.Modal.getInstance(modalEl);
-    if (modalInst) modalInst.hide();
-    else console.warn('Modal instance não encontrada');
+    let modal = bootstrap.Modal.getInstance(modalEl);
+
+    if (!modal) {
+      modal = new bootstrap.Modal(modalEl);
+    }
+
+    modal.hide();
+
+    // FORÇA limpeza caso Bootstrap falhe
+    setTimeout(() => {
+      document.body.classList.remove('modal-open');
+      document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+      document.body.style.removeProperty('overflow');
+      document.body.style.removeProperty('paddingRight');
+    }, 200);
 
     await loadServices();
-    alert(id ? 'Serviço atualizado com sucesso' : 'Serviço criado com sucesso');
+    alert(id ? "Serviço atualizado com sucesso!" : "Serviço criado com sucesso!");
 
   } catch (err) {
-    console.error('Erro ao salvar serviço:', err);
-    alert('Erro ao salvar serviço: ' + (err.message || 'ver logs'));
+    console.error("Erro ao salvar serviço:", err);
+    alert("Erro ao salvar serviço: " + err.message);
   }
 }
 
