@@ -308,19 +308,26 @@ const SERVICE_URL = `${API_URL}/services`;
 
 // Abre modal limpo para novo serviço
 window.openServiceModal = async function() {
-  document.getElementById('serviceForm').reset();
-  document.getElementById('serviceId').value = '';
-  document.getElementById('serviceModalTitle').innerText = 'Novo Serviço';
+  // Limpa campos manualmente (pois não existe <form>)
+  document.getElementById('serviceId').value = "";
+  document.getElementById('serviceNome').value = "";
+  document.getElementById('serviceTipo').value = "";
+  document.getElementById('serviceStop').value = "";
+  document.getElementById('serviceStart').value = "";
+  document.getElementById('serviceValidacao').value = "";
 
-  // Carrega lista de assets para o select
+  document.getElementById('serviceModalLabel').innerText = 'Novo Serviço';
+
+  // Carrega lista de hosts / assets
   await populateAssetsSelect();
-  // mostra modal
-  new window.bootstrap.Modal(document.getElementById('serviceModal')).show();
 
-  // Reset button handler
-  const btn = document.getElementById('serviceSaveBtn');
-  btn.onclick = saveService;
-}
+  // Abre modal
+  new bootstrap.Modal(document.getElementById('serviceModal')).show();
+
+  // Handler do botão
+  document.getElementById('btnSaveService').onclick = saveService;
+};
+
 
 // Preenche select de hosts com assets existentes
 async function populateAssetsSelect() {
@@ -333,16 +340,17 @@ async function populateAssetsSelect() {
     const res = await fetch(`${API_URL}/assets/?${query}`);
     const assets = await res.json();
 
-    const sel = document.getElementById('servico_hosts');
+    const sel = document.getElementById('serviceHosts'); // CORRETO
     sel.innerHTML = "";
 
     assets.forEach(a => {
         const opt = document.createElement('option');
         opt.value = a.id;
-        opt.text = `${a.name} (${a.type})`;
+        opt.textContent = `${a.name} (${a.type})`;
         sel.appendChild(opt);
     });
 }
+
 
 
 // Carrega lista de serviços e renderiza tabela
