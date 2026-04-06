@@ -1,331 +1,188 @@
 <!doctype html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CMDB - SGTI</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CMDB - SGTI</title>
 
-    <meta name="description" content="Módulo Gerenciamento Configurações para Ativos de TI" />
-    <meta name="author" content="010.XXX.X54-XX - Lucio Alexandre Correia dos Santos - LACS TECH - XX.XXX.XXX/0001-XX" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
 
-    <!-- Bootstrap CSS -->
-    <link href="/src/css/bootstrap.css" rel="stylesheet">
-  </head>
+<body>
 
-  <body>
-    <!-- NAVBAR -->
-    <nav class="navbar navbar-dark bg-primary mb-4">
-      <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1">
-          SGTI - CMDB
-        </span>
-      </div>
-    </nav>
-    <!-- END NAVBAR -->
+<!-- NAVBAR -->
+<nav class="navbar navbar-dark bg-primary mb-4">
+  <div class="container-fluid d-flex justify-content-between">
 
-    <!-- CONTAINER -->
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-md-12">
+    <span class="navbar-brand mb-0 h1">
+      SGTI - CMDB
+    </span>
 
-          <!-- TABS -->
-          <ul class="nav nav-tabs mb-3" id="mainTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="assets-tab" data-bs-toggle="tab" data-bs-target="#assets" type="button" role="tab">
-                Ativos de TI
-              </button>
-            </li>
-
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="relationships-tab" data-bs-toggle="tab" data-bs-target="#relationships" type="button" role="tab">
-                Relacionamentos
-              </button>
-            </li>
-
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="services-tab" data-bs-toggle="tab" data-bs-target="#services" type="button" role="tab">
-                Serviços
-              </button>
-            </li>
-          </ul>
-
-          <!-- TABS CONTENT -->
-          <div class="tab-content" id="mainTabContent">
-            
-            <!-- TAB 1: ATIVOS -->
-            <div class="tab-pane fade show active" id="assets" role="tabpanel">
-              <div class="row mb-3">
-                <div class="col-md-8">
-                  <h3>Gerenciamento de Ativos</h3>
-                </div>
-                <div class="col-md-4 text-end">
-                  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#assetModal" onclick="openAssetModal()">
-                    Novo Ativo
-                  </button>
-                </div>
-              </div>
-
-              <div class="row mb-3">
-                <div class="col-md-4">
-                  <label class="form-label">Filtrar por Tipo:</label>
-                  <select class="form-select" id="filterType" onchange="loadAssets()">
-                    <option value="">Todos</option>
-                    <option value="Máquina Virtual">Máquina Virtual</option>
-                    <option value="Container">Container</option>
-                    <option value="Switch">Switch</option>
-                    <option value="Aplicativo">Aplicativo</option>
-                    <option value="Banco de Dados">Banco de Dados</option>
-                    <option value="Servidor">Servidor</option>
-                    <option value="Firewall">Firewall</option>
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Filtrar por Proprietário:</label>
-                  <input type="text" class="form-control" id="filterOwner" placeholder="Digite o proprietário">
-                </div>
-                <div class="col-md-4 d-flex align-items-end">
-                  <button class="btn btn-secondary w-100" onclick="loadAssets()">
-                    <i class="bi bi-search"></i> Buscar
-                  </button>
-                </div>
-              </div>
-
-              <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                  <thead class="table-dark">
-                    <tr>
-                      <th>ID</th>
-                      <th>Nome</th>
-                      <th>Tipo</th>
-                      <th>Descrição</th>
-                      <th>Proprietário</th>
-                      <th>Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody id="assetsTableBody">
-                    <tr>
-                      <td colspan="6" class="text-center">Carregando...</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- TAB 2: RELACIONAMENTOS -->
-            <div class="tab-pane fade" id="relationships" role="tabpanel">
-              <div class="row mb-3">
-                <div class="col-md-8">
-                  <h3>Relacionamentos entre Ativos</h3>
-                </div>
-                <div class="col-md-4 text-end">
-                  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#relationshipModal" onclick="loadAssetsForRelationship()">
-                    Novo Relacionamento
-                  </button>
-                </div>
-              </div>
-
-              <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                  <thead class="table-dark">
-                    <tr>
-                      <th>Ativo Origem</th>
-                      <th>Tipo de Relacionamento</th>
-                      <th>Ativo Destino</th>
-                      <th>Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody id="relationshipsTableBody">
-                    <tr>
-                      <td colspan="4" class="text-center">Carregando...</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            
-            <!-- TAB 3: SERVIÇOS -->
-            <div class="tab-pane fade" id="services" role="tabpanel">
-              <div class="row mb-3">
-                <div class="col-md-8">
-                  <h3>Serviços</h3>
-                </div>
-                <div class="col-md-4 text-end">
-                  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#serviceModal" onclick="openServiceModal()">
-                    Novo Serviço
-                </button>
-              </div>
-
-              <div class="table-responsive">
-                <table class="table table-striped table-hover" id="services-table">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Nome</th>
-                            <th>Tipo</th>
-                            <th>Hosts</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="servicesTableBody">
-                    <tr>
-                      <td colspan="4" class="text-center">Carregando...</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-          <!-- END TABS CONTENT -->
-        </div>
-      </div>
+    <div class="d-flex gap-2">
+      <input id="tokenInput" placeholder="Token" class="form-control form-control-sm">
+      <button class="btn btn-light btn-sm" onclick="saveToken()">Login</button>
+      <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
     </div>
-    <!-- END CONTAINER -->
 
-    <!-- MODAIS -->
-    <!-- Modal Assets -->
-    <div class="modal fade" id="assetModal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="assetModalTitle">Novo Ativo</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <form id="assetForm">
-              <input type="hidden" id="assetId">
-              <div class="mb-3">
-                <label class="form-label">Nome *</label>
-                <input type="text" class="form-control" id="assetName" required>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Tipo *</label>
-                <select class="form-select" id="assetType" required>
-                  <option value="">Selecione...</option>
-                  <option value="Máquina Virtual">Máquina Virtual</option>
-                  <option value="Container">Container</option>
-                  <option value="Switch">Switch</option>
-                  <option value="Aplicativo">Aplicativo</option>
-                  <option value="Banco de Dados">Banco de Dados</option>
-                  <option value="Servidor">Servidor</option>
-                  <option value="Firewall">Firewall</option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Descrição</label>
-                <textarea class="form-control" id="assetDescription" rows="3"></textarea>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Proprietário *</label>
-                <input type="text" class="form-control" id="assetOwner" required>
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="button" class="btn btn-primary" onclick="saveAsset()">Salvar</button>
-          </div>
+  </div>
+</nav>
+
+<!-- CONTAINER -->
+<div class="container-fluid">
+
+  <!-- TABS -->
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+      <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#assets">Ativos</button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#relationships" onclick="loadRelationships()">Relacionamentos</button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#services" onclick="loadServices()">Serviços</button>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+
+    <!-- ATIVOS -->
+    <div class="tab-pane fade show active" id="assets">
+
+      <div class="d-flex justify-content-between mb-3">
+        <h3>Ativos</h3>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#assetModal">
+          Novo Ativo
+        </button>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <input id="searchInput" class="form-control" placeholder="Buscar por nome, tipo ou responsável">
         </div>
+        <div class="col-md-2">
+          <button class="btn btn-secondary w-100" onclick="loadAssets()">Buscar</button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead class="table-dark">
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>Tipo</th>
+              <th>Descrição</th>
+              <th>Responsável</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="assetsTableBody">
+            <tr><td colspan="6">Carregando...</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
-    <!-- Modal Relationships -->
-    <div class="modal fade" id="relationshipModal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Novo Relacionamento</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <form id="relationshipForm">
-              <div class="mb-3">
-                <label class="form-label">Ativo Origem *</label>
-                <select class="form-select" id="sourceAssetId" required>
-                  <option value="">Selecione...</option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Tipo de Relacionamento *</label>
-                <select class="form-select" id="relationshipType" required>
-                  <option value="">Selecione...</option>
-                  <option value="hospeda">Hospeda</option>
-                  <option value="depende">Depende de</option>
-                  <option value="conecta">Conecta a</option>
-                  <option value="gerencia">Gerencia</option>
-                  <option value="monitora">Monitora</option>
-                  <option value="backup">Backup de</option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Ativo Destino *</label>
-                <select class="form-select" id="targetAssetId" required>
-                  <option value="">Selecione...</option>
-                </select>
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="button" class="btn btn-primary" onclick="saveRelationship()">Criar Relacionamento</button>
-          </div>
-        </div>
-      </div>
+    <!-- RELACIONAMENTOS -->
+    <div class="tab-pane fade" id="relationships">
+      <h3>Relacionamentos</h3>
+
+      <table class="table table-striped">
+        <thead class="table-dark">
+          <tr>
+            <th>Origem</th>
+            <th>Tipo</th>
+            <th>Destino</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="relationshipsTableBody">
+          <tr><td colspan="4">Carregando...</td></tr>
+        </tbody>
+      </table>
     </div>
 
-    <!-- Modal de Serviço -->
-    <div class="modal fade" id="serviceModal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="serviceModalLabel">Serviço</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <input type="hidden" id="serviceId">
-            <div class="mb-3">
-              <label class="form-label">Nome do Serviço</label>
-              <input id="serviceNome" type="text" class="form-control">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Tipo</label>
-              <input id="serviceTipo" type="text" class="form-control">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Hosts</label>
-              <select id="serviceHosts" class="form-select" multiple></select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Comando Stop</label>
-              <input id="serviceStop" class="form-control">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Comando Start</label>
-              <input id="serviceStart" class="form-control">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Validação</label>
-              <textarea id="serviceValidacao" class="form-control"></textarea>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Usuário do Serviço</label>
-              <input id="serviceUsuario" class="form-control" placeholder="ex: root, oracle, nginx">
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button id="btnSaveService" class="btn btn-primary">Salvar</button>
-          </div>
+    <!-- SERVIÇOS -->
+    <div class="tab-pane fade" id="services">
+      <h3>Serviços</h3>
+
+      <table class="table table-striped">
+        <thead class="table-dark">
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Tipo</th>
+            <th>Hosts</th>
+          </tr>
+        </thead>
+        <tbody id="servicesTableBody">
+          <tr><td colspan="4">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL ASSET -->
+<div class="modal fade" id="assetModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Ativo</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <input type="hidden" id="assetId">
+
+        <div class="mb-3">
+          <label>Nome</label>
+          <input id="assetName" class="form-control">
+        </div>
+
+        <div class="mb-3">
+          <label>Tipo</label>
+          <input id="assetType" class="form-control">
+        </div>
+
+        <div class="mb-3">
+          <label>Descrição</label>
+          <textarea id="assetDescription" class="form-control"></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label>Responsável</label>
+          <input id="assetOwner" class="form-control">
         </div>
       </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="saveAsset()">Salvar</button>
+      </div>
+
     </div>
-    <!-- END MODAIS -->
+  </div>
+</div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script defer src="src/js/prism.js"></script>
-    <script defer src="src/js/custom.js"></script>
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- App JS -->
-    <script type="module" src="/src/main.js"></script> 
-  </body>
+<script>
+function saveToken() {
+  const t = document.getElementById('tokenInput').value
+  localStorage.setItem('auth_token', t)
+  alert("Token salvo")
+}
+
+function logout() {
+  localStorage.removeItem('auth_token')
+  location.reload()
+}
+</script>
+
+<script type="module" src="/src/main.js"></script>
+
+</body>
 </html>

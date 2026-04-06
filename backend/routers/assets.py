@@ -1,90 +1,128 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, or_
+from sqlalchemy.orm import selectinload
 from typing import List, Optional
+
 from database import get_db
-from models import Asset
-from schemas import AssetCreate, AssetUpdate, AssetResponse, AssetWithRelationships
+from models import Ativo, TipoAtivo
+from schemas import AssetCreate, AssetUpdate, AssetResponse
+from security import get_current_user, require_groups
 
-router = APIRouter(prefix="/assets", tags=["Assets"])
+from audit import log_create, log_update, log_delete
+import copy
 
-@router.post("/", response_model=AssetResponse, status_code=201, summary="Criar novo ativo")
-async def create_asset(asset: AssetCreate, db: AsyncSession = Depends(get_db)):
-    db_asset = Asset(**asset.model_dump())
+router = APIRouter(prefix="/ativos", tags=["Ativos"])
+
+
+@router.post(
+    "/",
+    response_model=AssetResponse,
+    status_code=201,
+    dependencies=[Depends(require_groups("cmdb-admin"))]
+)
+async def create_asset(
+    asset: AssetCreate,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user)
+):
+    db_asset = Ativo(**asset.model_dump())
+
+    db_asset.created_by = user.subject
+
     db.add(db_asset)
     await db.flush()
+    await log_create(db, "ativo", db_asset, user)
     await db.refresh(db_asset)
+
     return db_asset
 
-@router.get("/", response_model=List[AssetResponse], summary="Listar todos os ativos")
+
+@router.get(
+    "/",
+    response_model=List[AssetResponse],
+    dependencies=[Depends(get_current_user)]
+)
 async def list_assets(
-    type: list[str] | None = Query(None, description="Filtrar por tipo de ativo"),
-    owner: Optional[str] = Query(None, description="Filtrar por proprietário"),
+    search: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db)
 ):
-    query = select(Asset)
-    if type:
-        query = select(Asset).where(Asset.type.in_(type))
-    if owner:
-        query = query.where(Asset.owner == owner)
-    
-    result = await db.execute(query)
-    assets = result.scalars().all()
-    return assets
+    query = select(Ativo).options(selectinload(Ativo.tipo))
 
-@router.get("/{asset_id}", response_model=AssetWithRelationships)
+    if search:
+        query = query.join(TipoAtivo).where(
+            or_(
+                Ativo.nome.ilike(f"%{search}%"),
+                Ativo.responsavel.ilike(f"%{search}%"),
+                TipoAtivo.nome.ilike(f"%{search}%")
+            )
+        )
+
+    result = await db.execute(query.order_by(Ativo.nome))
+    return result.scalars().all()
+
+
+@router.get("/{asset_id}", response_model=AssetResponse)
 async def get_asset(asset_id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        select(Asset).where(Asset.id == asset_id)
+        select(Ativo)
+        .options(selectinload(Ativo.tipo))
+        .where(Ativo.id == asset_id)
     )
+
     asset = result.scalar_one_or_none()
 
     if not asset:
-        raise HTTPException(status_code=404, detail=f"Ativo com ID {asset_id} não encontrado")
+        raise HTTPException(404, "Ativo não encontrado")
 
-    # Garante que os relacionamentos sejam carregados (selectin lazy)
-    await db.refresh(asset)
-
-    # Converte para o formato esperado pelo Pydantic
-    return AssetWithRelationships(
-        id=asset.id,
-        name=asset.name,
-        type=asset.type,
-        description=asset.description,
-        owner=asset.owner,
-        related_to=[
-            AssetResponse(
-                id=r.id,
-                name=r.name,
-                type=r.type,
-                description=r.description,
-                owner=r.owner
-            ) for r in asset.related_to
-        ]
-    )
+    return asset
 
 
-@router.put("/{asset_id}", response_model=AssetResponse, summary="Atualizar ativo")
-async def update_asset(asset_id: int, asset_update: AssetUpdate, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Asset).where(Asset.id == asset_id))
+@router.put(
+    "/{asset_id}",
+    response_model=AssetResponse,
+    dependencies=[Depends(require_groups("cmdb-admin"))]
+)
+async def update_asset(
+    asset_id: int,
+    asset_update: AssetUpdate,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user)
+):
+    result = await db.execute(select(Ativo).where(Ativo.id == asset_id))
     db_asset = result.scalar_one_or_none()
+
     if not db_asset:
-        raise HTTPException(status_code=404, detail=f"Ativo com ID {asset_id} não encontrado")
-    
-    update_data = asset_update.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
+        raise HTTPException(404, "Ativo não encontrado")
+
+    before = copy.deepcopy(db_asset)
+
+    for key, value in asset_update.model_dump(exclude_unset=True).items():
         setattr(db_asset, key, value)
-    
+
+    db_asset.updated_by = user.subject
+
     await db.flush()
+    await log_update(db, "ativo", before, db_asset, user)
     await db.refresh(db_asset)
+
     return db_asset
 
-@router.delete("/{asset_id}", status_code=204, summary="Deletar ativo")
-async def delete_asset(asset_id: int, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Asset).where(Asset.id == asset_id))
-    db_asset = result.scalar_one_or_none()
+
+@router.delete(
+    "/{asset_id}",
+    dependencies=[Depends(require_groups("cmdb-admin"))],
+    status_code=204
+)
+async def delete_asset(
+    asset_id: int,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user)
+):
+    db_asset = await db.get(Ativo, asset_id)
+
     if not db_asset:
-        raise HTTPException(status_code=404, detail=f"Ativo com ID {asset_id} não encontrado")
-    
+        raise HTTPException(404, "Ativo não encontrado")
+
+    await log_delete(db, "ativo", db_asset, user)
     await db.delete(db_asset)
-    return None

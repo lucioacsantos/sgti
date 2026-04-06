@@ -1,72 +1,158 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, Table
+from sqlalchemy import (
+    Column, Integer, String, Text, ForeignKey,
+    DateTime, Boolean
+)
 from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import func, Index
+
 from database import Base
 
-asset_relationships = Table(
-    'asset_relationships',
-    Base.metadata,
-    Column('source_asset_id', Integer, ForeignKey('assets.id', ondelete='CASCADE'), primary_key=True),
-    Column('target_asset_id', Integer, ForeignKey('assets.id', ondelete='CASCADE'), primary_key=True),
-    Column('relationship_type', String(100), nullable=False)
-)
 
-service_assets = Table(
-    "service_assets",
-    Base.metadata,
-    Column("service_id", ForeignKey("dados_servico.id"), primary_key=True),
-    Column("asset_id", ForeignKey("assets.id"), primary_key=True),
-)
+# =========================
+# AUDIT
+# =========================
 
+class AuditLog(Base):
+    __tablename__ = "audit_log"
 
-class Asset(Base):
-    __tablename__ = "assets"
+    id = Column(Integer, primary_key=True)
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100), nullable=False)
-    type = Column(String(100), nullable=False)
-    description = Column(Text, nullable=True)
-    owner = Column(String(100), nullable=True)
+    entidade = Column(String(50), nullable=False)
+    entidade_id = Column(Integer, nullable=False)
 
-    # Relações onde este asset é a origem
-    related_to = relationship(
-        "Asset",
-        secondary=asset_relationships,
-        primaryjoin=id == asset_relationships.c.source_asset_id,
-        secondaryjoin=id == asset_relationships.c.target_asset_id,
-        lazy="selectin",
-        backref="related_from"
+    acao = Column(String(20), nullable=False)
+
+    antes = Column(JSONB, nullable=True)
+    depois = Column(JSONB, nullable=True)
+
+    usuario = Column(String(100), nullable=False)
+
+    criado_em = Column(DateTime, server_default=func.now(), nullable=False)
+
+    __table_args__ = (
+        Index("ix_audit_entidade", "entidade"),
+        Index("ix_audit_entidade_id", "entidade_id"),
+        Index("ix_audit_criado_em", "criado_em"),
     )
 
-    # Serviços associados a este asset
-    services = relationship(
-        "DadosServico",
-        secondary=service_assets,
-        back_populates="hosts",
-        lazy="selectin"
-    )
+
+class AuditMixin:
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, onupdate=func.now())
+
+    created_by = Column(String(100), nullable=True)
+    updated_by = Column(String(100), nullable=True)
+
+
+# =========================
+# TOKENS
+# =========================
+
+class ApiToken(Base):
+    __tablename__ = "api_token"
+
+    id = Column(Integer, primary_key=True)
+    nome = Column(String(100), nullable=False)
+    token_hash = Column(String(255), nullable=False, unique=True)
+
+    ativo = Column(Boolean, default=True)
+    expira_em = Column(DateTime, nullable=True)
+
+    criado_em = Column(DateTime, server_default=func.now())
+    atualizado_em = Column(DateTime, onupdate=func.now())
+
+
+# =========================
+# DOMÍNIOS
+# =========================
+
+class TipoAtivo(Base):
+    __tablename__ = "tipo_ativo"
+
+    id = Column(Integer, primary_key=True)
+    nome = Column(String(100), unique=True, nullable=False)
+    descricao = Column(Text)
+
+
+class TipoRelacionamento(Base):
+    __tablename__ = "tipo_relacionamento"
+
+    id = Column(Integer, primary_key=True)
+    nome = Column(String(100), unique=True, nullable=False)
+    descricao = Column(Text)
+
+
+class Ambiente(Base):
+    __tablename__ = "ambiente"
+
+    id = Column(Integer, primary_key=True)
+    nome = Column(String(50), unique=True, nullable=False)
+
+
+class StatusAtivo(Base):
+    __tablename__ = "status_ativo"
+
+    id = Column(Integer, primary_key=True)
+    nome = Column(String(50), unique=True, nullable=False)
+
+
+class Criticidade(Base):
+    __tablename__ = "criticidade"
+
+    id = Column(Integer, primary_key=True)
+    nivel = Column(String(50), unique=True, nullable=False)
+
+
+# =========================
+# CORE CMDB
+# =========================
+
+class Ativo(Base, AuditMixin):
+    __tablename__ = "ativo"
+
+    id = Column(Integer, primary_key=True)
+
+    nome = Column(String(255), nullable=False)
+    descricao = Column(Text)
+
+    tipo_id = Column(Integer, ForeignKey("tipo_ativo.id"), nullable=False)
+    ambiente_id = Column(Integer, ForeignKey("ambiente.id"))
+    status_id = Column(Integer, ForeignKey("status_ativo.id"))
+    criticidade_id = Column(Integer, ForeignKey("criticidade.id"))
+
+    responsavel = Column(String(255))
+
+    tipo = relationship("TipoAtivo")
+    ambiente = relationship("Ambiente")
+    status = relationship("StatusAtivo")
+    criticidade = relationship("Criticidade")
 
     def __repr__(self):
-        return f"<Asset id={self.id} name='{self.name}'>"
+        return f"<Ativo id={self.id} nome='{self.nome}'>"
 
 
-class DadosServico(Base):
-    __tablename__ = 'dados_servico'
+# =========================
+# RELACIONAMENTOS (GRAFO)
+# =========================
 
-    id = Column(Integer, primary_key=True, index=True)
-    tipo_servico = Column(String(100), nullable=False)
-    nome_servico = Column(String(200), nullable=False)
-    servico_stop = Column(String(200), nullable=False)
-    servico_start = Column(String(100), nullable=False)
-    servico_validacao = Column(Text, nullable=True)
-    servico_usuario = Column(String(200), nullable=False)
+class Relacionamento(Base):
+    __tablename__ = "relacionamento"
 
-    # Assets associados
-    hosts = relationship(
-        "Asset",
-        secondary=service_assets,
-        back_populates="services",
-        lazy="selectin"
-    )
+    id = Column(Integer, primary_key=True)
+
+    origem_id = Column(Integer, ForeignKey("ativo.id", ondelete="CASCADE"), nullable=False)
+    destino_id = Column(Integer, ForeignKey("ativo.id", ondelete="CASCADE"), nullable=False)
+
+    tipo_id = Column(Integer, ForeignKey("tipo_relacionamento.id"), nullable=False)
+
+    descricao = Column(Text)
+
+    created_at = Column(DateTime, server_default=func.now())
+
+    origem = relationship("Ativo", foreign_keys=[origem_id])
+    destino = relationship("Ativo", foreign_keys=[destino_id])
+    tipo = relationship("TipoRelacionamento")
 
     def __repr__(self):
-        return f"<DadosServico id={self.id} nome='{self.nome_servico}'>"
+        return f"<Relacionamento {self.origem_id} -> {self.destino_id}>"

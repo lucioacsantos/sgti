@@ -1,318 +1,57 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
-    <meta charset="UTF-8" />
-    <title>CMDB - Mapa de Relacionamentos</title>
-
-    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-
-    <style>
-        body { margin: 0; font-family: Arial }
-        #topbar {
-            padding: 10px; background: #222; color: white;
-            display: flex; align-items: center; gap: 20px;
-        }
-        #network {
-            width: 100%;
-            height: 90vh;
-            background: white;
-        }
-        .filter-box {
-            color: white;
-        }
-        #modal {
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            background: white; padding: 20px; width: 300px;
-            border-radius: 8px; display: none;
-            box-shadow: 0 0 12px rgba(0,0,0,0.4);
-        }
-        #modal h3 { margin-top: 0; }
-        #modal-close {
-            float: right; cursor: pointer; font-weight: bold;
-        }
-        #layoutSelect {
-            padding: 5px;
-        }
-    </style>
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 </head>
 <body>
-
-<div id="topbar">
-    <button onclick="loadGraph()">Recarregar</button>
-
-    <label style="color:rgb(253, 183, 30)">Layout:</label>
-    <select id="layoutSelect" onchange="loadGraph()">
-        <option value="force">Livre (ForceAtlas2)</option>
-        <option value="hierarchical">Hierárquico</option>
-    </select>
-
-    <div class="filter-box">
-        <strong>Filtros:</strong>
-        <span id="filters"></span>
-    </div>
-</div>
-
-<div id="network"></div>
-
-<!-- Modal de informações -->
-<div id="modal">
-    <span id="modal-close" onclick="closeModal()">X</span>
-    <h3 id="modal-title"></h3>
-    <p><b>Tipo:</b> <span id="modal-type"></span></p>
-    <p><b>Owner:</b> <span id="modal-owner"></span></p>
-    <p><b>Descrição:</b><br><span id="modal-desc"></span></p>
-</div>
+<div id="network" style="height:95vh"></div>
 
 <script>
-let globalData = [];
-let globalNodes = [];
-let globalEdges = [];
-let filterTypes = new Set();
+const API_URL = '/api'
 
-// ================================
-// MAPA DE CORES POR TIPO
-// ================================
-const COLOR_BY_TYPE = {
-    "Servidor": "#ff7777",
-    "Aplicativo": "#77aaff",
-    "Banco de Dados": "#77ffaa",
-    "Switch": "#ffaa77",
-    "Container": "#aa77ff",
-    "Máquina Virtual": "#dddddd",
-    "Firewall": "#ffaaff"
-};
-// ================================
-//    FUNÇÃO PRINCIPAL
-// ================================
+function getToken() {
+  return localStorage.getItem('auth_token') || 'dev-token'
+}
+
+async function apiFetch(url) {
+  const resp = await fetch(url, {
+    headers: { Authorization: `Bearer ${getToken()}` }
+  })
+  if (!resp.ok) throw new Error()
+  return resp.json()
+}
+
+let network
+
 async function loadGraph() {
-    const resp = await fetch("/api/relationships");
-    globalData = await resp.json();
+  const data = await apiFetch(`${API_URL}/relacionamentos/`)
 
-    filterTypes = new Set(globalData.flatMap(r => [
-        r.source_asset.type,
-        r.target_asset.type
-    ]));
+  const nodes = new vis.DataSet()
+  const edges = new vis.DataSet()
 
-    renderFilters();
-    buildGraph();
-}
+  data.forEach(r => {
+    nodes.add({ id: r.ativo_origem.id, label: r.ativo_origem.nome })
+    nodes.add({ id: r.ativo_destino.id, label: r.ativo_destino.nome })
 
-function applyFilters(nodes) {
-    const activeFilters = [...document.querySelectorAll(".fcheck")]
-        .filter(cb => cb.checked)
-        .map(cb => cb.value);
+    edges.add({
+      from: r.id_ativo_origem,
+      to: r.id_ativo_destino,
+      label: r.tipo_relacionamento
+    })
+  })
 
-    return nodes.filter(n => activeFilters.includes(n.type));
-}
-
-function buildGraph() {
-    const layout = document.getElementById("layoutSelect").value;
-
-    const nodesMap = new Map();
-    const edges = [];
-
-    globalData.forEach(rel => {
-
-        function makeNode(asset) {
-            return {
-                id: asset.id,
-                label: asset.name,
-                type: asset.type,
-                owner: asset.owner,
-                description: asset.description,
-                color: COLOR_BY_TYPE[asset.type] || COLOR_BY_TYPE.default,
-                shape: "box",
-                title: `${asset.name} - ${asset.type} - ${asset.owner}`,
-                font: { multi: "html" }
-            };
-        }
-
-        nodesMap.set(rel.source_asset.id, makeNode(rel.source_asset));
-        nodesMap.set(rel.target_asset.id, makeNode(rel.target_asset));
-
-        edges.push({
-            from: rel.source_asset_id,
-            to: rel.target_asset_id,
-            label: rel.relationship_type,
-            arrows: "to"
-        });
-    });
-
-    const filteredNodes = applyFilters([...nodesMap.values()]);
-
-    globalNodes = filteredNodes;
-    globalEdges = edges;
-
-    renderNetwork(filteredNodes, edges, layout);
-}
-
-// ================================
-//   FILTROS DINÂMICOS
-// ================================
-function renderFilters() {
-    const container = document.getElementById("filters");
-    container.innerHTML = "";
-
-    filterTypes.forEach(type => {
-        const id = "f_" + type.replace(/\W+/g, "_");
-        container.innerHTML += `
-            <label>
-                <input type="checkbox" class="fcheck" value="${type}" checked onchange="buildGraph()">
-                ${type}
-            </label> &nbsp;
-        `;
-    });
-}
-
-// ================================
-//    RENDERIZAÇÃO DO GRAFO
-// ================================
-function renderNetwork(nodes, edges, layoutMode) {
-  const container = document.getElementById("network");
-  if (!container) return;
-
-  // remove tooltip antigo se houver
-  let tooltip = document.getElementById("vis-tooltip");
-  if (!tooltip) {
-    tooltip = document.createElement("div");
-    tooltip.id = "vis-tooltip";
-    document.body.appendChild(tooltip);
-    // estilo básico, ajuste conforme quiser
-    Object.assign(tooltip.style, {
-      position: "fixed",
-      pointerEvents: "none",
-      zIndex: 9999,
-      background: "rgba(0,0,0,0.85)",
-      color: "white",
-      padding: "8px 10px",
-      borderRadius: "6px",
-      fontSize: "13px",
-      display: "none",
-      maxWidth: "320px",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.25)"
-    });
+  if (network) {
+    network.setData({ nodes, edges })
+  } else {
+    network = new vis.Network(
+      document.getElementById("network"),
+      { nodes, edges },
+      {}
+    )
   }
-
-  const data = {
-    nodes: new vis.DataSet(nodes),
-    edges: new vis.DataSet(edges),
-  };
-
-  const options = {
-    nodes: {
-      shape: "box",
-      margin: 10,
-      font: { multi: "html" } // opcional, útil para labels
-    },
-    interaction: {
-      hover: true,
-      tooltipDelay: 200
-    },
-    layout: layoutMode === "hierarchical"
-      ? { hierarchical: { direction: "LR", sortMethod: "directed" } }
-      : {},
-    physics: layoutMode === "force"
-      ? { enabled: true, solver: "forceAtlas2Based" }
-      : { enabled: false }
-  };
-
-  const network = new vis.Network(container, data, options);
-
-  // util de escape para evitar XSS ao injetar HTML do label
-  function escapeHtmlUnsafe(str) {
-    if (str === null || str === undefined) return "";
-    return String(str)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-  }
-
-  // Mostrar tooltip customizado ao passar o mouse no nó
-  network.on("hoverNode", function(params) {
-    const nodeId = params.node;
-    // pega os dados do node a partir do DataSet
-    const nodeObj = data.nodes.get(nodeId);
-
-    const html = `
-      <div style="font-weight:700;margin-bottom:4px;">${escapeHtmlUnsafe(nodeObj.label)}</div>
-      <div style="font-size:12px">${escapeHtmlUnsafe(nodeObj.type || '')}</div>
-      <div style="font-size:12px;color:#ddd">${escapeHtmlUnsafe(nodeObj.owner || '')}</div>
-      ${nodeObj.description ? `<hr style="border-color: rgba(255,255,255,0.08);margin:6px 0;"><div style="font-size:12px">${escapeHtmlUnsafe(nodeObj.description)}</div>` : ''}
-    `;
-
-    tooltip.innerHTML = html;
-    tooltip.style.display = "block";
-
-    // posiciona com base no evento do mouse (clientX / clientY)
-    try {
-      const ev = params.event && params.event.srcEvent ? params.event.srcEvent : null;
-      if (ev) {
-        const x = ev.clientX + 12; // offset para direita
-        const y = ev.clientY + 12; // offset para baixo
-        // evita sair da tela à direita/baixo
-        const maxX = window.innerWidth - tooltip.offsetWidth - 10;
-        const maxY = window.innerHeight - tooltip.offsetHeight - 10;
-        tooltip.style.left = Math.min(x, maxX) + "px";
-        tooltip.style.top = Math.min(y, maxY) + "px";
-      }
-    } catch (e) {
-      // fallback: colocar no centro do container
-      const rect = container.getBoundingClientRect();
-      tooltip.style.left = (rect.left + 20) + "px";
-      tooltip.style.top = (rect.top + 20) + "px";
-    }
-  });
-
-  // mover tooltip quando mouse se move sobre o nó
-  network.on("mousemove", function(params) {
-    const ev = params.event && params.event.srcEvent ? params.event.srcEvent : null;
-    if (!ev || tooltip.style.display === "none") return;
-    const x = ev.clientX + 12;
-    const y = ev.clientY + 12;
-    const maxX = window.innerWidth - tooltip.offsetWidth - 10;
-    const maxY = window.innerHeight - tooltip.offsetHeight - 10;
-    tooltip.style.left = Math.min(x, maxX) + "px";
-    tooltip.style.top = Math.min(y, maxY) + "px";
-  });
-
-  // esconde o tooltip quando sair do nó / ao arrastar etc.
-  network.on("blurNode", function() { tooltip.style.display = "none"; });
-  network.on("dragStart", function() { tooltip.style.display = "none"; });
-  network.on("dragEnd", function() { tooltip.style.display = "none"; });
-
-  // double click abre modal (mantive seu comportamento)
-  network.on("doubleClick", p => {
-    if (p.nodes.length > 0) {
-      const id = p.nodes[0];
-      const node = nodes.find(n => n.id === id);
-      openMapModal(node);
-    }
-  });
 }
 
-
-// ================================
-//        MODAL
-// ================================
-function openModal(n) {
-    document.getElementById("modal-title").innerText = n.label;
-    document.getElementById("modal-type").innerText = n.type;
-    document.getElementById("modal-owner").innerText = n.owner;
-    document.getElementById("modal-desc").innerText = n.description;
-    document.getElementById("modal").style.display = "block";
-}
-
-function closeModal() {
-    document.getElementById("modal").style.display = "none";
-}
-
-// Carrega ao abrir a página
-loadGraph();
-
+loadGraph()
 </script>
-
 </body>
 </html>

@@ -4,3 +4,8 @@ pydantic
 asyncio
 uvicorn
 dotenv
+pyjwt
+cryptography
+alembic
+asyncpg
+psycopg2-binary

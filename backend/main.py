@@ -1,10 +1,23 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from database import init_db
+
+from database import engine, Base
+
+# routers
 from routers import assets, relationships
 from routers.services import router as services_router
+from routers.tokens import router as tokens_router
+from routers.audit import router as audit_router
 
+
+# =========================
+# DB INIT (SEM ALEMBIC)
+# =========================
+
+async def init_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 
 @asynccontextmanager
@@ -12,12 +25,22 @@ async def lifespan(app: FastAPI):
     await init_db()
     yield
 
+
+# =========================
+# APP
+# =========================
+
 app = FastAPI(
     title="CMDB - Configuration Management Database",
-    description="Sistema de gerenciamento de ativos de TI com suporte a relacionamentos entre itens de configuração",
-    version="1.0.0",
+    description="CMDB com suporte a grafo de dependências entre ativos",
+    version="2.0.0",
     lifespan=lifespan
 )
+
+
+# =========================
+# CORS
+# =========================
 
 app.add_middleware(
     CORSMiddleware,
@@ -27,18 +50,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+# =========================
+# ROUTERS
+# =========================
+
+app.include_router(tokens_router)
 app.include_router(assets.router)
 app.include_router(relationships.router)
 app.include_router(services_router)
+app.include_router(audit_router)
+
+
+# =========================
+# HEALTH
+# =========================
 
 @app.get("/", tags=["Health"])
 async def root():
     return {
-        "message": "CMDB API - Configuration Management Database",
-        "docs": "/docs",
-        "status": "online"
+        "message": "CMDB API",
+        "status": "online",
+        "version": "2.0.0",
+        "docs": "/docs"
     }
 
+
 @app.get("/health", tags=["Health"])
-async def health_check():
+async def health():
     return {"status": "healthy"}

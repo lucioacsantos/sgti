@@ -1,70 +1,183 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import Optional, List
+from datetime import datetime
 
 
-class AssetBase(BaseModel):
-    name: str = Field(..., min_length=1, max_length=200, description="Nome do ativo")
-    type: str = Field(..., min_length=1, max_length=100, description="Tipo do ativo (VM, Container, Switch, etc)")
-    description: Optional[str] = Field(None, description="Descrição detalhada do ativo")
-    owner: str = Field(..., min_length=1, max_length=200, description="Proprietário do ativo")
+# =========================
+# DOMÍNIOS
+# =========================
 
-class AssetCreate(AssetBase):
-    pass
+class TipoAtivoBase(BaseModel):
+    nome: str
+    descricao: Optional[str] = None
 
-class AssetUpdate(BaseModel):
-    name: Optional[str] = Field(None, min_length=1, max_length=200)
-    type: Optional[str] = Field(None, min_length=1, max_length=100)
-    description: Optional[str] = None
-    owner: Optional[str] = Field(None, min_length=1, max_length=200)
 
-class AssetResponse(AssetBase):
+class TipoAtivoResponse(TipoAtivoBase):
     id: int
 
     class Config:
         from_attributes = True
 
-class AssetWithRelationships(AssetResponse):
-    related_to: List[AssetResponse] = []
 
-class RelationshipCreate(BaseModel):
-    source_asset_id: int = Field(..., description="ID do ativo de origem")
-    target_asset_id: int = Field(..., description="ID do ativo de destino")
-    relationship_type: str = Field(..., min_length=1, max_length=100, description="Tipo de relacionamento (hospeda, depende, conecta, etc)")
-
-class RelationshipResponse(BaseModel):
-    source_asset_id: int
-    target_asset_id: int
-    relationship_type: str
-    source_asset: AssetResponse
-    target_asset: AssetResponse
-
-class AssetBasic(BaseModel):
+class TipoRelacionamentoResponse(BaseModel):
     id: int
-    name: str
-    type: str
+    nome: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
-class ServiceCreate(BaseModel):
-    tipo_servico: str
-    nome_servico: str
-    servico_stop: str
-    servico_start: str
-    servico_validacao: Optional[str] = None
-    servico_usuario: str
-    host_ids: List[int] = []
 
+class AmbienteResponse(BaseModel):
+    id: int
+    nome: str
+
+    class Config:
+        from_attributes = True
+
+
+class StatusAtivoResponse(BaseModel):
+    id: int
+    nome: str
+
+    class Config:
+        from_attributes = True
+
+
+class CriticidadeResponse(BaseModel):
+    id: int
+    nivel: str
+
+    class Config:
+        from_attributes = True
+
+
+# =========================
+# ATIVO (CMDB CORE)
+# =========================
+
+class AssetBase(BaseModel):
+    nome: str = Field(..., min_length=1, max_length=255)
+    descricao: Optional[str] = None
+    responsavel: Optional[str] = None
+
+    tipo_id: int
+    ambiente_id: Optional[int] = None
+    status_id: Optional[int] = None
+    criticidade_id: Optional[int] = None
+
+
+class AssetCreate(AssetBase):
+    pass
+
+
+class AssetUpdate(BaseModel):
+    nome: Optional[str]
+    descricao: Optional[str]
+    responsavel: Optional[str]
+
+    tipo_id: Optional[int]
+    ambiente_id: Optional[int]
+    status_id: Optional[int]
+    criticidade_id: Optional[int]
+
+
+class AssetResponse(BaseModel):
+    id: int
+    nome: str
+    descricao: Optional[str]
+    responsavel: Optional[str]
+
+    tipo: Optional[TipoAtivoResponse]
+    ambiente: Optional[AmbienteResponse]
+    status: Optional[StatusAtivoResponse]
+    criticidade: Optional[CriticidadeResponse]
+
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]
+
+    class Config:
+        from_attributes = True
+
+
+# versão leve (para evitar payload gigante em grafos)
+class AssetBasic(BaseModel):
+    id: int
+    nome: str
+
+    class Config:
+        from_attributes = True
+
+
+# =========================
+# RELACIONAMENTOS (GRAFO)
+# =========================
+
+class RelationshipCreate(BaseModel):
+    origem_id: int = Field(..., description="ID do ativo de origem")
+    destino_id: int = Field(..., description="ID do ativo de destino")
+    tipo_id: int = Field(..., description="Tipo do relacionamento")
+
+
+class RelationshipResponse(BaseModel):
+    id: int
+
+    origem: AssetBasic
+    destino: AssetBasic
+    tipo: TipoRelacionamentoResponse
+
+    descricao: Optional[str]
+    created_at: Optional[datetime]
+
+    class Config:
+        from_attributes = True
+
+
+# =========================
+# VISÃO DE GRAFO (IMPORTANTE)
+# =========================
+
+class AssetWithRelationships(BaseModel):
+    ativo: AssetResponse
+    relacionamentos: List[RelationshipResponse]
+
+
+# =========================
+# SERVIÇOS (AGORA SÃO ATIVOS)
+# =========================
 
 class ServiceResponse(BaseModel):
     id: int
-    tipo_servico: str
-    nome_servico: str
-    servico_stop: str
-    servico_start: str
-    servico_validacao: Optional[str]
-    servico_usuario: str
-    hosts: List[AssetBasic]
+    nome: str
+    tipo: TipoAtivoResponse
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+
+# =========================
+# AUDIT
+# =========================
+
+class AuditResponse(BaseModel):
+    id: int
+    entidade: str
+    entidade_id: int
+    acao: str
+
+    antes: Optional[dict]
+    depois: Optional[dict]
+
+    usuario: str
+    criado_em: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# =========================
+# TOKEN
+# =========================
+
+class TokenResponse(BaseModel):
+    token: str
+    expira_em: datetime
