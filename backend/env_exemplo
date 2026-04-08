@@ -1,0 +1,14 @@
+DATABASE_URL="postgresql://user:passwd@localhost:5432/db"
+
+DEV_MODE=true or false
+
+# API TOKENS
+API_TOKEN_ANSIBLE=secret_token
+
+# OAUTH (ex: Keycloak / Azure AD)
+OAUTH_PUBLIC_KEY="-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----"
+OAUTH_ISSUER=https://seu-idp/realms/cmdb
+OAUTH_AUDIENCE=cmdb-api
+
+# grupos permitidos
+OAUTH_REQUIRED_GROUPS=cmdb-admin,cmdb-read
