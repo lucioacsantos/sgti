@@ -12,7 +12,28 @@ from security import get_current_user, require_groups
 from audit import log_create, log_update, log_delete
 import copy
 
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from routers.auth import ServiceAccount
+
+security = HTTPBearer()
+
 router = APIRouter(prefix="/ativos", tags=["Ativos"])
+
+async def verify_token(
+    auth: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(ServiceAccount).where(ServiceAccount.token == auth.credentials)
+    )
+    account = result.scalar_one_or_none()
+    
+    if not account or not account.is_valid():
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token de automação inválido ou expirado"
+        )
+    return account
 
 
 @router.post(

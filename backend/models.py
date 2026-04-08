@@ -8,11 +8,26 @@ from sqlalchemy import func, Index
 
 from database import Base
 
+import secrets
+from datetime import datetime, timedelta
 
-# =========================
+
+# TOKENS DE SERVIÇO
+class ServiceAccount(Base):
+    __tablename__ = "service_accounts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), unique=True, nullable=False)  # Ex: "Ansible-Automation"
+    token = Column(String(255), unique=True, nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    expires_at = Column(DateTime, nullable=False)
+    is_active = Column(Boolean, default=True)
+
+    def is_valid(self):
+        return self.is_active and self.expires_at > datetime.utcnow()
+
+
 # AUDIT
-# =========================
-
 class AuditLog(Base):
     __tablename__ = "audit_log"
 
@@ -45,10 +60,7 @@ class AuditMixin:
     updated_by = Column(String(100), nullable=True)
 
 
-# =========================
 # TOKENS
-# =========================
-
 class ApiToken(Base):
     __tablename__ = "api_token"
 
@@ -63,10 +75,7 @@ class ApiToken(Base):
     atualizado_em = Column(DateTime, onupdate=func.now())
 
 
-# =========================
 # DOMÍNIOS
-# =========================
-
 class TipoAtivo(Base):
     __tablename__ = "tipo_ativo"
 
@@ -104,10 +113,7 @@ class Criticidade(Base):
     nivel = Column(String(50), unique=True, nullable=False)
 
 
-# =========================
 # CORE CMDB
-# =========================
-
 class Ativo(Base, AuditMixin):
     __tablename__ = "ativo"
 
@@ -132,10 +138,7 @@ class Ativo(Base, AuditMixin):
         return f"<Ativo id={self.id} nome='{self.nome}'>"
 
 
-# =========================
 # RELACIONAMENTOS (GRAFO)
-# =========================
-
 class Relacionamento(Base):
     __tablename__ = "relacionamento"
 

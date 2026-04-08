@@ -5,20 +5,16 @@ from contextlib import asynccontextmanager
 from database import engine, Base
 
 # routers
-from routers import assets, relationships
+from routers import auth, assets, relationships
 from routers.services import router as services_router
 from routers.tokens import router as tokens_router
 from routers.audit import router as audit_router
 
 
-# =========================
 # DB INIT (SEM ALEMBIC)
-# =========================
-
 async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -26,10 +22,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-# =========================
 # APP
-# =========================
-
 app = FastAPI(
     title="CMDB - Configuration Management Database",
     description="CMDB com suporte a grafo de dependências entre ativos",
@@ -37,11 +30,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+app.include_router(auth.router)
 
-# =========================
+
 # CORS
-# =========================
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -51,10 +43,7 @@ app.add_middleware(
 )
 
 
-# =========================
 # ROUTERS
-# =========================
-
 app.include_router(tokens_router)
 app.include_router(assets.router)
 app.include_router(relationships.router)
@@ -62,10 +51,7 @@ app.include_router(services_router)
 app.include_router(audit_router)
 
 
-# =========================
 # HEALTH
-# =========================
-
 @app.get("/", tags=["Health"])
 async def root():
     return {
@@ -74,7 +60,6 @@ async def root():
         "version": "2.0.0",
         "docs": "/docs"
     }
-
 
 @app.get("/health", tags=["Health"])
 async def health():
