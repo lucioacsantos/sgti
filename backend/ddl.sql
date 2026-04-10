@@ -170,3 +170,22 @@ CREATE TABLE service_accounts (
     expires_at TIMESTAMP NOT NULL,
     is_active BOOLEAN DEFAULT TRUE
 );
+
+CREATE TABLE usuario (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(100) UNIQUE NOT NULL, -- login AD
+    nome VARCHAR(255),
+    email VARCHAR(255),
+    totp_secret VARCHAR(64),
+    totp_enabled BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE usuario_backup_code (
+    id SERIAL PRIMARY KEY,
+    usuario_id INT NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
+    codigo_hash VARCHAR(255) NOT NULL,
+    usado BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
