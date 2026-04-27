@@ -11,3 +11,4 @@ asyncpg
 psycopg2-binary
 pyasn1
 ldap3
+python-jose[cryptography]

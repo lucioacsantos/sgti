@@ -1,66 +1,78 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
+import models, schemas, auth
+from database import SessionLocal, engine
 
-from database import engine, Base
+app = FastAPI()
 
-# routers
-from routers import auth, assets, relationships
-from routers.services import router as services_router
-from routers.tokens import router as tokens_router
-from routers.audit import router as audit_router
+models.Base.metadata.create_all(bind=engine)
 
-
-# DB INIT (SEM ALEMBIC)
-async def init_db():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    await init_db()
-    yield
-
-
-# APP
 app = FastAPI(
-    title="CMDB - Configuration Management Database",
-    description="CMDB com suporte a grafo de dependências entre ativos",
-    version="2.0.0",
-    lifespan=lifespan
-)
+    title="SGTI ::: CMDB ::: API", 
+    version="1.0", 
+    description="API para gerenciamento de ativos de TI na CMDB do SGTI", 
+    server="SGTI"
+    )
 
-app.include_router(auth.router)
+# Dependência para obter o banco de dados
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
+@app.post("/ativos/", response_model=schemas.AtivoResponse)
+def create_ativo(
+    ativo: schemas.AtivoCreate, 
+    db: Session = Depends(get_db),
+    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    ):
+    print(f"Ação realizada pela service account: {current_service.name}")
+    db_ativo = models.Ativo(**ativo.model_dump())
+    db.add(db_ativo)
+    db.commit()
+    db.refresh(db_ativo)
+    return {"message": "Ativo criado com sucesso", "ativo_id": db_ativo.id}
 
-# CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+@app.get("/ativos/", response_model=list[schemas.AtivoResponse])
+def read_ativos(
+    skip: int = 0, 
+    limit: int = 100, 
+    db: Session = Depends(get_db),
+    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    ):
+    ativos = db.query(models.Ativo).offset(skip).limit(limit).all()
+    return ativos
 
+@app.get("/ativos/{ativo_id}", response_model=schemas.AtivoResponse)
+def read_ativo(ativo_id: int, db: Session = Depends(get_db)):
+    db_ativo = db.query(models.Ativo).filter(models.Ativo.id == ativo_id).first()
+    if db_ativo is None:
+        raise HTTPException(status_code=404, detail="Ativo não encontrado")
+    return db_ativo
 
-# ROUTERS
-app.include_router(tokens_router)
-app.include_router(assets.router)
-app.include_router(relationships.router)
-app.include_router(services_router)
-app.include_router(audit_router)
+@app.get("/tipos-ativos/", response_model=list[schemas.TipoAtivoResponse])
+def read_tipos_ativos(db: Session = Depends(get_db)):
+    tipos_ativos = db.query(models.TipoAtivo).all()
+    return tipos_ativos
 
+@app.get("/status-ativos/", response_model=list[schemas.StatusAtivoResponse])
+def read_status_ativos(db: Session = Depends(get_db)):
+    status_ativos = db.query(models.StatusAtivo).all()
+    return status_ativos
 
-# HEALTH
-@app.get("/", tags=["Health"])
-async def root():
-    return {
-        "message": "CMDB API",
-        "status": "online",
-        "version": "2.0.0",
-        "docs": "/docs"
-    }
+@app.get("/ambientes/", response_model=list[schemas.AmbienteResponse])
+def read_ambientes(db: Session = Depends(get_db)):
+    ambientes = db.query(models.Ambiente).all()
+    return ambientes
 
-@app.get("/health", tags=["Health"])
-async def health():
-    return {"status": "healthy"}
+@app.get("/criticidades/", response_model=list[schemas.CriticidadeResponse])
+def read_criticidades(db: Session = Depends(get_db)):
+    criticidades = db.query(models.Criticidade).all()
+    return criticidades
+
+@app.get("/sistema-operacional/", response_model=list[schemas.SistemaOperacionalResponse])
+def read_sistemas_operacionais(db: Session = Depends(get_db)):
+    sistemas_operacionais = db.query(models.SistemaOperacional).all()
+    return sistemas_operacionais
