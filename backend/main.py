@@ -22,7 +22,7 @@ def get_db():
     finally:
         db.close()
 
-@app.post("/ativos/", response_model=schemas.AtivoResponse)
+@app.post("/ativos/", response_model=schemas.AtivoResponse, status_code=201)
 def create_ativo(
     ativo: schemas.AtivoCreate, 
     db: Session = Depends(get_db),
@@ -33,7 +33,7 @@ def create_ativo(
     db.add(db_ativo)
     db.commit()
     db.refresh(db_ativo)
-    return {"message": "Ativo criado com sucesso", "ativo_id": db_ativo.id}
+    return db_ativo
 
 @app.get("/ativos/", response_model=list[schemas.AtivoResponse])
 def read_ativos(

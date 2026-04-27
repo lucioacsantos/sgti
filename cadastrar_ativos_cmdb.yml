@@ -6,7 +6,7 @@
     api_url: "http://localhost:8000"
     api_token: "T4THTi61laNULjELRKRUkWGepvWpzjazVxdQCLBfv5XEPOf4CNk0coy_Znr84lx6"
     headers:
-      Authorization: "Bearer {{ api_token }}"
+      X-Service-Token: "{{ api_token }}"
       Content-Type: "application/json"
 
   tasks:

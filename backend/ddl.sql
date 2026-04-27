@@ -1,9 +1,3 @@
--- public.ambiente definition
-
--- Drop table
-
--- DROP TABLE public.ambiente;
-
 CREATE TABLE public.ambiente (
 	id serial4 NOT NULL,
 	nome varchar(50) NOT NULL,
@@ -11,12 +5,6 @@ CREATE TABLE public.ambiente (
 	CONSTRAINT ambiente_pkey PRIMARY KEY (id)
 );
 
-
--- public.api_token definition
-
--- Drop table
-
--- DROP TABLE public.api_token;
 
 CREATE TABLE public.api_token (
 	id serial4 NOT NULL,
@@ -29,11 +17,6 @@ CREATE TABLE public.api_token (
 );
 
 
--- public.audit_log definition
-
--- Drop table
-
--- DROP TABLE public.audit_log;
 
 CREATE TABLE public.audit_log (
 	id serial4 NOT NULL,
@@ -49,12 +32,6 @@ CREATE TABLE public.audit_log (
 CREATE INDEX idx_audit_entidade ON public.audit_log USING btree (entidade);
 
 
--- public.criticidade definition
-
--- Drop table
-
--- DROP TABLE public.criticidade;
-
 CREATE TABLE public.criticidade (
 	id serial4 NOT NULL,
 	nivel varchar(50) NOT NULL,
@@ -62,12 +39,6 @@ CREATE TABLE public.criticidade (
 	CONSTRAINT criticidade_pkey PRIMARY KEY (id)
 );
 
-
--- public.service_accounts definition
-
--- Drop table
-
--- DROP TABLE public.service_accounts;
 
 CREATE TABLE public.service_accounts (
 	id serial4 NOT NULL,
@@ -83,12 +54,6 @@ CREATE INDEX ix_service_accounts_id ON public.service_accounts USING btree (id);
 CREATE UNIQUE INDEX ix_service_accounts_token ON public.service_accounts USING btree (token);
 
 
--- public.sor definition
-
--- Drop table
-
--- DROP TABLE public.sor;
-
 CREATE TABLE public.sor (
 	id serial4 NOT NULL,
 	abreviacao varchar(50) NOT NULL,
@@ -100,12 +65,6 @@ CREATE TABLE public.sor (
 );
 
 
--- public.status_ativo definition
-
--- Drop table
-
--- DROP TABLE public.status_ativo;
-
 CREATE TABLE public.status_ativo (
 	id serial4 NOT NULL,
 	nome varchar(50) NOT NULL,
@@ -113,12 +72,6 @@ CREATE TABLE public.status_ativo (
 	CONSTRAINT status_ativo_pkey PRIMARY KEY (id)
 );
 
-
--- public.tipo_ativo definition
-
--- Drop table
-
--- DROP TABLE public.tipo_ativo;
 
 CREATE TABLE public.tipo_ativo (
 	id serial4 NOT NULL,
@@ -129,12 +82,6 @@ CREATE TABLE public.tipo_ativo (
 );
 
 
--- public.tipo_relacionamento definition
-
--- Drop table
-
--- DROP TABLE public.tipo_relacionamento;
-
 CREATE TABLE public.tipo_relacionamento (
 	id serial4 NOT NULL,
 	nome varchar(100) NOT NULL,
@@ -143,12 +90,6 @@ CREATE TABLE public.tipo_relacionamento (
 	CONSTRAINT tipo_relacionamento_pkey PRIMARY KEY (id)
 );
 
-
--- public.ativo definition
-
--- Drop table
-
--- DROP TABLE public.ativo;
 
 CREATE TABLE public.ativo (
 	id serial4 NOT NULL,
@@ -173,12 +114,6 @@ CREATE INDEX idx_ativo_nome ON public.ativo USING btree (nome);
 CREATE INDEX idx_ativo_tipo ON public.ativo USING btree (tipo_id);
 
 
--- public."cluster" definition
-
--- Drop table
-
--- DROP TABLE public."cluster";
-
 CREATE TABLE public."cluster" (
 	id serial4 NOT NULL,
 	nome varchar(255) NOT NULL,
@@ -191,12 +126,6 @@ CREATE TABLE public."cluster" (
 );
 
 
--- public."namespace" definition
-
--- Drop table
-
--- DROP TABLE public."namespace";
-
 CREATE TABLE public."namespace" (
 	id serial4 NOT NULL,
 	nome varchar(255) NOT NULL,
@@ -208,12 +137,6 @@ CREATE TABLE public."namespace" (
 	CONSTRAINT namespace_cluster_id_fkey FOREIGN KEY (cluster_id) REFERENCES public."cluster"(id) ON DELETE CASCADE
 );
 
-
--- public.relacionamento definition
-
--- Drop table
-
--- DROP TABLE public.relacionamento;
 
 CREATE TABLE public.relacionamento (
 	id serial4 NOT NULL,
@@ -232,12 +155,6 @@ CREATE INDEX idx_rel_origem ON public.relacionamento USING btree (origem_id);
 CREATE INDEX idx_rel_tipo ON public.relacionamento USING btree (tipo_id);
 
 
--- public.servico definition
-
--- Drop table
-
--- DROP TABLE public.servico;
-
 CREATE TABLE public.servico (
 	id serial4 NOT NULL,
 	nome varchar(255) NOT NULL,
@@ -251,12 +168,6 @@ CREATE TABLE public.servico (
 );
 
 
--- public.servico_negocio definition
-
--- Drop table
-
--- DROP TABLE public.servico_negocio;
-
 CREATE TABLE public.servico_negocio (
 	id serial4 NOT NULL,
 	nome varchar(255) NOT NULL,
@@ -267,12 +178,6 @@ CREATE TABLE public.servico_negocio (
 	CONSTRAINT servico_negocio_ativo_id_fkey FOREIGN KEY (ativo_id) REFERENCES public.ativo(id) ON DELETE SET NULL
 );
 
-
--- public.aplicacao definition
-
--- Drop table
-
--- DROP TABLE public.aplicacao;
 
 CREATE TABLE public.aplicacao (
 	id serial4 NOT NULL,
@@ -286,12 +191,6 @@ CREATE TABLE public.aplicacao (
 );
 
 
--- public.instancia_aplicacao definition
-
--- Drop table
-
--- DROP TABLE public.instancia_aplicacao;
-
 CREATE TABLE public.instancia_aplicacao (
 	id serial4 NOT NULL,
 	aplicacao_id int4 NOT NULL,
@@ -304,4 +203,25 @@ CREATE TABLE public.instancia_aplicacao (
 	CONSTRAINT instancia_aplicacao_pkey PRIMARY KEY (id),
 	CONSTRAINT instancia_aplicacao_aplicacao_id_fkey FOREIGN KEY (aplicacao_id) REFERENCES public.aplicacao(id) ON DELETE CASCADE,
 	CONSTRAINT instancia_aplicacao_ativo_id_fkey FOREIGN KEY (ativo_id) REFERENCES public.ativo(id) ON DELETE SET NULL
+);
+
+
+CREATE TABLE usuario (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(100) UNIQUE NOT NULL, -- login AD
+    nome VARCHAR(255),
+    email VARCHAR(255),
+    totp_secret VARCHAR(64),
+    totp_enabled BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE usuario_backup_code (
+    id SERIAL PRIMARY KEY,
+    usuario_id INT NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
+    codigo_hash VARCHAR(255) NOT NULL,
+    usado BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
