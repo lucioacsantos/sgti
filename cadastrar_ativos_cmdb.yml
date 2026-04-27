@@ -1,0 +1,63 @@
+---
+- name: "CMDB - Sincronização de Ativos do vCenter"
+  hosts: localhost
+  gather_facts: false
+  vars:
+    api_url: "http://localhost:8000"
+    api_token: "T4THTi61laNULjELRKRUkWGepvWpzjazVxdQCLBfv5XEPOf4CNk0coy_Znr84lx6"
+    headers:
+      Authorization: "Bearer {{ api_token }}"
+      Content-Type: "application/json"
+
+  tasks:
+    # Coletar dados da API para mapeamento de IDs (Lookup Tables)
+    - name: "Consultar tabelas de referência da API"
+      uri:
+        url: "{{ api_url }}/{{ item }}/"
+        method: GET
+        headers: "{{ headers }}"
+      loop:
+        - ambientes
+        - tipos-ativos
+        - status-ativos
+        - criticidades
+        - sistema-operacional
+      register: api_metadata
+    
+    # Criar dicionários para busca rápida de ID por Nome
+    - name: "Setar fatos para resolução de IDs"
+      set_fact:
+        map_ambientes: "{{ api_metadata.results | selectattr('item', 'equalto', 'ambientes') | map(attribute='json') | first | items2dict(key_name='nome', value_name='id') }}"
+        map_tipos: "{{ api_metadata.results | selectattr('item', 'equalto', 'tipos-ativos') | map(attribute='json') | first | items2dict(key_name='nome', value_name='id') }}"
+        map_status: "{{ api_metadata.results | selectattr('item', 'equalto', 'status-ativos') | map(attribute='json') | first | items2dict(key_name='nome', value_name='id') }}"
+        map_criticidade: "{{ api_metadata.results | selectattr('item', 'equalto', 'criticidades') | map(attribute='json') | first | items2dict(key_name='nivel', value_name='id') }}"
+        map_sor: "{{ api_metadata.results | selectattr('item', 'equalto', 'sistema-operacional') | map(attribute='json') | first | items2dict(key_name='abreviacao', value_name='id') }}"
+
+    # Simulação de dados vindo do vCenter (Poderia ser o módulo community.vmware.vmware_vm_info)
+    - name: "Dados obtidos do vCenter (Exemplo)"
+      set_fact:
+        vms_from_vcenter:
+          - { nome: "SRV-APP-PROD-01", desc: "Servidor de Aplicação", env: "Produção", tipo: "Virtual Machine", status: "Ativo", crit: "Alta", sor: "RHEL10.1" }
+          - { nome: "SRV-DB-DEV-01", desc: "Banco de Dados Dev", env: "Desenvolvimento", tipo: "Virtual Machine", status: "Inativo", crit: "Baixa", sor: "RHEL10.1"  }
+
+    # Inserir/Atualizar Ativos via API resolvendo IDs dinamicamente
+    - name: "Cadastrar Ativos no CMDB via API"
+      uri:
+        url: "{{ api_url }}/ativos/"
+        method: POST
+        headers: "{{ headers }}"
+        body_format: json
+        body:
+          nome: "{{ item.nome }}"
+          descricao: "{{ item.desc }}"
+          responsavel: "Automação Ansible"
+          # Resolução dinâmica usando os mapas
+          ambiente_id: "{{ map_ambientes[item.env] | default(omit) }}"
+          tipo_id: "{{ map_tipos[item.tipo] | default(omit) }}"
+          status_id: "{{ map_status[item.status] | default(omit) }}"
+          criticidade_id: "{{ map_criticidade[item.crit] | default(omit) }}"
+          sor_id: "{{ map_sor['Windows Server 2019'] | default(omit) }}"
+        status_code: [200, 201]
+      loop: "{{ vms_from_vcenter }}"
+      register: api_response
+      changed_when: api_response.status == 201
