@@ -91,6 +91,16 @@ CREATE TABLE public.tipo_relacionamento (
 );
 
 
+CREATE TABLE public.areas (
+	id serial4 NOT NULL,
+	nome varchar(100) NOT NULL,
+	sigla text NULL,
+	CONSTRAINT areas_nome_key UNIQUE (nome),
+	CONSTRAINT areas_sigla_key UNIQUE (sigla),
+	CONSTRAINT areas_pkey PRIMARY KEY (id)
+);
+
+
 CREATE TABLE public.ativo (
 	id serial4 NOT NULL,
 	nome varchar(255) NOT NULL,
@@ -100,7 +110,7 @@ CREATE TABLE public.ativo (
 	status_id int4 NULL,
 	criticidade_id int4 NULL,
     sor_id int4 NULL,
-	responsavel varchar(255) NULL,
+	areas_id int4 NULL,
 	created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
 	updated_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
 	CONSTRAINT ativo_pkey PRIMARY KEY (id),
@@ -108,7 +118,8 @@ CREATE TABLE public.ativo (
 	CONSTRAINT ativo_criticidade_id_fkey FOREIGN KEY (criticidade_id) REFERENCES public.criticidade(id),
 	CONSTRAINT ativo_sor_fk FOREIGN KEY (sor_id) REFERENCES public.sor(id),
 	CONSTRAINT ativo_status_id_fkey FOREIGN KEY (status_id) REFERENCES public.status_ativo(id),
-	CONSTRAINT ativo_tipo_id_fkey FOREIGN KEY (tipo_id) REFERENCES public.tipo_ativo(id)
+	CONSTRAINT ativo_tipo_id_fkey FOREIGN KEY (tipo_id) REFERENCES public.tipo_ativo(id),
+	CONSTRAINT ativo_areas_id_fkey FOREIGN KEY (areas_id) REFERENCES public.areas(id)
 );
 CREATE INDEX idx_ativo_nome ON public.ativo USING btree (nome);
 CREATE INDEX idx_ativo_tipo ON public.ativo USING btree (tipo_id);
@@ -225,3 +236,10 @@ CREATE TABLE usuario_backup_code (
     usado BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
+// Token de exemplo para testes, expira em 24/05/2026
+INSERT INTO public.service_accounts
+	(id, "name", "token", created_at, expires_at, is_active)
+	VALUES(1, 'string', 'T4THTi61laNULjELRKRUkWGepvWpzjazVxdQCLBfv5XEPOf4CNk0coy_Znr84lx6', 
+		'2026-04-24 19:04:19.952', '2026-05-24 19:04:19.914', true);
