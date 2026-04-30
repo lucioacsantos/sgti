@@ -3,16 +3,19 @@
   hosts: localhost
   gather_facts: false
   vars:
-    api_url: "http://localhost:8000"
+    vcenter_hostname: "pavc01.energia.org.br"
+    vcenter_datacenter: "Cluster_CCEE"
+    vcenter_username: "energia\\lcsantos"
+    vcenter_password: "Plfcslacs#20264"
+    api_url: "https://sgti-api.energia.org.br"
     api_token: "T4THTi61laNULjELRKRUkWGepvWpzjazVxdQCLBfv5XEPOf4CNk0coy_Znr84lx6"
     headers:
       X-Service-Token: "{{ api_token }}"
       Content-Type: "application/json"
 
   tasks:
-    # Coletar dados da API para mapeamento de IDs (Lookup Tables)
     - name: "Consultar tabelas de referência da API"
-      uri:
+      ansible.builtin.uri:
         url: "{{ api_url }}/{{ item }}/"
         method: GET
         headers: "{{ headers }}"
@@ -24,23 +27,59 @@
         - sistema-operacional
       register: api_metadata
     
-    # Criar dicionários para busca rápida de ID por Nome
-    - name: "Setar fatos para resolução de IDs"
+    - name: "Criar dicionários para busca rápida de ID por Nome"
       set_fact:
         map_ambientes: "{{ api_metadata.results | selectattr('item', 'equalto', 'ambientes') | map(attribute='json') | first | items2dict(key_name='nome', value_name='id') }}"
         map_tipos: "{{ api_metadata.results | selectattr('item', 'equalto', 'tipos-ativos') | map(attribute='json') | first | items2dict(key_name='nome', value_name='id') }}"
         map_status: "{{ api_metadata.results | selectattr('item', 'equalto', 'status-ativos') | map(attribute='json') | first | items2dict(key_name='nome', value_name='id') }}"
         map_criticidade: "{{ api_metadata.results | selectattr('item', 'equalto', 'criticidades') | map(attribute='json') | first | items2dict(key_name='nivel', value_name='id') }}"
-        map_sor: "{{ api_metadata.results | selectattr('item', 'equalto', 'sistema-operacional') | map(attribute='json') | first | items2dict(key_name='abreviacao', value_name='id') }}"
+        map_sor: "{{ api_metadata.results | selectattr('item', 'equalto', 'sistema-operacional') | map(attribute='json') | first | items2dict(key_name='descricao', value_name='id') }}"
 
-    # Simulação de dados vindo do vCenter (Poderia ser o módulo community.vmware.vmware_vm_info)
-    - name: "Dados obtidos do vCenter (Exemplo)"
+    - name: Obter informações das VMs
+      community.vmware.vmware_vm_info:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+        show_cluster: true
+        show_esxi_hostname: true
+        folder: "/VxRail-Datacenter/vm/PRODUÇÃO"
+      register: vm_info
+    
+    - name: Detalhar informações das VMs
+      community.vmware.vmware_guest_info:
+        datacenter: "{{ vcenter_datacenter }}"
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+        name: "{{ item.guest_name }}"
+      loop: "{{ vm_info.virtual_machines }}"
+      register: vms_info
+    
+    - name: "Identificar Sistemas Operacionais únicos das VMs"
       set_fact:
-        vms_from_vcenter:
-          - { nome: "SRV-APP-PROD-01", desc: "Servidor de Aplicação", env: "Produção", tipo: "Virtual Machine", status: "Ativo", crit: "Alta", sor: "RHEL10.1" }
-          - { nome: "SRV-DB-DEV-01", desc: "Banco de Dados Dev", env: "Desenvolvimento", tipo: "Virtual Machine", status: "Inativo", crit: "Baixa", sor: "RHEL10.1"  }
+        vcenter_os_list: "{{ vms_info.results | map(attribute='instance.hw_guest_full_name') | unique | list }}"
 
-    # Inserir/Atualizar Ativos via API resolvendo IDs dinamicamente
+    - name: "Cadastrar Sistemas Operacionais inexistentes na API"
+      ansible.builtin.uri:
+        url: "{{ api_url }}/sistema-operacional/"
+        method: POST
+        headers: "{{ headers }}"
+        body_format: json
+        body:
+          descricao: "{{ item }}"
+        status_code: [201]
+      loop: "{{ vcenter_os_list }}"
+      when: item not in map_sor
+      register: new_os_created
+
+    - name: "Atualizar mapa de SOs se novos forem criados"
+      set_fact:
+        map_sor: "{{ map_sor | combine({ item.invocation.module_args.body.descricao: item.json.id }) }}"
+      loop: "{{ new_os_created.results }}"
+      when: item.changed
+
     - name: "Cadastrar Ativos no CMDB via API"
       uri:
         url: "{{ api_url }}/ativos/"
@@ -48,16 +87,15 @@
         headers: "{{ headers }}"
         body_format: json
         body:
-          nome: "{{ item.nome }}"
-          descricao: "{{ item.desc }}"
+          nome: "{{ item.instance.hw_name }}"
+          descricao: "{{ item.instance.annotation }}"
           responsavel: "Automação Ansible"
-          # Resolução dinâmica usando os mapas
-          ambiente_id: "{{ map_ambientes[item.env] | default(omit) }}"
-          tipo_id: "{{ map_tipos[item.tipo] | default(omit) }}"
-          status_id: "{{ map_status[item.status] | default(omit) }}"
-          criticidade_id: "{{ map_criticidade[item.crit] | default(omit) }}"
-          sor_id: "{{ map_sor['Windows Server 2019'] | default(omit) }}"
+          ambiente_id: "{{ map_ambientes['Desenvolvimento'] | default(omit) }}"
+          tipo_id: "{{ map_tipos['VM'] | default(omit) }}"
+          status_id: "{{ map_status['Ativo'] | default(omit) }}"
+          criticidade_id: "{{ map_criticidade['Baixa'] | default(omit) }}"
+          sor_id: "{{ map_sor[item.instance.hw_guest_full_name] | default(omit) }}"
         status_code: [200, 201]
-      loop: "{{ vms_from_vcenter }}"
+      loop: "{{ vms_info.results }}"
       register: api_response
       changed_when: api_response.status == 201

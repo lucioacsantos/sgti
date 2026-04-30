@@ -192,23 +192,26 @@ CREATE TABLE public.servico_negocio (
 
 CREATE TABLE public.aplicacao (
 	id serial4 NOT NULL,
-	nome varchar(255) NOT NULL,
-	descricao text NULL,
-	ativo_id int4 NULL,
+	sistema varchar(255) NOT NULL,
+	descricao varchar(255) NULL,
+	objetivo text NULL,
+	linguagens varchar(255) NULL,
+	bancos_dados varchar(255) NULL,
+	area_tecnologia varchar(255) NULL,
+	area_negocio varchar(255) NULL,
 	created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
-	CONSTRAINT aplicacao_ativo_id_key UNIQUE (ativo_id),
 	CONSTRAINT aplicacao_pkey PRIMARY KEY (id),
-	CONSTRAINT aplicacao_ativo_id_fkey FOREIGN KEY (ativo_id) REFERENCES public.ativo(id) ON DELETE SET NULL
+	CONSTRAINT aplicacao_sistema_key UNIQUE (sistema)
 );
 
 
 CREATE TABLE public.instancia_aplicacao (
 	id serial4 NOT NULL,
 	aplicacao_id int4 NOT NULL,
-	host_id int4 NULL,
+	ativo_id int4 NULL,
 	porta int4 NULL,
 	path_execucao varchar(255) NULL,
-	ativo_id int4 NULL,
+	comando_execucao text NULL,
 	created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
 	CONSTRAINT instancia_aplicacao_ativo_id_key UNIQUE (ativo_id),
 	CONSTRAINT instancia_aplicacao_pkey PRIMARY KEY (id),
