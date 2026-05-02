@@ -241,7 +241,7 @@ CREATE TABLE usuario_backup_code (
 );
 
 
-// Token de exemplo para testes, expira em 24/05/2026
+-- Token de exemplo para testes, expira em 24/05/2026
 INSERT INTO public.service_accounts
 	(id, "name", "token", created_at, expires_at, is_active)
 	VALUES(1, 'string', 'T4THTi61laNULjELRKRUkWGepvWpzjazVxdQCLBfv5XEPOf4CNk0coy_Znr84lx6', 

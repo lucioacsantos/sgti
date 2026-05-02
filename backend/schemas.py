@@ -58,3 +58,22 @@ class SistemaOperacionalResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class AplicacaoBase(BaseModel):
+    sistema: str
+    descricao: Optional[str] = None
+    objetivo: Optional[str] = None
+    linguagens: Optional[str] = None
+    bancos_dados: Optional[str] = None
+    area_tecnologia: Optional[str] = None
+    area_negocio: Optional[str] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class AplicacaoCreate(AplicacaoBase):
+    pass
+
+class AplicacaoResponse(AplicacaoBase):
+    pass

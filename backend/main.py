@@ -76,3 +76,21 @@ def read_criticidades(db: Session = Depends(get_db)):
 def read_sistemas_operacionais(db: Session = Depends(get_db)):
     sistemas_operacionais = db.query(models.SistemaOperacional).all()
     return sistemas_operacionais
+
+@app.post("/aplicacoes/", response_model=schemas.AplicacaoResponse, status_code=201)
+def create_aplicacao(
+    aplicacao: schemas.AplicacaoCreate, 
+    db: Session = Depends(get_db)#,
+    #current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    ):
+    #print(f"Ação realizada pela service account: {current_service.name}")
+    db_aplicacao = models.Aplicacao(**aplicacao.model_dump())
+    db.add(db_aplicacao)
+    db.commit()
+    db.refresh(db_aplicacao)
+    return db_aplicacao
+
+@app.get("/aplicacoes/", response_model=list[schemas.AplicacaoResponse])
+def read_aplicacoes(db: Session = Depends(get_db)):
+    aplicacoes = db.query(models.Aplicacao).all()
+    return aplicacoes

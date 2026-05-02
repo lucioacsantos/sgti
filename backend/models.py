@@ -31,6 +31,18 @@ class SistemaOperacional(Base):
     descricao = Column(String(255), nullable=False)
     lifecycle = Column(String(50))
 
+class Aplicacao(Base):
+    __tablename__ = "aplicacao"
+    id = Column(Integer, primary_key=True, index=True)
+    sistema = Column(String(255), unique=True, nullable=False)
+    descricao = Column(String(255))
+    objetivo = Column(Text)
+    linguagens = Column(String(255))
+    bancos_dados = Column(String(255))
+    area_tecnologia = Column(String(255))
+    area_negocio = Column(String(255))
+    created_at = Column(DateTime, server_default=func.now())
+
 # TABELA ATIVO
 class Ativo(Base):
     __tablename__ = "ativo"
@@ -66,3 +78,4 @@ class ServiceAccount(Base):
     created_at = Column(DateTime, server_default=func.now())
     expires_at = Column(DateTime, nullable=False)
     is_active = Column(Boolean, default=True)
+
