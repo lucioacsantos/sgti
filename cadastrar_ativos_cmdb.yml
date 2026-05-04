@@ -35,7 +35,7 @@
         map_criticidade: "{{ api_metadata.results | selectattr('item', 'equalto', 'criticidades') | map(attribute='json') | first | items2dict(key_name='nivel', value_name='id') }}"
         map_sor: "{{ api_metadata.results | selectattr('item', 'equalto', 'sistema-operacional') | map(attribute='json') | first | items2dict(key_name='descricao', value_name='id') }}"
 
-    - name: Obter informações das VMs
+    - name: "Obter informações das VMs"
       community.vmware.vmware_vm_info:
         hostname: "{{ vcenter_hostname }}"
         username: "{{ vcenter_username }}"
@@ -46,7 +46,7 @@
         folder: "/VxRail-Datacenter/vm/PRODUÇÃO"
       register: vm_info
     
-    - name: Detalhar informações das VMs
+    - name: "Detalhar informações das VMs"
       community.vmware.vmware_guest_info:
         datacenter: "{{ vcenter_datacenter }}"
         hostname: "{{ vcenter_hostname }}"

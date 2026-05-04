@@ -3,8 +3,6 @@ from sqlalchemy.orm import Session
 import models, schemas, auth
 from database import SessionLocal, engine
 
-app = FastAPI()
-
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -22,6 +20,21 @@ def get_db():
     finally:
         db.close()
 
+# HEALTH
+@app.get("/", tags=["Health"])
+async def root():
+    return {
+        "message": "CMDB API",
+        "status": "online",
+        "version": "2.0.0",
+        "docs": "/docs"
+    }
+
+@app.get("/health", tags=["Health"])
+async def health():
+    return {"status": "healthy"}
+
+# ENDPOINTS DE ATIVOS
 @app.post("/ativos/", response_model=schemas.AtivoResponse, status_code=201)
 def create_ativo(
     ativo: schemas.AtivoCreate, 
