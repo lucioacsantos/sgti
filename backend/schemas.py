@@ -59,6 +59,11 @@ class SistemaOperacionalResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class SistemaOperacionalCreate(BaseModel):
+    abreviacao: str
+    descricao: str
+    lifecycle: Optional[str] = None
+
 class AplicacaoBase(BaseModel):
     sistema: str
     descricao: Optional[str] = None

@@ -65,6 +65,7 @@ def read_ativo(ativo_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Ativo não encontrado")
     return db_ativo
 
+# ENDPOINTS DE DADOS AUXILIARES
 @app.get("/tipos-ativos/", response_model=list[schemas.TipoAtivoResponse])
 def read_tipos_ativos(db: Session = Depends(get_db)):
     tipos_ativos = db.query(models.TipoAtivo).all()
@@ -85,11 +86,25 @@ def read_criticidades(db: Session = Depends(get_db)):
     criticidades = db.query(models.Criticidade).all()
     return criticidades
 
+@app.post("/sistema-operacional/", response_model=schemas.SistemaOperacionalResponse, status_code=201)
+def create_sistema_operacional(
+    sistema_operacional: schemas.SistemaOperacionalCreate, 
+    db: Session = Depends(get_db)#,
+    #current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    ):
+    #print(f"Ação realizada pela service account: {current_service.name}")
+    db_sistema_operacional = models.SistemaOperacional(**sistema_operacional.model_dump())
+    db.add(db_sistema_operacional)
+    db.commit()
+    db.refresh(db_sistema_operacional)
+    return db_sistema_operacional
+
 @app.get("/sistema-operacional/", response_model=list[schemas.SistemaOperacionalResponse])
 def read_sistemas_operacionais(db: Session = Depends(get_db)):
     sistemas_operacionais = db.query(models.SistemaOperacional).all()
     return sistemas_operacionais
 
+# ENDPOINTS DE APLICAÇÕES
 @app.post("/aplicacoes/", response_model=schemas.AplicacaoResponse, status_code=201)
 def create_aplicacao(
     aplicacao: schemas.AplicacaoCreate, 
