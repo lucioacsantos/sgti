@@ -10,7 +10,7 @@ class AtivoBase(BaseModel):
     status_id: Optional[int] = None
     criticidade_id: Optional[int] = None
     sor_id: Optional[int] = None
-    responsavel: Optional[str] = None
+    areas_id: Optional[int] = None
 
 class AtivoCreate(AtivoBase):
     pass
@@ -82,3 +82,11 @@ class AplicacaoCreate(AplicacaoBase):
 
 class AplicacaoResponse(AplicacaoBase):
     pass
+
+class AreasResponse(BaseModel):
+    id: int
+    nome: str
+    sigla: str
+
+    class Config:
+        from_attributes = True

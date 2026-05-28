@@ -24,6 +24,13 @@ class StatusAtivo(Base):
     id = Column(Integer, primary_key=True)
     nome = Column(String(50), unique=True, nullable=False)
 
+class Areas(Base):
+    __tablename__ = "areas"
+
+    id = Column(Integer, primary_key=True, index=True)
+    nome = Column(String(255), unique=True, nullable=False)
+    sigla = Column(String(50), unique=True, nullable=False)
+
 class SistemaOperacional(Base):
     __tablename__ = "sor"
     id = Column(Integer, primary_key=True)
@@ -57,7 +64,7 @@ class Ativo(Base):
     criticidade_id = Column(Integer, ForeignKey("criticidade.id"))
     sor_id = Column(Integer, ForeignKey("sor.id"))
 
-    responsavel = Column(String(255))
+    areas_id = Column(Integer, ForeignKey("areas.id"))
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
@@ -67,6 +74,7 @@ class Ativo(Base):
     tipo = relationship("TipoAtivo")
     status = relationship("StatusAtivo")
     sor = relationship("SistemaOperacional")
+    areas = relationship("Areas")
 
 # TABELA SERVICE ACCOUNT
 class ServiceAccount(Base):
@@ -78,4 +86,3 @@ class ServiceAccount(Base):
     created_at = Column(DateTime, server_default=func.now())
     expires_at = Column(DateTime, nullable=False)
     is_active = Column(Boolean, default=True)
-

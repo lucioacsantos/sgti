@@ -104,6 +104,11 @@ def read_sistemas_operacionais(db: Session = Depends(get_db)):
     sistemas_operacionais = db.query(models.SistemaOperacional).all()
     return sistemas_operacionais
 
+@app.get("/areas/", response_model=list[schemas.AreasResponse])
+def read_areas(db: Session = Depends(get_db)):
+    areas = db.query(models.Areas).all()
+    return areas
+
 # ENDPOINTS DE APLICAÇÕES
 @app.post("/aplicacoes/", response_model=schemas.AplicacaoResponse, status_code=201)
 def create_aplicacao(
