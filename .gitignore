@@ -22,3 +22,5 @@ frontend/.vite/
 .env.local
 *.sqlite
 *.db
+.codex/
+.agents/
