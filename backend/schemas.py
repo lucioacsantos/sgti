@@ -90,3 +90,21 @@ class AreasResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class OllamaRequest(BaseModel):
+    question: str
+    model: Optional[str] = None
+
+class OllamaResponse(BaseModel):
+    response: str
+
+class ZabbixOllamaObservationRequest(BaseModel):
+    event_id: str
+    question: str
+    model: Optional[str] = None
+
+class ZabbixOllamaObservationResponse(BaseModel):
+    event_id: str
+    problem_name: Optional[str] = None
+    ollama_response: str
+    zabbix_result: dict

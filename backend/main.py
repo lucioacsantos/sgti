@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-import models, schemas, auth
+import models, schemas, auth, zabbix
 from database import SessionLocal, engine
 
 models.Base.metadata.create_all(bind=engine)
@@ -127,3 +127,40 @@ def create_aplicacao(
 def read_aplicacoes(db: Session = Depends(get_db)):
     aplicacoes = db.query(models.Aplicacao).all()
     return aplicacoes
+
+# ENDPOINTS DE INTEGRAÇÃO COM OLLAMA
+@app.post("/ollama/", response_model=schemas.OllamaResponse)
+def ask_ollama(
+    question: schemas.OllamaRequest, 
+    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    ):
+    print(f"Ação realizada pela service account: {current_service.name}")
+    response = auth.ask_ollama(question.question, question.model)
+    return {"response": response}
+
+@app.post("/zabbix/alarmes/observacao-ollama/", response_model=schemas.ZabbixOllamaObservationResponse)
+def add_ollama_response_to_zabbix_alarm(
+    payload: schemas.ZabbixOllamaObservationRequest,
+    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+):
+    print(f"Ação realizada pela service account: {current_service.name}")
+    zabbix_client = zabbix.ZabbixClient()
+    problem = zabbix_client.get_open_problem(payload.event_id)
+    ollama_prompt = (
+        "Analise o alarme aberto do Zabbix abaixo e gere uma observação objetiva "
+        "para registrar no próprio alarme.\n\n"
+        f"Event ID: {payload.event_id}\n"
+        f"Nome do problema: {problem.get('name')}\n"
+        f"Severidade: {problem.get('severity')}\n"
+        f"Object ID: {problem.get('objectid')}\n\n"
+        f"Solicitação: {payload.question}"
+    )
+    ollama_response = auth.ask_ollama(ollama_prompt, payload.model)
+    zabbix_result = zabbix_client.add_event_observation(payload.event_id, ollama_response)
+
+    return {
+        "event_id": payload.event_id,
+        "problem_name": problem.get("name"),
+        "ollama_response": ollama_response,
+        "zabbix_result": zabbix_result,
+    }
