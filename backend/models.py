@@ -55,7 +55,7 @@ class Ativo(Base):
     __tablename__ = "ativo"
 
     id = Column(Integer, primary_key=True, index=True)
-    nome = Column(String(255), nullable=False)
+    nome = Column(String, nullable=False, index=True)
     descricao = Column(Text)
 
     tipo_id = Column(Integer, ForeignKey("tipo_ativo.id"), nullable=False)

@@ -12,8 +12,32 @@ class AtivoBase(BaseModel):
     sor_id: Optional[int] = None
     areas_id: Optional[int] = None
 
-class AtivoCreate(AtivoBase):
-    pass
+class AtivoCreate(BaseModel):
+    nome: str
+    descricao: Optional[str] = None
+    area_id: Optional[int] = None
+    ambiente_id: Optional[int] = None
+    tipo_id: Optional[int] = None
+    status_id: Optional[int] = None
+    criticidade_id: Optional[int] = None
+    sor_id: Optional[int] = None
+
+    class Config:
+        from_attributes = True
+
+class AtivoUpdate(BaseModel):
+    """Todos os campos são opcionais — somente os enviados serão atualizados."""
+    nome: Optional[str] = None
+    descricao: Optional[str] = None
+    area_id: Optional[int] = None
+    ambiente_id: Optional[int] = None
+    tipo_id: Optional[int] = None
+    status_id: Optional[int] = None
+    criticidade_id: Optional[int] = None
+    sor_id: Optional[int] = None
+
+    class Config:
+        from_attributes = True
 
 class AtivoResponse(AtivoBase):
     id: int

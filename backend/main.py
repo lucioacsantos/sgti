@@ -1,7 +1,9 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 import models, schemas, auth, zabbix
 from database import SessionLocal, engine
+from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -37,11 +39,23 @@ async def health():
 # ENDPOINTS DE ATIVOS
 @app.post("/ativos/", response_model=schemas.AtivoResponse, status_code=201)
 def create_ativo(
-    ativo: schemas.AtivoCreate, 
+    ativo: schemas.AtivoCreate,
     db: Session = Depends(get_db),
     current_service: models.ServiceAccount = Depends(auth.get_service_account)
-    ):
+):
     print(f"Ação realizada pela service account: {current_service.name}")
+    
+    # 🔒 Verificação de duplicidade (case-insensitive)
+    existente = db.query(models.Ativo).filter(
+        db.func.lower(models.Ativo.nome) == ativo.nome.lower()
+    ).first()
+    
+    if existente:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Ativo com nome '{ativo.nome}' já existe (id={existente.id})"
+        )
+    
     db_ativo = models.Ativo(**ativo.model_dump())
     db.add(db_ativo)
     db.commit()
@@ -57,6 +71,55 @@ def read_ativos(
     ):
     ativos = db.query(models.Ativo).offset(skip).limit(limit).all()
     return ativos
+
+@app.put("/ativos/{nome}", response_model=schemas.AtivoResponse)
+def upsert_ativo(
+    nome: str,
+    ativo: schemas.AtivoUpdate,
+    response: Response,
+    db: Session = Depends(get_db),
+    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+):
+
+    print(f"Ação realizada pela service account: {current_service.name}")
+
+    db_ativo = db.query(models.Ativo).filter(
+        func.lower(models.Ativo.nome) == nome.lower()
+    ).first()
+
+    dados = ativo.model_dump(exclude_unset=True)
+
+    if db_ativo:
+        for campo, valor in dados.items():
+            setattr(db_ativo, campo, valor)
+        db.commit()
+        db.refresh(db_ativo)
+        response.status_code = 200
+        return db_ativo
+
+    dados.setdefault("nome", nome)
+
+    try:
+        novo = models.Ativo(**dados)
+        db.add(novo)
+        db.commit()
+        db.refresh(novo)
+        response.status_code = 201
+        return novo
+    except IntegrityError:
+        db.rollback()
+        # Race condition: outro processo criou entre a consulta e a inserção
+        db_ativo = db.query(models.Ativo).filter(
+            func.lower(models.Ativo.nome) == nome.lower()
+        ).first()
+        # Atualiza o que o outro processo acabou de criar
+        for campo, valor in dados.items():
+            setattr(db_ativo, campo, valor)
+        db.commit()
+        db.refresh(db_ativo)
+        response.status_code = 200
+        return db_ativo
+
 
 @app.get("/ativos/{ativo_id}", response_model=schemas.AtivoResponse)
 def read_ativo(ativo_id: int, db: Session = Depends(get_db)):
