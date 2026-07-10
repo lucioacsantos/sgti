@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import FastAPI, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 import models, schemas, auth, zabbix
@@ -5,8 +6,10 @@ from database import SessionLocal, engine
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 
+# Inicializa o banco de dados (cria tabelas se não existirem)
 models.Base.metadata.create_all(bind=engine)
 
+# Inicializa a aplicação FastAPI
 app = FastAPI(
     title="SGTI ::: CMDB ::: API", 
     version="1.0", 
@@ -42,7 +45,7 @@ def create_ativo(
     ativo: schemas.AtivoCreate,
     db: Session = Depends(get_db),
     current_service: models.ServiceAccount = Depends(auth.get_service_account)
-):
+    ):
     print(f"Ação realizada pela service account: {current_service.name}")
     
     # 🔒 Verificação de duplicidade (case-insensitive)
@@ -79,7 +82,7 @@ def upsert_ativo(
     response: Response,
     db: Session = Depends(get_db),
     current_service: models.ServiceAccount = Depends(auth.get_service_account)
-):
+    ):
 
     print(f"Ação realizada pela service account: {current_service.name}")
 
@@ -120,13 +123,96 @@ def upsert_ativo(
         response.status_code = 200
         return db_ativo
 
-
 @app.get("/ativos/{ativo_id}", response_model=schemas.AtivoResponse)
 def read_ativo(ativo_id: int, db: Session = Depends(get_db)):
     db_ativo = db.query(models.Ativo).filter(models.Ativo.id == ativo_id).first()
     if db_ativo is None:
         raise HTTPException(status_code=404, detail="Ativo não encontrado")
     return db_ativo
+
+@app.put("/enderecos-ip/", response_model=schemas.EnderecoIpResponse)
+def upsert_endereco_ip(
+    payload: schemas.EnderecoIpUpsert,
+    response: Response,
+    db: Session = Depends(get_db),
+    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    ):
+    print(f"Ação realizada pela service account: {current_service.name}")
+
+    # Verifica se o ativo existe (evita erro de FK confuso)
+    ativo_existe = db.query(models.Ativo).filter(models.Ativo.id == payload.ativo_id).first()
+    if not ativo_existe:
+        raise HTTPException(status_code=404, detail=f"Ativo id={payload.ativo_id} não encontrado")
+
+    dados = payload.model_dump(exclude_unset=True)
+
+    # Busca registro existente pela chave natural (ativo_id, ip)
+    db_ip = db.query(models.EnderecoIp).filter(
+        models.EnderecoIp.ativo_id == payload.ativo_id,
+        models.EnderecoIp.ip == payload.ip
+    ).first()
+
+    # Se marcado como primário, desmarca os demais IPs do mesmo ativo
+    if dados.get("primario"):
+        db.query(models.EnderecoIp).filter(
+            models.EnderecoIp.ativo_id == payload.ativo_id,
+            models.EnderecoIp.id != (db_ip.id if db_ip else None)
+        ).update({"primario": False})
+
+    if db_ip:
+        for campo, valor in dados.items():
+            setattr(db_ip, campo, valor)
+        db.commit()
+        db.refresh(db_ip)
+        response.status_code = 200
+        return db_ip
+
+    try:
+        novo = models.EnderecoIp(**dados)
+        db.add(novo)
+        db.commit()
+        db.refresh(novo)
+        response.status_code = 201
+        return novo
+    except IntegrityError:
+        db.rollback()
+        # Race condition: outro processo inseriu entre a consulta e o insert
+        db_ip = db.query(models.EnderecoIp).filter(
+            models.EnderecoIp.ativo_id == payload.ativo_id,
+            models.EnderecoIp.ip == payload.ip
+        ).first()
+        for campo, valor in dados.items():
+            setattr(db_ip, campo, valor)
+        db.commit()
+        db.refresh(db_ip)
+        response.status_code = 200
+        return db_ip
+
+@app.get("/enderecos-ip/", response_model=list[schemas.EnderecoIpResponse])
+def read_enderecos_ip(
+    ativo_id: Optional[int] = None,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    ):
+    query = db.query(models.EnderecoIp)
+    if ativo_id:
+        query = query.filter(models.EnderecoIp.ativo_id == ativo_id)
+    return query.offset(skip).limit(limit).all()
+
+
+@app.delete("/enderecos-ip/{ip_id}", status_code=204)
+def delete_endereco_ip(
+    ip_id: int,
+    db: Session = Depends(get_db),
+    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    ):
+    db_ip = db.query(models.EnderecoIp).filter(models.EnderecoIp.id == ip_id).first()
+    if not db_ip:
+        raise HTTPException(status_code=404, detail="Endereço IP não encontrado")
+    db.delete(db_ip)
+    db.commit()
 
 # ENDPOINTS DE DADOS AUXILIARES
 @app.get("/tipos-ativos/", response_model=list[schemas.TipoAtivoResponse])
@@ -205,7 +291,7 @@ def ask_ollama(
 def add_ollama_response_to_zabbix_alarm(
     payload: schemas.ZabbixOllamaObservationRequest,
     current_service: models.ServiceAccount = Depends(auth.get_service_account)
-):
+    ):
     print(f"Ação realizada pela service account: {current_service.name}")
     zabbix_client = zabbix.ZabbixClient()
     problem = zabbix_client.get_open_problem(payload.event_id)

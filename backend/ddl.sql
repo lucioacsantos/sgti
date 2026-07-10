@@ -17,7 +17,6 @@ CREATE TABLE public.api_token (
 );
 
 
-
 CREATE TABLE public.audit_log (
 	id serial4 NOT NULL,
 	entidade varchar(100) NOT NULL,
@@ -123,6 +122,27 @@ CREATE TABLE public.ativo (
 );
 CREATE INDEX idx_ativo_nome ON public.ativo USING btree (nome);
 CREATE INDEX idx_ativo_tipo ON public.ativo USING btree (tipo_id);
+
+
+CREATE TABLE public.endereco_ip (
+    id              SERIAL PRIMARY KEY,
+    ativo_id        INT NOT NULL,
+    ip              INET NOT NULL,
+    tipo            VARCHAR(20) DEFAULT 'IPv4',
+    interface       VARCHAR(50),
+    descricao       VARCHAR(255),
+    primario        BOOLEAN DEFAULT FALSE,
+    ativo           BOOLEAN DEFAULT TRUE,
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_ip_ativo FOREIGN KEY (ativo_id)
+        REFERENCES public.ativo(id) ON DELETE CASCADE,
+
+    CONSTRAINT uq_ip_ativo UNIQUE (ativo_id, ip)  -- evita duplicata no mesmo ativo
+);
+CREATE INDEX idx_ip_endereco ON public.endereco_ip (ip);
+CREATE INDEX idx_ip_ativo_id ON public.endereco_ip (ativo_id);
 
 
 CREATE TABLE public."cluster" (

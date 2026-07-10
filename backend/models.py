@@ -1,7 +1,9 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime, Boolean
+from sqlalchemy.dialects.postgresql import INET
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
+
 
 # TABELAS DE APOIO
 class Criticidade(Base):
@@ -75,6 +77,24 @@ class Ativo(Base):
     status = relationship("StatusAtivo")
     sor = relationship("SistemaOperacional")
     areas = relationship("Areas")
+
+# TABELA ENDERECO_IP
+class EnderecoIp(Base):
+    __tablename__ = "endereco_ip"
+
+    id = Column(Integer, primary_key=True, index=True)
+    ativo_id = Column(Integer, ForeignKey("ativo.id", ondelete="CASCADE"), nullable=False, index=True)
+    ip = Column(INET, nullable=False, index=True)
+    tipo = Column(String(20), default="IPv4")
+    interface = Column(String(50))
+    descricao = Column(String(255))
+    primario = Column(Boolean, default=False)
+    ativo = Column(Boolean, default=True)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    ativo_rel = relationship("Ativo")
+
 
 # TABELA SERVICE ACCOUNT
 class ServiceAccount(Base):

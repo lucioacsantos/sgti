@@ -1,6 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional
 from datetime import datetime
+import ipaddress
+
 
 class AtivoBase(BaseModel):
     nome: str
@@ -42,6 +44,61 @@ class AtivoUpdate(BaseModel):
 class AtivoResponse(AtivoBase):
     id: int
     created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class EnderecoIpBase(BaseModel):
+    ativo_id: int
+    ip: str
+    tipo: Optional[str] = "IPv4"
+    interface: Optional[str] = None
+    descricao: Optional[str] = None
+    primario: Optional[bool] = False
+    ativo: Optional[bool] = True
+
+    @field_validator("ip")
+    @classmethod
+    def validar_ip(cls, v):
+        try:
+            ipaddress.ip_interface(v)  # aceita IP puro ou com máscara (CIDR)
+        except ValueError:
+            raise ValueError(f"'{v}' não é um endereço IP/CIDR válido")
+        return v
+
+class EnderecoIpUpsert(BaseModel):
+    """Usado no upsert: identifica pelo par (ativo_id, ip)."""
+    ativo_id: int
+    ip: str
+    tipo: Optional[str] = "IPv4"
+    interface: Optional[str] = None
+    descricao: Optional[str] = None
+    primario: Optional[bool] = False
+    ativo: Optional[bool] = True
+
+    @field_validator("ip")
+    @classmethod
+    def validar_ip(cls, v):
+        try:
+            ipaddress.ip_interface(v)
+        except ValueError:
+            raise ValueError(f"'{v}' não é um endereço IP/CIDR válido")
+        return v
+
+    class Config:
+        from_attributes = True
+
+class EnderecoIpResponse(BaseModel):
+    id: int
+    ativo_id: int
+    ip: str
+    tipo: Optional[str] = None
+    interface: Optional[str] = None
+    descricao: Optional[str] = None
+    primario: bool
+    ativo: bool
+    created_at: datetime
+    updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
