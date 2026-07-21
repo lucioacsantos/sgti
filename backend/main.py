@@ -123,9 +123,11 @@ def upsert_ativo(
         response.status_code = 200
         return db_ativo
 
-@app.get("/ativos/{ativo_id}", response_model=schemas.AtivoResponse)
-def read_ativo(ativo_id: int, db: Session = Depends(get_db)):
-    db_ativo = db.query(models.Ativo).filter(models.Ativo.id == ativo_id).first()
+@app.get("/ativos/{nome}", response_model=schemas.AtivoResponse)
+def read_ativo(nome: str, db: Session = Depends(get_db)):
+    db_ativo = db.query(models.Ativo).filter(
+        func.lower(models.Ativo.nome) == nome.lower()
+    ).first()
     if db_ativo is None:
         raise HTTPException(status_code=404, detail="Ativo não encontrado")
     return db_ativo
