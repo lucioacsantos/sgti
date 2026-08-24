@@ -89,6 +89,12 @@ Sistema de Gerenciamento de TI - Configuration Management Database prototype wit
 
 ### Testing
 - **Backend**: 32 pytest tests covering assets, auth, IPs, relationships, audit, infrastructure
+- **Local LDAP Test Env**: Dockerized OpenLDAP for authentication testing
+  ```bash
+  cd backend/tests/ldap
+  docker compose up -d
+  ./setup_ldap.sh
+  ```
 - **Test DB**: SQLite in-memory with dependency override
 - **Auth**: Service account token fixture for all API tests
 
@@ -183,10 +189,14 @@ REFRESH_TOKEN_EXPIRE_DAYS=7
 
 # AD/LDAP
 AD_SERVER=ldap://your-ad-server:389
+AD_PORT=389
 AD_DOMAIN=YOUR.DOMAIN.COM
 AD_BASE_DN=DC=your,DC=domain,DC=com
-AD_BIND_DN=cn=service-account,DC=your,DC=domain,DC=com
-AD_BIND_PASSWORD=your-password
+AD_USE_SSL=false
+
+# Role Mappings (Group Name = Application Role)
+ROLE_ADMIN=G_GESIN_GOSD_OMIS
+ROLE_READ=G_GESIN
 
 # Ollama
 OLLAMA_API_URL=http://localhost:11434/api/generate

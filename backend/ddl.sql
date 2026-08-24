@@ -6,15 +6,18 @@ CREATE TABLE public.ambiente (
 );
 
 
-CREATE TABLE public.api_token (
+CREATE TABLE public.auth_token (
 	id serial4 NOT NULL,
 	nome varchar(255) NULL,
-	"token" text NOT NULL,
+	token_hash text NOT NULL,
 	ativo bool DEFAULT true NULL,
 	created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
-	CONSTRAINT api_token_pkey PRIMARY KEY (id),
-	CONSTRAINT api_token_token_key UNIQUE (token)
+	expires_at timestamp NULL,
+	tipo varchar(20) DEFAULT 'api', -- 'api', 'service_account'
+	CONSTRAINT auth_token_pkey PRIMARY KEY (id),
+	CONSTRAINT auth_token_hash_key UNIQUE (token_hash)
 );
+CREATE INDEX idx_auth_token_hash ON public.auth_token(token_hash);
 
 
 CREATE TABLE public.audit_log (
@@ -29,6 +32,7 @@ CREATE TABLE public.audit_log (
 	CONSTRAINT audit_log_pkey PRIMARY KEY (id)
 );
 CREATE INDEX idx_audit_entidade ON public.audit_log USING btree (entidade);
+CREATE INDEX idx_audit_created_at ON public.audit_log USING btree (created_at);
 
 
 CREATE TABLE public.criticidade (
@@ -39,18 +43,7 @@ CREATE TABLE public.criticidade (
 );
 
 
-CREATE TABLE public.service_accounts (
-	id serial4 NOT NULL,
-	"name" varchar(100) NOT NULL,
-	"token" varchar(255) NOT NULL,
-	created_at timestamp NULL,
-	expires_at timestamp NOT NULL,
-	is_active bool NULL,
-	CONSTRAINT service_accounts_name_key UNIQUE (name),
-	CONSTRAINT service_accounts_pkey PRIMARY KEY (id)
-);
-CREATE INDEX ix_service_accounts_id ON public.service_accounts USING btree (id);
-CREATE UNIQUE INDEX ix_service_accounts_token ON public.service_accounts USING btree (token);
+-- Removed in favor of public.auth_token
 
 
 CREATE TABLE public.sor (
@@ -108,7 +101,7 @@ CREATE TABLE public.ativo (
 	ambiente_id int4 NULL,
 	status_id int4 NULL,
 	criticidade_id int4 NULL,
-    sor_id int4 NULL,
+     sor_id int4 NULL,
 	areas_id int4 NULL,
 	created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
 	updated_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
@@ -122,6 +115,10 @@ CREATE TABLE public.ativo (
 );
 CREATE INDEX idx_ativo_nome ON public.ativo USING btree (nome);
 CREATE INDEX idx_ativo_tipo ON public.ativo USING btree (tipo_id);
+CREATE INDEX idx_ativo_ambiente ON public.ativo USING btree (ambiente_id);
+CREATE INDEX idx_ativo_status ON public.ativo USING btree (status_id);
+CREATE INDEX idx_ativo_criticidade ON public.ativo USING btree (criticidade_id);
+
 
 
 CREATE TABLE public.endereco_ip (
@@ -130,6 +127,7 @@ CREATE TABLE public.endereco_ip (
     ip              INET NOT NULL,
     tipo            VARCHAR(20) DEFAULT 'IPv4',
     interface       VARCHAR(50),
+    mac_address     MACADDR,
     descricao       VARCHAR(255),
     primario        BOOLEAN DEFAULT FALSE,
     ativo           BOOLEAN DEFAULT TRUE,
@@ -174,6 +172,7 @@ CREATE TABLE public.relacionamento (
 	origem_id int4 NOT NULL,
 	destino_id int4 NOT NULL,
 	tipo_id int4 NOT NULL,
+	dependencia_tipo varchar(20) DEFAULT 'soft', -- 'hard' or 'soft'
 	descricao text NULL,
 	created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
 	CONSTRAINT relacionamento_pkey PRIMARY KEY (id),
@@ -215,14 +214,20 @@ CREATE TABLE public.aplicacao (
 	sistema varchar(255) NOT NULL,
 	descricao varchar(255) NULL,
 	objetivo text NULL,
-	linguagens varchar(255) NULL,
-	bancos_dados varchar(255) NULL,
-	area_tecnologia varchar(255) NULL,
-	area_negocio varchar(255) NULL,
 	created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
 	CONSTRAINT aplicacao_pkey PRIMARY KEY (id),
 	CONSTRAINT aplicacao_sistema_key UNIQUE (sistema)
 );
+
+CREATE TABLE public.aplicacao_metadado (
+    id serial4 PRIMARY KEY,
+    aplicacao_id int4 NOT NULL REFERENCES public.aplicacao(id) ON DELETE CASCADE,
+    chave varchar(50) NOT NULL, -- 'linguagem', 'banco_dados', 'area_tecnologia', 'area_negocio'
+    valor varchar(255) NOT NULL,
+    CONSTRAINT uq_metadado UNIQUE (aplicacao_id, chave, valor)
+);
+CREATE INDEX idx_metadado_chave ON public.aplicacao_metadado(chave);
+
 
 
 CREATE TABLE public.instancia_aplicacao (
@@ -240,13 +245,15 @@ CREATE TABLE public.instancia_aplicacao (
 );
 
 
-CREATE TABLE usuario (
+CREATE TABLE public.usuario (
     id SERIAL PRIMARY KEY,
     username VARCHAR(100) UNIQUE NOT NULL, -- login AD
     nome VARCHAR(255),
     email VARCHAR(255),
     totp_secret VARCHAR(64),
     totp_enabled BOOLEAN DEFAULT FALSE,
+    last_login TIMESTAMP,
+    failed_attempts INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

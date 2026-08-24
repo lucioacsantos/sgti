@@ -28,6 +28,7 @@ REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 
 # AD/LDAP Settings
 AD_SERVER = os.getenv("AD_SERVER", "ldap://localhost:389")
+AD_PORT = int(os.getenv("AD_PORT", "389"))
 AD_DOMAIN = os.getenv("AD_DOMAIN", "EXAMPLE.COM")
 AD_BASE_DN = os.getenv("AD_BASE_DN", "DC=example,DC=com")
 AD_BIND_DN = os.getenv("AD_BIND_DN", "")
@@ -37,12 +38,15 @@ AD_SEARCH_FILTER = os.getenv("AD_SEARCH_FILTER", "(sAMAccountName={username})")
 AD_GROUP_SEARCH_FILTER = os.getenv("AD_GROUP_SEARCH_FILTER", "(member={user_dn})")
 
 # Role mapping from AD groups to application roles
-AD_GROUP_ROLE_MAP = {
-    "SGTI-CMDB-Admins": ["admin"],
-    "SGTI-CMDB-Analysts": ["analyst", "reconciliator"],
-    "SGTI-CMDB-Reviewers": ["reviewer", "revisor"],
-    "SGTI-CMDB-Viewers": ["viewer"],
-}
+# Loaded dynamically from .env (e.g., ROLE_ADMIN=G_GESIN_GOSD_OMIS)
+def get_role_mapping() -> Dict[str, List[str]]:
+    mapping = {}
+    for key, value in os.environ.items():
+        if key.startswith("ROLE_"):
+            role_name = key.replace("ROLE_", "").lower()
+            groups = [g.strip() for g in value.split(",")]
+            mapping[role_name] = groups
+    return mapping
 
 
 class ADAuthError(Exception):
@@ -163,13 +167,15 @@ def get_user_groups(user_dn: str) -> List[str]:
 def map_ad_groups_to_roles(ad_groups: List[str]) -> List[str]:
     """Map AD groups to application roles"""
     roles = []
+    role_map = get_role_mapping()
+    
     for group in ad_groups:
-        # Check if group CN or DN matches our mapping
+        # Extract group CN for easier matching
         group_cn = group.split(',')[0].replace('CN=', '') if 'CN=' in group else group
         
-        for ad_group, app_roles in AD_GROUP_ROLE_MAP.items():
-            if ad_group.lower() in group.lower() or ad_group.lower() == group_cn.lower():
-                roles.extend(app_roles)
+        for role, groups in role_map.items():
+            if any(g.lower() in group.lower() or g.lower() == group_cn.lower() for g in groups):
+                roles.append(role)
     
     # Default role if no mapping found
     if not roles:
