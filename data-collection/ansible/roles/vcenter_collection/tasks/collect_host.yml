@@ -1,0 +1,85 @@
+---
+# tasks/collect_host.yml - Collect ESXi host data
+
+- name: "vCenter Collection | Build host entity"
+  ansible.builtin.set_fact:
+    host_entity:
+      source_id: "{{ vcenter_source_id }}"
+      entity_type: "vcenter_host"
+      source_entity_id: "{{ host.moid }}"
+      source_unique_key: "{{ vcenter_source_id }}:vcenter_host:{{ host.moid }}"
+      name: "{{ host.name }}"
+      display_name: "{{ host.name }}"
+      datacenter: "{{ datacenter.name }}"
+      parent_source_id: "{{ datacenter.moid }}"
+      
+      # Version
+      version: "{{ host.version }}"
+      build: "{{ host.build }}"
+      
+      # Hardware
+      manufacturer: "{{ host.hardware_vendor | default('') }}"
+      model: "{{ host.hardware_model | default('') }}"
+      serial_number: "{{ host.hardware_serial | default('') }}"
+      bios_version: "{{ host.bios_version | default('') }}"
+      boot_time: "{{ host.boot_time | default('') }}"
+      
+      # Resources
+      total_cpu_cores: "{{ host.cpu_cores | default(0) }}"
+      total_cpu_threads: "{{ host.cpu_threads | default(0) }}"
+      total_cpu_mhz: "{{ host.cpu_mhz | default(0) }}"
+      total_memory_gb: "{{ host.memory_gb | default(0) }}"
+      used_cpu_mhz: "{{ host.cpu_usage_mhz | default(0) }}"
+      used_memory_gb: "{{ host.memory_usage_gb | default(0) }}"
+      
+      # VMs
+      vm_count: "{{ host.vm_count | default(0) }}"
+      powered_on_vm_count: "{{ host.powered_on_vm_count | default(0) }}"
+      
+      # Network
+      vswitches: "{{ host.vswitches | default([]) }}"
+      portgroups: "{{ host.portgroups | default([]) }}"
+      
+      # Storage
+      datastores: "{{ host.datastores | default([]) }}"
+      
+      # Maintenance
+      in_maintenance_mode: "{{ host.in_maintenance_mode | default(false) }}"
+      lockdown_mode: "{{ host.lockdown_mode | default('') }}"
+      
+      # Power state
+      power_state: "{{ 'powered_on' if host.power_state == 'poweredOn' else 'powered_off' }}"
+      connection_state: "{{ host.connection_state | default('') }}"
+      
+      # Metadata
+      tags:
+        vcenter_moid: "{{ host.moid }}"
+        datacenter_moid: "{{ datacenter.moid }}"
+      raw_data:
+        moid: "{{ host.moid }}"
+        datacenter_moid: "{{ datacenter.moid }}"
+        overall_status: "{{ host.overall_status | default('') }}"
+
+- name: "vCenter Collection | Send host to collection service"
+  ansible.builtin.uri:
+    url: "{{ collection_service_url }}/api/v1/entities"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ collection_service_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body: "{{ host_entity }}"
+    status_code: [200, 201]
+  register: host_result
+
+- name: "vCenter Collection | Update job progress"
+  ansible.builtin.uri:
+    url: "{{ collection_service_url }}/api/v1/collection/jobs/{{ collection_job_id }}/progress"
+    method: PATCH
+    headers:
+      Authorization: "Bearer {{ collection_service_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      processed_entities: "{{ host_result.json.processed | default(1) }}"
+      current_entity_type: "vcenter_host"

@@ -1,0 +1,96 @@
+---
+# tasks/collect_host.yml - Collect individual host data
+
+- name: "Satellite Collection | Build host entity"
+  ansible.builtin.set_fact:
+    host_entity:
+      source_id: "{{ satellite_source_id }}"
+      entity_type: "physical_server"
+      source_entity_id: "{{ host.id | string }}"
+      source_unique_key: "{{ satellite_source_id }}:physical_server:{{ host.id }}"
+      name: "{{ host.name }}"
+      display_name: "{{ host.name }}"
+      description: "{{ host.comment | default('') }}"
+      
+      # Location
+      datacenter: "{{ loc_name }}"
+      rack: "{{ host.hostgroup.title | default('') }}"
+      
+      # Hardware
+      manufacturer: "{{ host.facts.manufacturer | default('') }}"
+      model: "{{ host.facts.productname | default('') }}"
+      serial_number: "{{ host.facts.serialnumber | default('') }}"
+      uuid: "{{ host.facts.uuid | default('') }}"
+      bios_version: "{{ host.facts.bios_version | default('') }}"
+      bios_date: "{{ host.facts.bios_release_date | default('') }}"
+      chassis_type: "{{ host.facts.chassis_type | default('') }}"
+      part_number: "{{ host.facts.part_number | default('') }}"
+      asset_tag: "{{ host.facts.asset_tag | default('') }}"
+      
+      # Management
+      ilo_ip: "{{ host.bmc.ip | default('') }}"
+      ilo_username: "{{ host.bmc.username | default('') }}"
+      
+      # Satellite specific
+      satellite_org: "{{ org_name }}"
+      satellite_location: "{{ loc_name }}"
+      satellite_hostgroup: "{{ host.hostgroup.title | default('') }}"
+      content_view: "{{ host.content_view.name | default('') }}"
+      lifecycle_environment: "{{ host.lifecycle_environment.name | default('') }}"
+      puppet_environment: "{{ host.puppet_environment.name | default('') }}"
+      
+      # Compute
+      cpu_cores: "{{ host.facts.processorcount | default(0) }}"
+      cpu_threads: "{{ host.facts.processorcount | default(0) }}"
+      cpu_model: "{{ host.facts.processor0 | default('') }}"
+      cpu_mhz: "{{ host.facts.processor_mhz | default(0) }}"
+      memory_gb: "{{ (host.facts.memorysize_mb | default(0) // 1024) }}"
+      
+      # OS
+      os:
+        name: "{{ host.operatingsystem.name | default('') }}"
+        version: "{{ host.operatingsystem.major | default('') }}"
+        family: "{{ host.operatingsystem.family | default('') }}"
+      
+      # Network
+      network_interfaces: "{{ host.interfaces | selectattr('type', 'equalto', 'interface') | map(attribute='name') | list }}"
+      primary_ip: "{{ host.ip | default('') }}"
+      bonds: "{{ host.interfaces | selectattr('type', 'equalto', 'bond') | list }}"
+      
+      # Subscriptions
+      subscriptions: "{{ host.subscriptions | default([]) }}"
+      
+      # Power state
+      power_state: "{{ 'powered_on' if host.status.label == 'Active' else 'unknown' }}"
+      connection_state: "{{ host.status.label | default('') }}"
+      
+      # Tags
+      tags: "{{ host.host_parameters | map(attribute='name') | list }}"
+      annotations: "{{ host.host_parameters | items2dict(key_name='name', value_name='value') }}"
+      
+      # Metadata
+      raw_data: "{{ host }}"
+
+- name: "Satellite Collection | Send host to collection service"
+  ansible.builtin.uri:
+    url: "{{ collection_service_url }}/api/v1/entities"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ collection_service_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body: "{{ host_entity }}"
+    status_code: [200, 201]
+  register: host_result
+
+- name: "Satellite Collection | Update job progress"
+  ansible.builtin.uri:
+    url: "{{ collection_service_url }}/api/v1/collection/jobs/{{ collection_job_id }}/progress"
+    method: PATCH
+    headers:
+      Authorization: "Bearer {{ collection_service_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      processed_entities: "{{ host_result.json.processed | default(1) }}"
+      current_entity_type: "physical_server"

@@ -1,0 +1,93 @@
+---
+# tasks/main.yml - Satellite Collection Role
+# Collects physical server data from Red Hat Satellite and sends to Data Collection Service
+
+- name: "Satellite Collection | Validate required variables"
+  ansible.builtin.assert:
+    that:
+      - satellite_host is defined
+      - satellite_username is defined
+      - satellite_password is defined
+      - collection_service_url is defined
+      - collection_service_token is defined
+    fail_msg: "Required variables not defined"
+    quiet: true
+
+- name: "Satellite Collection | Install required packages"
+  ansible.builtin.pip:
+    name:
+      - requests
+      - httpx
+    state: present
+
+- name: "Satellite Collection | Create collection job"
+  ansible.builtin.uri:
+    url: "{{ collection_service_url }}/api/v1/collection/jobs"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ collection_service_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      source_id: "{{ satellite_source_id }}"
+      collection_type: "{{ collection_type | default('full') }}"
+      triggered_by: "ansible"
+      triggered_by_user: "{{ ansible_user_id | default('ansible') }}"
+    register: job_response
+    until: job_response.status == 201
+    retries: 3
+    delay: 5
+
+- name: "Satellite Collection | Set job ID fact"
+  ansible.builtin.set_fact:
+    collection_job_id: "{{ job_response.json.id }}"
+
+- name: "Satellite Collection | Get organizations"
+  ansible.builtin.uri:
+    url: "https://{{ satellite_host }}/api/v2/organizations"
+    method: GET
+    user: "{{ satellite_username }}"
+    password: "{{ satellite_password }}"
+    validate_certs: "{{ satellite_validate_certs | default(false) }}"
+    headers:
+      Accept: "application/json"
+  register: orgs_response
+
+- name: "Satellite Collection | Set organizations fact"
+  ansible.builtin.set_fact:
+    organizations: "{{ orgs_response.json.results }}"
+
+- name: "Satellite Collection | Get locations"
+  ansible.builtin.uri:
+    url: "https://{{ satellite_host }}/api/v2/locations"
+    method: GET
+    user: "{{ satellite_username }}"
+    password: "{{ satellite_password }}"
+    validate_certs: "{{ satellite_validate_certs | default(false) }}"
+    headers:
+      Accept: "application/json"
+  register: locs_response
+
+- name: "Satellite Collection | Set locations fact"
+  ansible.builtin.set_fact:
+    locations: "{{ locs_response.json.results }}"
+
+- name: "Satellite Collection | Process each organization/location"
+  ansible.builtin.include_tasks: collect_org_location.yml
+  loop: "{{ organizations }}"
+  loop_control:
+    loop_var: org
+  vars:
+    org_id: "{{ org.id }}"
+    org_name: "{{ org.name }}"
+
+- name: "Satellite Collection | Complete collection job"
+  ansible.builtin.uri:
+    url: "{{ collection_service_url }}/api/v1/collection/jobs/{{ collection_job_id }}/complete"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ collection_service_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      status: "completed"

@@ -1,0 +1,185 @@
+{
+  "flow": {
+    "name": "vCenter Data Collection",
+    "description": "Collects VMware infrastructure data from vCenter and sends to Data Collection Service",
+    "processGroups": [
+      {
+        "name": "vCenter Collection",
+        "processors": [
+          {
+            "name": "Create Collection Job",
+            "type": "InvokeHTTP",
+            "config": {
+              "HTTP Method": "POST",
+              "Remote URL": "${collection.service.url}/api/v1/collection/jobs",
+              "Headers": {
+                "Authorization": "Bearer ${collection.service.token}",
+                "Content-Type": "application/json"
+              },
+              "Request Body": {
+                "source_id": "${vcenter.source.id}",
+                "collection_type": "${collection.type:full}",
+                "triggered_by": "nifi",
+                "triggered_by_user": "nifi"
+              }
+            },
+            "relationships": ["success", "failure"]
+          },
+          {
+            "name": "Extract Job ID",
+            "type": "EvaluateJsonPath",
+            "config": {
+              "Destination": "flowfile-attribute",
+              "Return Type": "json",
+              "Path Expressions": {
+                "collection.job.id": "$.id"
+              }
+            },
+            "relationships": ["matched", "unmatched"]
+          },
+          {
+            "name": "Get Datacenters",
+            "type": "InvokeHTTP",
+            "config": {
+              "HTTP Method": "GET",
+              "Remote URL": "https://${vcenter.host}/rest/vcenter/datacenter",
+              "Headers": {
+                "Authorization": "Bearer ${vcenter.api.token}",
+                "Accept": "application/json"
+              }
+            },
+            "relationships": ["success", "failure"]
+          },
+          {
+            "name": "Split Datacenters",
+            "type": "SplitJson",
+            "config": {
+              "JsonPath Expression": "$.value[*]",
+              "Null Value Representation": "empty string"
+            },
+            "relationships": ["split", "failure"]
+          },
+          {
+            "name": "Collect Clusters",
+            "type": "InvokeHTTP",
+            "config": {
+              "HTTP Method": "GET",
+              "Remote URL": "https://${vcenter.host}/rest/vcenter/cluster?datacenter=${datacenter.id}",
+              "Headers": {
+                "Authorization": "Bearer ${vcenter.api.token}",
+                "Accept": "application/json"
+              }
+            },
+            "relationships": ["success", "failure"]
+          },
+          {
+            "name": "Transform Clusters",
+            "type": "JoltTransformJSON",
+            "config": {
+              "Jolt Specification": [
+                {
+                  "operation": "shift",
+                  "spec": {
+                    "value": {
+                      "*": {
+                        "source_id": "${vcenter.source.id}",
+                        "entity_type": "vcenter_cluster",
+                        "source_entity_id": "@(1,moid)",
+                        "source_unique_key": "${vcenter.source.id}:vcenter_cluster:@(1,moid)",
+                        "name": "@(1,name)",
+                        "display_name": "@(1,name)",
+                        "datacenter": "${datacenter.name}",
+                        "parent_source_id": "${datacenter.moid}",
+                        "ha_enabled": "@(1,dasConfig.enabled)",
+                        "drs_enabled": "@(1,drsConfig.enabled)",
+                        "total_cpu_cores": "@(1,totalCpuCores)",
+                        "total_memory_gb": "@(1,totalMemoryGB)",
+                        "host_count": "@(1,hostCount)",
+                        "vm_count": "@(1,vmCount)"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "relationships": ["success", "failure"]
+          },
+          {
+            "name": "Send Entities to Collection Service",
+            "type": "InvokeHTTP",
+            "config": {
+              "HTTP Method": "POST",
+              "Remote URL": "${collection.service.url}/api/v1/entities",
+              "Headers": {
+                "Authorization": "Bearer ${collection.service.token}",
+                "Content-Type": "application/json"
+              }
+            },
+            "relationships": ["success", "failure"]
+          },
+          {
+            "name": "Update Job Progress",
+            "type": "InvokeHTTP",
+            "config": {
+              "HTTP Method": "PATCH",
+              "Remote URL": "${collection.service.url}/api/v1/collection/jobs/${collection.job.id}/progress",
+              "Headers": {
+                "Authorization": "Bearer ${collection.service.token}",
+                "Content-Type": "application/json"
+              },
+              "Request Body": {
+                "processed_entities": 1,
+                "current_entity_type": "vcenter_cluster"
+              }
+            },
+            "relationships": ["success", "failure"]
+          }
+        ],
+        "connections": [
+          {
+            "source": "Create Collection Job",
+            "destination": "Extract Job ID",
+            "relationship": "success"
+          },
+          {
+            "source": "Extract Job ID",
+            "destination": "Get Datacenters",
+            "relationship": "matched"
+          },
+          {
+            "source": "Get Datacenters",
+            "destination": "Split Datacenters",
+            "relationship": "success"
+          },
+          {
+            "source": "Split Datacenters",
+            "destination": "Collect Clusters",
+            "relationship": "split"
+          },
+          {
+            "source": "Collect Clusters",
+            "destination": "Transform Clusters",
+            "relationship": "success"
+          },
+          {
+            "source": "Transform Clusters",
+            "destination": "Send Entities to Collection Service",
+            "relationship": "success"
+          },
+          {
+            "source": "Send Entities to Collection Service",
+            "destination": "Update Job Progress",
+            "relationship": "success"
+          }
+        ]
+      }
+    ],
+    "parameters": {
+      "collection.service.url": "https://data-collection.sgti.internal",
+      "collection.service.token": "",
+      "vcenter.host": "vcenter.sgti.internal",
+      "vcenter.api.token": "",
+      "vcenter.source.id": ""
+    }
+  }
+}

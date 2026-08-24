@@ -1,0 +1,239 @@
+{
+  "flow": {
+    "name": "Satellite Data Collection",
+    "description": "Collects physical server data from Red Hat Satellite and sends to Data Collection Service",
+    "processGroups": [
+      {
+        "name": "Satellite Collection",
+        "processors": [
+          {
+            "name": "Create Collection Job",
+            "type": "InvokeHTTP",
+            "config": {
+              "HTTP Method": "POST",
+              "Remote URL": "${collection.service.url}/api/v1/collection/jobs",
+              "Headers": {
+                "Authorization": "Bearer ${collection.service.token}",
+                "Content-Type": "application/json"
+              },
+              "Request Body": {
+                "source_id": "${satellite.source.id}",
+                "collection_type": "${collection.type:full}",
+                "triggered_by": "nifi",
+                "triggered_by_user": "nifi"
+              }
+            },
+            "relationships": ["success", "failure"]
+          },
+          {
+            "name": "Extract Job ID",
+            "type": "EvaluateJsonPath",
+            "config": {
+              "Destination": "flowfile-attribute",
+              "Return Type": "json",
+              "Path Expressions": {
+                "collection.job.id": "$.id"
+              }
+            },
+            "relationships": ["matched", "unmatched"]
+          },
+          {
+            "name": "Get Organizations",
+            "type": "InvokeHTTP",
+            "config": {
+              "HTTP Method": "GET",
+              "Remote URL": "https://${satellite.host}/api/v2/organizations?per_page=1000",
+              "Headers": {
+                "Authorization": "Basic ${satellite.auth.basic}",
+                "Accept": "application/json"
+              }
+            },
+            "relationships": ["success", "failure"]
+          },
+          {
+            "name": "Get Locations",
+            "type": "InvokeHTTP",
+            "config": {
+              "HTTP Method": "GET",
+              "Remote URL": "https://${satellite.host}/api/v2/locations?per_page=1000",
+              "Headers": {
+                "Authorization": "Basic ${satellite.auth.basic}",
+                "Accept": "application/json"
+              }
+            },
+            "relationships": ["success", "failure"]
+          },
+          {
+            "name": "Merge Org/Location",
+            "type": "MergeContent",
+            "config": {
+              "Merge Strategy": "Defragment",
+              "Merge Format": "JSON Array"
+            },
+            "relationships": ["merged", "failure"]
+          },
+          {
+            "name": "Split Org/Location Pairs",
+            "type": "SplitJson",
+            "config": {
+              "JsonPath Expression": "$[*]",
+              "Null Value Representation": "empty string"
+            },
+            "relationships": ["split", "failure"]
+          },
+          {
+            "name": "Get Hosts for Org/Location",
+            "type": "InvokeHTTP",
+            "config": {
+              "HTTP Method": "GET",
+              "Remote URL": "https://${satellite.host}/api/v2/hosts?organization_id=${org.id}&location_id=${location.id}&per_page=1000",
+              "Headers": {
+                "Authorization": "Basic ${satellite.auth.basic}",
+                "Accept": "application/json"
+              }
+            },
+            "relationships": ["success", "failure"]
+          },
+          {
+            "name": "Split Hosts",
+            "type": "SplitJson",
+            "config": {
+              "JsonPath Expression": "$.results[*]",
+              "Null Value Representation": "empty string"
+            },
+            "relationships": ["split", "failure"]
+          },
+          {
+            "name": "Transform Host",
+            "type": "JoltTransformJSON",
+            "config": {
+              "Jolt Specification": [
+                {
+                  "operation": "shift",
+                  "spec": {
+                    "source_id": "${satellite.source.id}",
+                    "entity_type": "physical_server",
+                    "source_entity_id": "@(1,id)",
+                    "source_unique_key": "${satellite.source.id}:physical_server:@(1,id)",
+                    "name": "@(1,name)",
+                    "display_name": "@(1,name)",
+                    "description": "@(1,comment)",
+                    "datacenter": "${location.name}",
+                    "rack": "@(1,hostgroup.title)",
+                    "manufacturer": "@(1,facts.manufacturer)",
+                    "model": "@(1,facts.productname)",
+                    "serial_number": "@(1,facts.serialnumber)",
+                    "uuid": "@(1,facts.uuid)",
+                    "cpu_cores": "@(1,facts.processorcount)",
+                    "memory_gb": "@(1,facts.memorysize_mb/1024)",
+                    "os": {
+                      "name": "@(1,operatingsystem.name)",
+                      "version": "@(1,operatingsystem.major)",
+                      "family": "@(1,operatingsystem.family)"
+                    },
+                    "primary_ip": "@(1,ip)",
+                    "satellite_org": "${org.name}",
+                    "satellite_location": "${location.name}",
+                    "satellite_hostgroup": "@(1,hostgroup.title)",
+                    "power_state": "=if(@(1,status.label)=='Active','powered_on','unknown')",
+                    "raw_data": "@(1,)"
+                  }
+                }
+              ]
+            },
+            "relationships": ["success", "failure"]
+          },
+          {
+            "name": "Send Host to Collection Service",
+            "type": "InvokeHTTP",
+            "config": {
+              "HTTP Method": "POST",
+              "Remote URL": "${collection.service.url}/api/v1/entities",
+              "Headers": {
+                "Authorization": "Bearer ${collection.service.token}",
+                "Content-Type": "application/json"
+              }
+            },
+            "relationships": ["success", "failure"]
+          },
+          {
+            "name": "Update Job Progress",
+            "type": "InvokeHTTP",
+            "config": {
+              "HTTP Method": "PATCH",
+              "Remote URL": "${collection.service.url}/api/v1/collection/jobs/${collection.job.id}/progress",
+              "Headers": {
+                "Authorization": "Bearer ${collection.service.token}",
+                "Content-Type": "application/json"
+              },
+              "Request Body": {
+                "processed_entities": 1,
+                "current_entity_type": "physical_server"
+              }
+            },
+            "relationships": ["success", "failure"]
+          }
+        ],
+        "connections": [
+          {
+            "source": "Create Collection Job",
+            "destination": "Extract Job ID",
+            "relationship": "success"
+          },
+          {
+            "source": "Extract Job ID",
+            "destination": "Get Organizations",
+            "relationship": "matched"
+          },
+          {
+            "source": "Get Organizations",
+            "destination": "Merge Org/Location",
+            "relationship": "success"
+          },
+          {
+            "source": "Get Locations",
+            "destination": "Merge Org/Location",
+            "relationship": "success"
+          },
+          {
+            "source": "Merge Org/Location",
+            "destination": "Split Org/Location Pairs",
+            "relationship": "merged"
+          },
+          {
+            "source": "Split Org/Location Pairs",
+            "destination": "Get Hosts for Org/Location",
+            "relationship": "split"
+          },
+          {
+            "source": "Get Hosts for Org/Location",
+            "destination": "Split Hosts",
+            "relationship": "success"
+          },
+          {
+            "source": "Split Hosts",
+            "destination": "Transform Host",
+            "relationship": "split"
+          },
+          {
+            "source": "Transform Host",
+            "destination": "Send Host to Collection Service",
+            "relationship": "success"
+          },
+          {
+            "source": "Send Host to Collection Service",
+            "destination": "Update Job Progress",
+            "relationship": "success"
+          }
+        ]
+      }
+    ],
+    "parameters": {
+      "collection.service.url": "https://data-collection.sgti.internal",
+      "collection.service.token": "",
+      "satellite.host": "satellite.sgti.internal",
+      "satellite.auth.basic": "",
+      "satellite.source.id": ""
+    }
+  }
+}

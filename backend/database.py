@@ -1,12 +1,15 @@
 import os
+from pathlib import Path
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
+from dotenv import load_dotenv
+
+# Load .env file from project root
+load_dotenv(Path(__file__).parent.parent / ".env")
 
 # 1. Configuração da URL de Conexão
-# Para produção, recomenda-se usar variáveis de ambiente (ex: os.getenv("DATABASE_URL"))
 # Formato: postgresql://usuario:senha@host:porta/nome_do_banco
-SQLALCHEMY_DATABASE_URL = "postgresql://cmdb:cmdb@localhost/cmdb"
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://cmdb:cmdb@localhost/cmdb")
 
 # 2. Criação do Engine
 # O 'engine' é o ponto de entrada para o banco de dados.

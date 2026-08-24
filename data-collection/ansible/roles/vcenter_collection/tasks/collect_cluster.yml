@@ -1,0 +1,64 @@
+---
+# tasks/collect_cluster.yml - Collect cluster data
+
+- name: "vCenter Collection | Build cluster entity"
+  ansible.builtin.set_fact:
+    cluster_entity:
+      source_id: "{{ vcenter_source_id }}"
+      entity_type: "vcenter_cluster"
+      source_entity_id: "{{ cluster.moid }}"
+      source_unique_key: "{{ vcenter_source_id }}:vcenter_cluster:{{ cluster.moid }}"
+      name: "{{ cluster.name }}"
+      display_name: "{{ cluster.name }}"
+      datacenter: "{{ datacenter.name }}"
+      parent_source_id: "{{ datacenter.moid }}"
+      
+      # Cluster config
+      ha_enabled: "{{ cluster.das_enabled | default(false) }}"
+      drs_enabled: "{{ cluster.drs_enabled | default(false) }}"
+      drs_automation_level: "{{ cluster.drs_default_vm_behavior | default('') }}"
+      vsan_enabled: "{{ cluster.vsan_enabled | default(false) }}"
+      
+      # Capacity
+      total_cpu_cores: "{{ cluster.total_cpu_cores | default(0) }}"
+      total_cpu_mhz: "{{ cluster.total_cpu_mhz | default(0) }}"
+      total_memory_gb: "{{ cluster.total_memory_gb | default(0) }}"
+      used_cpu_mhz: "{{ cluster.used_cpu_mhz | default(0) }}"
+      used_memory_gb: "{{ cluster.used_memory_gb | default(0) }}"
+      
+      # Counts
+      host_count: "{{ cluster.host_count | default(0) }}"
+      vm_count: "{{ cluster.vm_count | default(0) }}"
+      
+      # Metadata
+      tags:
+        vcenter_moid: "{{ cluster.moid }}"
+        datacenter_moid: "{{ datacenter.moid }}"
+      raw_data:
+        moid: "{{ cluster.moid }}"
+        datacenter_moid: "{{ datacenter.moid }}"
+        overall_status: "{{ cluster.overall_status | default('') }}"
+
+- name: "vCenter Collection | Send cluster to collection service"
+  ansible.builtin.uri:
+    url: "{{ collection_service_url }}/api/v1/entities"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ collection_service_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body: "{{ cluster_entity }}"
+    status_code: [200, 201]
+  register: cluster_result
+
+- name: "vCenter Collection | Update job progress"
+  ansible.builtin.uri:
+    url: "{{ collection_service_url }}/api/v1/collection/jobs/{{ collection_job_id }}/progress"
+    method: PATCH
+    headers:
+      Authorization: "Bearer {{ collection_service_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      processed_entities: "{{ cluster_result.json.processed | default(1) }}"
+      current_entity_type: "vcenter_cluster"

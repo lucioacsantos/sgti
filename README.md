@@ -1,155 +1,283 @@
-# CMDB - Configuration Management Database
+# SGTI CMDB Prototype
 
-Sistema completo de gerenciamento de ativos de TI com Python, FastAPI, PostgreSQL e interface web moderna.
+Sistema de Gerenciamento de TI - Configuration Management Database prototype with FastAPI backend and React frontend.
 
-## 🚀 Características
+## Features
 
-- ✅ API RESTful completa com FastAPI
-- ✅ Banco de dados PostgreSQL com SQLAlchemy assíncrono
-- ✅ Interface web responsiva com Bootstrap 5
-- ✅ Documentação automática com Swagger
-- ✅ Suporte a relacionamentos entre ativos
-- ✅ Filtros avançados e busca
+### Backend (FastAPI 2.0.0)
 
-## 📋 Requisitos
+**Core Architecture**
+- Modular routers: Assets, IP Addresses, Reference Data, Applications, Relationships, Infrastructure, Audit, Integrations, Auth
+- PostgreSQL with SQLAlchemy ORM (production), SQLite for tests
+- JWT authentication with service account tokens (API) + AD/LDAP + refresh tokens (users)
+- Role-based access: admin, analyst, reviewer, reconciliator, revisor, viewer
+- Audit logging on all CRUD operations with correlation IDs
+- Rate limiting (100 req/min per IP) + CORS + security headers
 
-- Python 3.11+
-- Node.js 20+
-- PostgreSQL
-- Ollama, caso utilize o endpoint de integração com modelo de linguagem
+**Data Models**
+| Entity | Description |
+|--------|-------------|
+| `Ativo` | Core asset (host/server) with tipo, ambiente, status, criticidade, SO, area, hardware specs |
+| `EnderecoIp` | IP addresses with upsert (IPv4/IPv6, primary, interface, tipo) |
+| `Relacionamento` | Asset-to-asset connections with typed relationships |
+| `TipoRelacionamento` | Relationship types (depends on, contains, connects to) |
+| Reference data | Asset types, environments, statuses, criticidades, OS, areas |
+| Infrastructure | Clusters, Namespaces, Serviços, Serviços de Negócio, App Instances |
 
-## 🏃 Como Executar
+**API Endpoints**
+- **Assets**: CRUD + upsert by nome, pagination, search
+- **IPs**: Upsert (create/update by ativo_id+ip), list by ativo
+- **Relationships**: Full CRUD + typed relationship management
+- **Reference Data**: Read-only lists + admin CRUD for all reference tables
+- **Infrastructure**: Clusters, Namespaces, Services, Business Services, App Instances
+- **Audit**: Paginated logs filtered by entity/entity_id
+- **Integrations**: Zabbix webhook, Ollama AI queries
 
-Os workflows já estão configurados e devem iniciar automaticamente:
+### Integrations
 
-- **Backend**: http://localhost:8000
-- **Frontend**: http://localhost:5000
-- **API Docs**: http://localhost:8000/docs
+| Integration | Purpose | Implementation |
+|-------------|---------|----------------|
+| **Active Directory** | User auth + group sync | `ad_auth.py` with LDAP3, JWT tokens, 2FA (TOTP) |
+| **Zabbix** | Alarm enrichment | Webhook receiver (`/integrations/zabbix/alarm`) + Ollama AI analysis |
+| **Ollama (LLM)** | AI-powered alarm analysis | Local LLM for root cause suggestions |
+| **Data Collection** | External source ingestion | Separate API (`/data-collection`) for sources, jobs, reconciliation, certification |
 
-## 🔐 Autenticação da API
+**Data Collection Pipeline**
+- Sources (vCenter, Satellite, AD, etc.) → Collection Jobs → Entities → Reconciliation Sessions → Conflicts → Certification Workflow (Analyst → Reviewer)
 
-Alguns endpoints exigem autenticação por service account. Envie o token no header:
+### Frontend (React 18 + TypeScript + Vite)
+
+**Tech Stack**
+- **State**: Zustand (auth) + TanStack Query (server state)
+- **UI**: Tailwind CSS + Headless UI patterns + Lucide icons
+- **Forms**: React Hook Form + Zod validation
+- **Routing**: React Router v6 with protected routes
+
+**Pages & Features**
+
+| Module | Pages | Key Features |
+|--------|-------|--------------|
+| **Dashboard** | `/` | Stats cards, recent assets/jobs, quick actions, alerts |
+| **Inventory** | `/hosts`, `/relationships`, `/applications`, `/clusters`, `/namespaces`, `/services` | Searchable tables, filters, pagination, CRUD modals |
+| **Reconciliation** | `/reconciliation`, `/reconciliation/:id` | Session management, conflict visualization, progress tracking |
+| **Certification** | `/certification`, `/certification/:id` | Queue with role-based views (analyst/reviewer), approve/reject, comments |
+| **Admin** | `/admin/*` | Users, relationship types, asset types, environments, statuses, criticidades, OS, areas |
+| **Auth** | `/login`, `/2fa/verify`, `/2fa/setup` | AD login, TOTP 2FA setup/verification |
+| **Profile** | `/profile` | Profile edit, password change, 2FA management |
+
+**Authentication Flow**
+1. User enters AD credentials → `/auth/ad/login`
+2. If 2FA required → redirect to `/2fa/verify`
+3. TOTP code verified → JWT access + refresh tokens stored
+4. `AuthProvider` auto-refreshes on expiry
+5. Role-based UI rendering (admin sees admin menu, analyst sees certification queue)
+
+**API Layer** (`lib/api.ts`)
+- Two axios instances: `api` (main) + `dataCollectionApi`
+- Request interceptor adds Bearer token
+- Response interceptor handles 401 → token refresh → retry
+- Typed API clients for each domain with `.then(res => res.data)` unwrapping
+
+### Configuration Files
+
+| File | Purpose |
+|------|---------|
+| `.env` | All secrets: DB, JWT, AD, Ollama, Zabbix, API URLs |
+| `.eslintrc.cjs` | Linting with React/TS rules (relaxed for legacy) |
+| `backend/.env` | Backend-specific (loaded by FastAPI) |
+| `frontend/.env` | `VITE_API_URL`, `VITE_DATA_COLLECTION_URL` |
+
+### Testing
+- **Backend**: 32 pytest tests covering assets, auth, IPs, relationships, audit, infrastructure
+- **Test DB**: SQLite in-memory with dependency override
+- **Auth**: Service account token fixture for all API tests
+
+### Key Design Patterns
+- **Upsert patterns** for idempotent data collection (assets by nome, IPs by ativo_id+ip)
+- **Service account auth** for machine-to-machine (collection agents)
+- **User auth** via AD + JWT for UI
+- **Admin endpoints** under `/admin/*` with role checks
+- **Correlation IDs** on all requests for tracing
+- **Structured logging** with service account context
+
+---
+
+## Installation & Run Instructions
+
+### Prerequisites
+- Python 3.12+
+- Node.js 18+
+- PostgreSQL 14+
+- (Optional) Active Directory / LDAP server
+- (Optional) Ollama for AI features
+- (Optional) Zabbix for alarm integration
+
+### Backend Setup
 
 ```bash
-X-Service-Token: SEU_TOKEN
+cd backend
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# venv\Scripts\activate   # Windows
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure environment
+cp .env.example .env  # Edit with your values
+
+# Run database migrations (if using Alembic)
+# alembic upgrade head
+
+# Start development server
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-## 🤖 Integração com Ollama
+Backend runs at `http://localhost:8000`
+API docs at `http://localhost:8000/docs`
 
-A API possui um endpoint para enviar perguntas a um modelo local do Ollama.
-
-- **Endpoint**: `POST /ollama/`
-- **Autenticação**: exige header `X-Service-Token`
-- **URL padrão do Ollama**: `http://localhost:11434/api/generate`
-- **Modelo padrão**: `llama3`
-
-Variáveis de ambiente opcionais:
+### Frontend Setup
 
 ```bash
+cd frontend
+
+# Install dependencies
+npm install
+
+# Configure environment
+cp .env.example .env  # Edit VITE_API_URL if needed
+
+# Start development server
+npm run dev
+```
+
+Frontend runs at `http://localhost:5173`
+
+### Docker Compose (Full Stack)
+
+```bash
+# From project root
+docker-compose up -d
+
+# Services:
+# - postgres:5432
+# - backend:8000
+# - frontend:5173
+# - ollama:11434 (optional)
+```
+
+### Environment Variables
+
+**Backend (`.env`)**
+```env
+# Database
+DATABASE_URL=postgresql://cmdb:cmdb@localhost/cmdb
+
+# JWT
+JWT_SECRET_KEY=your-secure-random-string
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+REFRESH_TOKEN_EXPIRE_DAYS=7
+
+# AD/LDAP
+AD_SERVER=ldap://your-ad-server:389
+AD_DOMAIN=YOUR.DOMAIN.COM
+AD_BASE_DN=DC=your,DC=domain,DC=com
+AD_BIND_DN=cn=service-account,DC=your,DC=domain,DC=com
+AD_BIND_PASSWORD=your-password
+
+# Ollama
 OLLAMA_API_URL=http://localhost:11434/api/generate
 OLLAMA_MODEL=llama3
+
+# Zabbix
+ZABBIX_API_URL=http://zabbix/api_jsonrpc.php
+ZABBIX_API_TOKEN=your-token
 ```
 
-Exemplo de requisição:
+**Frontend (`.env`)**
+```env
+VITE_API_URL=http://localhost:8000/api
+VITE_DATA_COLLECTION_URL=http://localhost:8000/data-collection
+```
+
+### Running Tests
 
 ```bash
-curl -X POST http://localhost:8000/ollama/ \
-  -H "Content-Type: application/json" \
-  -H "X-Service-Token: SEU_TOKEN" \
-  -d '{"question": "Explique o que é uma CMDB", "model": "llama3"}'
+# Backend tests
+cd backend
+source venv/bin/activate
+pytest tests/ -v
+
+# Frontend lint
+cd frontend
+npm run lint
+
+# Frontend build
+npm run build
 ```
 
-Exemplo de resposta:
+### Production Deployment
 
-```json
-{
-  "response": "Uma CMDB é uma base de dados usada para gerenciar informações sobre ativos e serviços de TI..."
-}
-```
+1. Set `TESTING=0` in backend `.env`
+2. Use strong `JWT_SECRET_KEY`
+3. Configure PostgreSQL with connection pooling
+4. Run behind reverse proxy (nginx) with TLS
+5. Set secure CORS origins
+6. Enable rate limiting middleware
+7. Configure log aggregation
 
-## 🧩 Integração Ollama + Zabbix
+### Default Credentials
 
-A API também permite enviar a resposta gerada pelo Ollama para as observações de um alarme aberto no Zabbix.
-
-- **Endpoint**: `POST /zabbix/alarmes/observacao-ollama/`
-- **Autenticação**: exige header `X-Service-Token`
-- **Validação no Zabbix**: consulta `problem.get` para confirmar que o `event_id` está aberto
-- **Prompt do modelo**: inclui dados do alarme aberto, como nome do problema, severidade e object ID
-- **Gravação da observação**: usa `event.acknowledge` com ação de adicionar mensagem
-
-Variáveis de ambiente:
-
+For testing with service accounts:
 ```bash
-ZABBIX_API_URL=http://zabbix.example.com/zabbix/api_jsonrpc.php
-ZABBIX_API_TOKEN=SEU_TOKEN_DA_API
+# Header: X-Service-Token: test-token-123
+# Creates test service account automatically in test environment
 ```
 
-Também é possível autenticar com usuário e senha:
+For AD users: Use your domain credentials. First login creates user record with roles from AD groups.
 
-```bash
-ZABBIX_API_URL=http://zabbix.example.com/zabbix/api_jsonrpc.php
-ZABBIX_USER=Admin
-ZABBIX_PASSWORD=zabbix
+---
+
+## Project Structure
+
+```
+sgti/
+├── backend/
+│   ├── main.py              # FastAPI app entry point
+│   ├── models.py            # SQLAlchemy models
+│   ├── schemas.py           # Pydantic schemas
+│   ├── database.py          # DB connection
+│   ├── ad_auth.py           # AD/LDAP + JWT + 2FA
+│   ├── routers/             # API routers
+│   │   ├── assets.py
+│   │   ├── ip_addresses.py
+│   │   ├── reference_data.py
+│   │   ├── relationships.py
+│   │   ├── infrastructure.py
+│   │   ├── audit.py
+│   │   ├── integrations.py
+│   │   └── auth.py
+│   ├── tests/               # Pytest suite
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   │   ├── pages/           # Page components
+│   │   ├── components/      # Reusable components
+│   │   ├── store/           # Zustand stores
+│   │   ├── lib/             # API clients
+│   │   └── main.tsx         # App entry
+│   ├── package.json
+│   └── vite.config.ts
+├── .env                     # Root environment
+├── docker-compose.yml
+└── README.md
 ```
 
-Caso sua instalação use token via header Bearer:
+---
 
-```bash
-ZABBIX_USE_BEARER_TOKEN=true
-```
+## License
 
-Exemplo de requisição:
-
-```bash
-curl -X POST http://localhost:8000/zabbix/alarmes/observacao-ollama/ \
-  -H "Content-Type: application/json" \
-  -H "X-Service-Token: SEU_TOKEN" \
-  -d '{
-    "event_id": "123456",
-    "question": "Analise este alarme e sugira os próximos passos operacionais.",
-    "model": "llama3"
-  }'
-```
-
-Exemplo de resposta:
-
-```json
-{
-  "event_id": "123456",
-  "problem_name": "CPU utilization is too high",
-  "ollama_response": "Verifique os processos com maior consumo de CPU e valide se houve aumento recente de carga...",
-  "zabbix_result": {
-    "eventids": [
-      "123456"
-    ]
-  }
-}
-```
-
-## 📚 Documentação
-
-- **Python Virtual Environment**: no diretório inicial da aplicação "python3 -m venv venv"
-- **Ativar Python Virtual Environment**: no diretório inicial "source venv/bin/activate" 
-- **Instalar dependências com pip**: a partir do diretório do backend "pip install -r requirements.txt"
-- **Instalar dependências do nodejs**: no diretório do frontend "npm install && npm run build"
-- **Configurar inicialização**: configurar sgti-back.service e sgti-front.service seguindo as instruções contidas neles
-- **Inicializar os serviços**: sudo systemctl start sgti-back.service sgti-front.service
-
-
-## 🛠️ Tecnologias
-
-**Backend:**
-- FastAPI
-- SQLAlchemy (async)
-- asyncpg
-- Pydantic
-- PostgreSQL
-
-**Frontend:**
-- Vite
-- Bootstrap 5
-- Vanilla JavaScript
-
-## 📝 Licença
-
-GNU General Public License v3.0
+Internal prototype - SGTI

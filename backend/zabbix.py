@@ -2,6 +2,10 @@ from fastapi import HTTPException, status
 from urllib import error, request
 import json
 import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).parent.parent / ".env")
 
 ZABBIX_ADD_MESSAGE_ACTION = 4
 

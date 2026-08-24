@@ -1,8 +1,15 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime, Boolean
-from sqlalchemy.dialects.postgresql import INET
+from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime, Boolean, JSON, Index
+from sqlalchemy.dialects.postgresql import INET, JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
+import bcrypt
+import os
+
+# Use JSON instead of JSONB for SQLite compatibility in tests
+if os.getenv("TESTING") == "1":
+    JSONB = JSON
+    INET = String
 
 
 # TABELAS DE APOIO
@@ -95,6 +102,10 @@ class EnderecoIp(Base):
 
     ativo_rel = relationship("Ativo")
 
+    __table_args__ = (
+        Index("ix_endereco_ip_ativo_id_ip", "ativo_id", "ip", unique=True),
+    )
+
 
 # TABELA SERVICE ACCOUNT
 class ServiceAccount(Base):
@@ -102,7 +113,125 @@ class ServiceAccount(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), unique=True, nullable=False)
-    token = Column(String(255), unique=True, nullable=False)
+    token_hash = Column(String(255), unique=True, nullable=False)
     created_at = Column(DateTime, server_default=func.now())
     expires_at = Column(DateTime, nullable=False)
     is_active = Column(Boolean, default=True)
+
+    def set_token(self, token: str) -> None:
+        """Hash and store token."""
+        self.token_hash = bcrypt.hashpw(token.encode(), bcrypt.gensalt()).decode()
+
+    def verify_token(self, token: str) -> bool:
+        """Verify a plaintext token against stored hash."""
+        return bcrypt.checkpw(token.encode(), self.token_hash.encode())
+
+
+# TABELA TIPO RELACIONAMENTO
+class TipoRelacionamento(Base):
+    __tablename__ = "tipo_relacionamento"
+
+    id = Column(Integer, primary_key=True)
+    nome = Column(String(100), unique=True, nullable=False)
+    descricao = Column(Text)
+
+
+# TABELA CLUSTER
+class Cluster(Base):
+    __tablename__ = "cluster"
+
+    id = Column(Integer, primary_key=True)
+    nome = Column(String(255), unique=True, nullable=False)
+    descricao = Column(Text)
+    ativo_id = Column(Integer, ForeignKey("ativo.id", ondelete="SET NULL"), unique=True)
+
+    ativo = relationship("Ativo")
+
+
+# TABELA NAMESPACE
+class Namespace(Base):
+    __tablename__ = "namespace"
+
+    id = Column(Integer, primary_key=True)
+    nome = Column(String(255), unique=True, nullable=False)
+    cluster_id = Column(Integer, ForeignKey("cluster.id", ondelete="CASCADE"))
+    ativo_id = Column(Integer, ForeignKey("ativo.id", ondelete="SET NULL"), unique=True)
+
+    cluster = relationship("Cluster")
+    ativo = relationship("Ativo")
+
+
+# TABELA RELACIONAMENTO
+class Relacionamento(Base):
+    __tablename__ = "relacionamento"
+
+    id = Column(Integer, primary_key=True)
+    origem_id = Column(Integer, ForeignKey("ativo.id", ondelete="CASCADE"), nullable=False, index=True)
+    destino_id = Column(Integer, ForeignKey("ativo.id", ondelete="CASCADE"), nullable=False, index=True)
+    tipo_id = Column(Integer, ForeignKey("tipo_relacionamento.id"), nullable=False)
+    descricao = Column(Text)
+    created_at = Column(DateTime, server_default=func.now())
+
+    origem = relationship("Ativo", foreign_keys=[origem_id])
+    destino = relationship("Ativo", foreign_keys=[destino_id])
+    tipo = relationship("TipoRelacionamento")
+
+
+# TABELA SERVICO
+class Servico(Base):
+    __tablename__ = "servico"
+
+    id = Column(Integer, primary_key=True)
+    nome = Column(String(255), nullable=False)
+    tipo = Column(String(50))
+    host_id = Column(Integer)
+    ativo_id = Column(Integer, ForeignKey("ativo.id", ondelete="SET NULL"), unique=True)
+
+    ativo = relationship("Ativo")
+
+
+# TABELA SERVICO NEGOCIO
+class ServicoNegocio(Base):
+    __tablename__ = "servico_negocio"
+
+    id = Column(Integer, primary_key=True)
+    nome = Column(String(255), nullable=False)
+    descricao = Column(Text)
+    ativo_id = Column(Integer, ForeignKey("ativo.id", ondelete="SET NULL"), unique=True)
+
+    ativo = relationship("Ativo")
+
+
+# TABELA INSTANCIA APLICACAO
+class InstanciaAplicacao(Base):
+    __tablename__ = "instancia_aplicacao"
+
+    id = Column(Integer, primary_key=True)
+    aplicacao_id = Column(Integer, ForeignKey("aplicacao.id", ondelete="CASCADE"), nullable=False, index=True)
+    ativo_id = Column(Integer, ForeignKey("ativo.id", ondelete="SET NULL"), unique=True)
+    porta = Column(Integer)
+    path_execucao = Column(String(255))
+    comando_execucao = Column(Text)
+    created_at = Column(DateTime, server_default=func.now())
+
+    aplicacao = relationship("Aplicacao")
+    ativo = relationship("Ativo")
+
+
+# TABELA AUDIT LOG
+class AuditLog(Base):
+    __tablename__ = "audit_log"
+
+    id = Column(Integer, primary_key=True)
+    entidade = Column(String(100), nullable=False, index=True)
+    entidade_id = Column(Integer, index=True)
+    acao = Column(String(50))
+    antes = Column(JSONB)
+    depois = Column(JSONB)
+    usuario = Column(String(255))
+    created_at = Column(DateTime, server_default=func.now(), index=True)
+
+    __table_args__ = (
+        Index("ix_audit_log_entidade_entidade_id", "entidade", "entidade_id"),
+        Index("ix_audit_log_entidade_created_at", "entidade", "created_at"),
+    )

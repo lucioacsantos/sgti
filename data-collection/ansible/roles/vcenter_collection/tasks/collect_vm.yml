@@ -1,0 +1,90 @@
+---
+# tasks/collect_vm.yml - Collect VM data
+
+- name: "vCenter Collection | Build VM entity"
+  ansible.builtin.set_fact:
+    vm_entity:
+      source_id: "{{ vcenter_source_id }}"
+      entity_type: "vcenter_vm"
+      source_entity_id: "{{ vm.moid }}"
+      source_unique_key: "{{ vcenter_source_id }}:vcenter_vm:{{ vm.moid }}"
+      name: "{{ vm.name }}"
+      display_name: "{{ vm.guest_name | default(vm.name) }}"
+      description: "{{ vm.annotation | default('') }}"
+      datacenter: "{{ datacenter.name }}"
+      parent_source_id: "{{ datacenter.moid }}"
+      
+      # VM config
+      host_name: "{{ vm.host_name | default('') }}"
+      cluster_name: "{{ vm.cluster_name | default('') }}"
+      folder: "{{ vm.folder | default('') }}"
+      resource_pool: "{{ vm.resource_pool | default('') }}"
+      template: "{{ vm.template | default(false) }}"
+      
+      # Guest OS
+      guest_os: "{{ vm.guest_family | default('') }}"
+      guest_os_version: "{{ vm.guest_full_name | default('') }}"
+      tools_status: "{{ vm.tools_status | default('') }}"
+      tools_version: "{{ vm.tools_version | default('') }}"
+      
+      # Resources
+      cpu_cores: "{{ vm.cpu_cores | default(0) }}"
+      cpu_limit_mhz: "{{ vm.cpu_limit_mhz | default(omit) }}"
+      cpu_reservation_mhz: "{{ vm.cpu_reservation_mhz | default(omit) }}"
+      cpu_shares: "{{ vm.cpu_shares | default(omit) }}"
+      memory_gb: "{{ vm.memory_mb | default(0) // 1024 }}"
+      memory_limit_mb: "{{ vm.memory_limit_mb | default(omit) }}"
+      memory_reservation_mb: "{{ vm.memory_reservation_mb | default(omit) }}"
+      memory_shares: "{{ vm.memory_shares | default(omit) }}"
+      
+      # Disks
+      disks: "{{ vm.disks | default([]) }}"
+      total_disk_gb: "{{ vm.total_disk_gb | default(0) }}"
+      
+      # Network
+      network_interfaces: "{{ vm.networks | default([]) }}"
+      
+      # Snapshots
+      snapshot_count: "{{ vm.snapshot_count | default(0) }}"
+      snapshot_total_size_gb: "{{ vm.snapshot_size_gb | default(0) }}"
+      
+      # Power
+      power_state: "{{ 'powered_on' if vm.power_state == 'poweredOn' else ('powered_off' if vm.power_state == 'poweredOff' else 'suspended') }}"
+      boot_time: "{{ vm.boot_time | default('') }}"
+      
+      # UUIDs
+      instance_uuid: "{{ vm.instance_uuid | default('') }}"
+      bios_uuid: "{{ vm.uuid | default('') }}"
+      
+      # Metadata
+      tags:
+        vcenter_moid: "{{ vm.moid }}"
+        datacenter_moid: "{{ datacenter.moid }}"
+      raw_data:
+        moid: "{{ vm.moid }}"
+        datacenter_moid: "{{ datacenter.moid }}"
+        overall_status: "{{ vm.overall_status | default('') }}"
+
+- name: "vCenter Collection | Send VM to collection service"
+  ansible.builtin.uri:
+    url: "{{ collection_service_url }}/api/v1/entities"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ collection_service_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body: "{{ vm_entity }}"
+    status_code: [200, 201]
+  register: vm_result
+
+- name: "vCenter Collection | Update job progress"
+  ansible.builtin.uri:
+    url: "{{ collection_service_url }}/api/v1/collection/jobs/{{ collection_job_id }}/progress"
+    method: PATCH
+    headers:
+      Authorization: "Bearer {{ collection_service_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      processed_entities: "{{ vm_result.json.processed | default(1) }}"
+      current_entity_type: "vcenter_vm"

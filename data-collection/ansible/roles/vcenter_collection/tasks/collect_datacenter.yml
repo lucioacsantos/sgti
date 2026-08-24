@@ -1,0 +1,88 @@
+---
+# tasks/collect_datacenter.yml - Collect all entities from a datacenter
+
+- name: "vCenter Collection | Get clusters from datacenter {{ datacenter.name }}"
+  community.vmware.vmware_cluster_info:
+    hostname: "{{ vcenter_host }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    datacenter: "{{ datacenter.name }}"
+    validate_certs: "{{ vcenter_validate_certs | default(false) }}"
+  register: clusters
+  delegate_to: localhost
+
+- name: "vCenter Collection | Process clusters"
+  ansible.builtin.include_tasks: collect_cluster.yml
+  loop: "{{ clusters.clusters }}"
+  loop_control:
+    loop_var: cluster
+  when: clusters.clusters is defined
+
+- name: "vCenter Collection | Get hosts from datacenter {{ datacenter.name }}"
+  community.vmware.vmware_host_info:
+    hostname: "{{ vcenter_host }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    datacenter: "{{ datacenter.name }}"
+    validate_certs: "{{ vcenter_validate_certs | default(false) }}"
+  register: hosts
+  delegate_to: localhost
+
+- name: "vCenter Collection | Process hosts"
+  ansible.builtin.include_tasks: collect_host.yml
+  loop: "{{ hosts.hosts }}"
+  loop_control:
+    loop_var: host
+  when: hosts.hosts is defined
+
+- name: "vCenter Collection | Get VMs from datacenter {{ datacenter.name }}"
+  community.vmware.vmware_vm_info:
+    hostname: "{{ vcenter_host }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    datacenter: "{{ datacenter.name }}"
+    validate_certs: "{{ vcenter_validate_certs | default(false) }}"
+    show_attribute: true
+  register: vms
+  delegate_to: localhost
+
+- name: "vCenter Collection | Process VMs"
+  ansible.builtin.include_tasks: collect_vm.yml
+  loop: "{{ vms.virtual_machines }}"
+  loop_control:
+    loop_var: vm
+  when: vms.virtual_machines is defined
+
+- name: "vCenter Collection | Get datastores from datacenter {{ datacenter.name }}"
+  community.vmware.vmware_datastore_info:
+    hostname: "{{ vcenter_host }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    datacenter: "{{ datacenter.name }}"
+    validate_certs: "{{ vcenter_validate_certs | default(false) }}"
+  register: datastores
+  delegate_to: localhost
+
+- name: "vCenter Collection | Process datastores"
+  ansible.builtin.include_tasks: collect_datastore.yml
+  loop: "{{ datastores.datastores }}"
+  loop_control:
+    loop_var: ds
+  when: datastores.datastores is defined
+
+- name: "vCenter Collection | Get networks from datacenter {{ datacenter.name }}"
+  community.vmware.vmware_network_info:
+    hostname: "{{ vcenter_host }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    datacenter: "{{ datacenter.name }}"
+    validate_certs: "{{ vcenter_validate_certs | default(false) }}"
+  register: networks
+  delegate_to: localhost
+
+- name: "vCenter Collection | Process networks"
+  ansible.builtin.include_tasks: collect_network.yml
+  loop: "{{ networks.networks }}"
+  loop_control:
+    loop_var: network
+  when: networks.networks is defined

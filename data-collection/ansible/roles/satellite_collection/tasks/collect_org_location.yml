@@ -1,0 +1,11 @@
+---
+# tasks/collect_org_location.yml - Collect hosts for each org/location combination
+
+- name: "Satellite Collection | Process locations for org {{ org_name }}"
+  ansible.builtin.include_tasks: collect_hosts.yml
+  loop: "{{ locations }}"
+  loop_control:
+    loop_var: location
+  vars:
+    loc_id: "{{ location.id }}"
+    loc_name: "{{ location.name }}"

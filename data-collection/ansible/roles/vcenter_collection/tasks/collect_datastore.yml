@@ -1,0 +1,38 @@
+---
+# tasks/collect_datastore.yml - Collect datastore data
+
+- name: "vCenter Collection | Build datastore entity"
+  ansible.builtin.set_fact:
+    ds_entity:
+      source_id: "{{ vcenter_source_id }}"
+      entity_type: "vcenter_datastore"
+      source_entity_id: "{{ ds.moid }}"
+      source_unique_key: "{{ vcenter_source_id }}:vcenter_datastore:{{ ds.moid }}"
+      name: "{{ ds.name }}"
+      datacenter: "{{ datacenter.name }}"
+      parent_source_id: "{{ datacenter.moid }}"
+      
+      # Capacity
+      total_storage_gb: "{{ ds.capacity_gb | default(0) }}"
+      
+      # Metadata
+      tags:
+        type: "{{ ds.type | default('') }}"
+        vcenter_moid: "{{ ds.moid }}"
+        datacenter_moid: "{{ datacenter.moid }}"
+      raw_data:
+        moid: "{{ ds.moid }}"
+        datacenter_moid: "{{ datacenter.moid }}"
+        accessible: "{{ ds.accessible | default(true) }}"
+        maintenance_mode: "{{ ds.maintenance_mode | default('normal') }}"
+
+- name: "vCenter Collection | Send datastore to collection service"
+  ansible.builtin.uri:
+    url: "{{ collection_service_url }}/api/v1/entities"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ collection_service_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body: "{{ ds_entity }}"
+    status_code: [200, 201]

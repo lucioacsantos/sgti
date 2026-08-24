@@ -1,4 +1,4 @@
-from fastapi import Security, HTTPException, Depends, status
+from fastapi import Security, HTTPException, Depends, status, Request
 from fastapi.security.api_key import APIKeyHeader
 from sqlalchemy.orm import Session
 from database import get_db
@@ -7,6 +7,10 @@ from urllib import error, request
 import json
 import models, datetime
 import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).parent.parent / ".env")
 
 # Define o nome do Header que a automação deve enviar
 API_KEY_NAME = "X-Service-Token"
@@ -22,11 +26,17 @@ def get_service_account(
             detail="Token de serviço ausente."
         )
 
-    # Busca o token no banco de dados
-    account = db.query(models.ServiceAccount).filter(
-        models.ServiceAccount.token == api_key,
+    # Busca todas as contas ativas para verificar o hash
+    accounts = db.query(models.ServiceAccount).filter(
         models.ServiceAccount.is_active == True
-    ).first()
+    ).all()
+
+    # Verifica o hash do token
+    account = None
+    for acc in accounts:
+        if acc.verify_token(api_key):
+            account = acc
+            break
 
     # Validações: Existência e Expiração
     if not account:

@@ -1,0 +1,158 @@
+version: '3.8'
+
+services:
+  # Data Collection Service API
+  data-collection-api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: sgti-data-collection-api
+    ports:
+      - "8001:8001"
+    environment:
+      - DATA_COLLECTION_DATABASE_URL=postgresql://datacollection:datacollection@postgres:5432/datacollection
+      - DATA_COLLECTION_REDIS_URL=redis://redis:6379/0
+      - LOG_LEVEL=INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./api:/app/api
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Data Collection Worker (for async job processing)
+  data-collection-worker:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.worker
+    container_name: sgti-data-collection-worker
+    environment:
+      - DATA_COLLECTION_DATABASE_URL=postgresql://datacollection:datacollection@postgres:5432/datacollection
+      - DATA_COLLECTION_REDIS_URL=redis://redis:6379/0
+      - LOG_LEVEL=INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./api:/app/api
+    restart: unless-stopped
+
+  # Reconciliation Worker
+  data-collection-reconciliation:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.worker
+    container_name: sgti-data-collection-reconciliation
+    environment:
+      - DATA_COLLECTION_DATABASE_URL=postgresql://datacollection:datacollection@postgres:5432/datacollection
+      - DATA_COLLECTION_REDIS_URL=redis://redis:6379/0
+      - WORKER_TYPE=reconciliation
+      - LOG_LEVEL=INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./api:/app/api
+    restart: unless-stopped
+
+  # Certification Worker
+  data-collection-certification:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.worker
+    container_name: sgti-data-collection-certification
+    environment:
+      - DATA_COLLECTION_DATABASE_URL=postgresql://datacollection:datacollection@postgres:5432/datacollection
+      - DATA_COLLECTION_REDIS_URL=redis://redis:6379/0
+      - WORKER_TYPE=certification
+      - LOG_LEVEL=INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./api:/app/api
+    restart: unless-stopped
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: sgti-data-collection-postgres
+    environment:
+      - POSTGRES_DB=datacollection
+      - POSTGRES_USER=datacollection
+      - POSTGRES_PASSWORD=datacollection
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U datacollection -d datacollection"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching and job queues
+  redis:
+    image: redis:7-alpine
+    container_name: sgti-data-collection-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Prometheus for metrics
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: sgti-data-collection-prometheus
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+
+  # Grafana for dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: sgti-data-collection-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  default:
+    name: sgti-data-collection-network

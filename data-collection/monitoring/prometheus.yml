@@ -1,0 +1,34 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Data Collection API
+  - job_name: 'data-collection-api'
+    static_configs:
+      - targets: ['data-collection-api:8001']
+    metrics_path: '/metrics'
+
+  # Workers
+  - job_name: 'data-collection-workers'
+    static_configs:
+      - targets: ['data-collection-worker:8001', 'data-collection-reconciliation:8001', 'data-collection-certification:8001']
+
+  # PostgreSQL
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres:5432']
+
+  # Redis
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+
+  # Node Exporter (if available)
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+# Alerting rules
+rule_files:
+  - 'rules/*.yml'

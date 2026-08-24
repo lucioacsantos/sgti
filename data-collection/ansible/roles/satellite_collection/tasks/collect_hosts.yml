@@ -1,0 +1,24 @@
+---
+# tasks/collect_hosts.yml - Collect hosts for a specific org/location
+
+- name: "Satellite Collection | Get hosts for org {{ org_name }} location {{ loc_name }}"
+  ansible.builtin.uri:
+    url: "https://{{ satellite_host }}/api/v2/hosts"
+    method: GET
+    user: "{{ satellite_username }}"
+    password: "{{ satellite_password }}"
+    validate_certs: "{{ satellite_validate_certs | default(false) }}"
+    headers:
+      Accept: "application/json"
+    query_params:
+      organization_id: "{{ org_id }}"
+      location_id: "{{ loc_id }}"
+      per_page: 1000
+  register: hosts_response
+
+- name: "Satellite Collection | Process hosts"
+  ansible.builtin.include_tasks: collect_host.yml
+  loop: "{{ hosts_response.json.results }}"
+  loop_control:
+    loop_var: host
+  when: hosts_response.json.results is defined

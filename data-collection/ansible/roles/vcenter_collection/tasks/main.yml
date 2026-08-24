@@ -1,0 +1,69 @@
+---
+# tasks/main.yml - vCenter Collection Role
+# Collects VMware infrastructure data from vCenter and sends to Data Collection Service
+
+- name: "vCenter Collection | Validate required variables"
+  ansible.builtin.assert:
+    that:
+      - vcenter_host is defined
+      - vcenter_username is defined
+      - vcenter_password is defined
+      - collection_service_url is defined
+      - collection_service_token is defined
+    fail_msg: "Required variables not defined"
+    quiet: true
+
+- name: "vCenter Collection | Install pyvmomi if needed"
+  ansible.builtin.pip:
+    name: pyvmomi
+    state: present
+  become: true
+
+- name: "vCenter Collection | Create collection job"
+  ansible.builtin.uri:
+    url: "{{ collection_service_url }}/api/v1/collection/jobs"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ collection_service_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      source_id: "{{ vcenter_source_id }}"
+      collection_type: "{{ collection_type | default('full') }}"
+      triggered_by: "ansible"
+      triggered_by_user: "{{ ansible_user_id | default('ansible') }}"
+    register: job_response
+    until: job_response.status == 201
+    retries: 3
+    delay: 5
+
+- name: "vCenter Collection | Set job ID fact"
+  ansible.builtin.set_fact:
+    collection_job_id: "{{ job_response.json.id }}"
+
+- name: "vCenter Collection | Gather datacenter info"
+  community.vmware.vcenter_datacenter_info:
+    hostname: "{{ vcenter_host }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    validate_certs: "{{ vcenter_validate_certs | default(false) }}"
+  register: datacenters
+  delegate_to: localhost
+
+- name: "vCenter Collection | Process each datacenter"
+  ansible.builtin.include_tasks: collect_datacenter.yml
+  loop: "{{ datacenters.datacenters }}"
+  loop_control:
+    loop_var: datacenter
+
+- name: "vCenter Collection | Complete collection job"
+  ansible.builtin.uri:
+    url: "{{ collection_service_url }}/api/v1/collection/jobs/{{ collection_job_id }}/complete"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ collection_service_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      status: "completed"
+    register: complete_response

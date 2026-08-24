@@ -1,0 +1,34 @@
+---
+# tasks/collect_network.yml - Collect network data
+
+- name: "vCenter Collection | Build network entity"
+  ansible.builtin.set_fact:
+    network_entity:
+      source_id: "{{ vcenter_source_id }}"
+      entity_type: "vcenter_network"
+      source_entity_id: "{{ network.moid }}"
+      source_unique_key: "{{ vcenter_source_id }}:vcenter_network:{{ network.moid }}"
+      name: "{{ network.name }}"
+      datacenter: "{{ datacenter.name }}"
+      parent_source_id: "{{ datacenter.moid }}"
+      
+      # Metadata
+      tags:
+        type: "{{ network.type | default('') }}"
+        vcenter_moid: "{{ network.moid }}"
+        datacenter_moid: "{{ datacenter.moid }}"
+      raw_data:
+        moid: "{{ network.moid }}"
+        datacenter_moid: "{{ datacenter.moid }}"
+        accessible: "{{ network.accessible | default(true) }}"
+
+- name: "vCenter Collection | Send network to collection service"
+  ansible.builtin.uri:
+    url: "{{ collection_service_url }}/api/v1/entities"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ collection_service_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body: "{{ network_entity }}"
+    status_code: [200, 201]

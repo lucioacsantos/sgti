@@ -1,0 +1,28 @@
+---
+# Ansible Collection for SGI Infrastructure Data Collection
+# 
+# This collection provides roles and modules for collecting infrastructure data
+# from various sources and sending to the Data Collection Service.
+
+name: sgti.inventory
+version: 1.0.0
+description: "Ansible collection for SGI CMDB data collection"
+authors:
+  - "SGTI Team <sgti@example.com>"
+license: "MIT"
+readme: "README.md"
+tags:
+  - inventory
+  - cmdb
+  - vcenter
+  - satellite
+  - data-collection
+
+dependencies:
+  community.vmware: ">=3.0.0"
+  ansible.netcommon: ">=5.0.0"
+  community.general: ">=7.0.0"
+
+repository: "https://github.com/sgti/ansible-collection-inventory"
+documentation: "https://github.com/sgti/ansible-collection-inventory/docs"
+issues: "https://github.com/sgti/ansible-collection-inventory/issues"

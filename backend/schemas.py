@@ -1,4 +1,4 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, ConfigDict
 from typing import Optional
 from datetime import datetime
 import ipaddress
@@ -17,36 +17,33 @@ class AtivoBase(BaseModel):
 class AtivoCreate(BaseModel):
     nome: str
     descricao: Optional[str] = None
-    area_id: Optional[int] = None
+    areas_id: Optional[int] = None
     ambiente_id: Optional[int] = None
     tipo_id: Optional[int] = None
     status_id: Optional[int] = None
     criticidade_id: Optional[int] = None
     sor_id: Optional[int] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class AtivoUpdate(BaseModel):
     """Todos os campos são opcionais — somente os enviados serão atualizados."""
     nome: Optional[str] = None
     descricao: Optional[str] = None
-    area_id: Optional[int] = None
+    areas_id: Optional[int] = None
     ambiente_id: Optional[int] = None
     tipo_id: Optional[int] = None
     status_id: Optional[int] = None
     criticidade_id: Optional[int] = None
     sor_id: Optional[int] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class AtivoResponse(AtivoBase):
     id: int
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class EnderecoIpBase(BaseModel):
     ativo_id: int
@@ -85,8 +82,7 @@ class EnderecoIpUpsert(BaseModel):
             raise ValueError(f"'{v}' não é um endereço IP/CIDR válido")
         return v
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class EnderecoIpResponse(BaseModel):
     id: int
@@ -100,36 +96,31 @@ class EnderecoIpResponse(BaseModel):
     created_at: datetime
     updated_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class TipoAtivoResponse(BaseModel):
     id: int
     nome: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class AmbienteResponse(BaseModel):
     id: int
     nome: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class StatusAtivoResponse(BaseModel):
     id: int
     nome: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class CriticidadeResponse(BaseModel):
     id: int
     nivel: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class SistemaOperacionalResponse(BaseModel):
     id: int
@@ -137,8 +128,7 @@ class SistemaOperacionalResponse(BaseModel):
     descricao: str
     lifecycle: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class SistemaOperacionalCreate(BaseModel):
     abreviacao: str
@@ -155,8 +145,7 @@ class AplicacaoBase(BaseModel):
     area_negocio: Optional[str] = None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class AplicacaoCreate(AplicacaoBase):
     pass
@@ -169,8 +158,7 @@ class AreasResponse(BaseModel):
     nome: str
     sigla: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class OllamaRequest(BaseModel):
     question: str
@@ -189,3 +177,133 @@ class ZabbixOllamaObservationResponse(BaseModel):
     problem_name: Optional[str] = None
     ollama_response: str
     zabbix_result: dict
+
+
+class TipoRelacionamentoBase(BaseModel):
+    nome: str
+    descricao: Optional[str] = None
+
+
+class TipoRelacionamentoCreate(TipoRelacionamentoBase):
+    pass
+
+
+class TipoRelacionamentoResponse(TipoRelacionamentoBase):
+    id: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ClusterBase(BaseModel):
+    nome: str
+    descricao: Optional[str] = None
+    ativo_id: Optional[int] = None
+
+
+class ClusterCreate(ClusterBase):
+    pass
+
+
+class ClusterResponse(ClusterBase):
+    id: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class NamespaceBase(BaseModel):
+    nome: str
+    cluster_id: Optional[int] = None
+    ativo_id: Optional[int] = None
+
+
+class NamespaceCreate(NamespaceBase):
+    pass
+
+
+class NamespaceResponse(NamespaceBase):
+    id: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class RelacionamentoBase(BaseModel):
+    origem_id: int
+    destino_id: int
+    tipo_id: int
+    descricao: Optional[str] = None
+
+
+class RelacionamentoCreate(RelacionamentoBase):
+    pass
+
+
+class RelacionamentoResponse(RelacionamentoBase):
+    id: int
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ServicoBase(BaseModel):
+    nome: str
+    tipo: Optional[str] = None
+    host_id: Optional[int] = None
+    ativo_id: Optional[int] = None
+
+
+class ServicoCreate(ServicoBase):
+    pass
+
+
+class ServicoResponse(ServicoBase):
+    id: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ServicoNegocioBase(BaseModel):
+    nome: str
+    descricao: Optional[str] = None
+    ativo_id: Optional[int] = None
+
+
+class ServicoNegocioCreate(ServicoNegocioBase):
+    pass
+
+
+class ServicoNegocioResponse(ServicoNegocioBase):
+    id: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class InstanciaAplicacaoBase(BaseModel):
+    aplicacao_id: int
+    ativo_id: Optional[int] = None
+    porta: Optional[int] = None
+    path_execucao: Optional[str] = None
+    comando_execucao: Optional[str] = None
+
+
+class InstanciaAplicacaoCreate(InstanciaAplicacaoBase):
+    pass
+
+
+class InstanciaAplicacaoResponse(InstanciaAplicacaoBase):
+    id: int
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AuditLogResponse(BaseModel):
+    id: int
+    entidade: str
+    entidade_id: Optional[int] = None
+    acao: Optional[str] = None
+    antes: Optional[dict] = None
+    depois: Optional[dict] = None
+    usuario: Optional[str] = None
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
