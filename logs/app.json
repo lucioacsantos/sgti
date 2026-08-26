@@ -5432,3 +5432,93 @@ KeyError: "Attempt to overwrite 'name' in LogRecord"
 {"timestamp": "2026-08-24T11:10:12", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50582 - "GET /admin/users?skip=0&limit=20 HTTP/1.1" 404", "module": "h11_impl", "function": "send", "line": 480}
 {"timestamp": "2026-08-24T11:10:13", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
 {"timestamp": "2026-08-24T11:10:13", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50582 - "GET /admin/users?skip=0&limit=20 HTTP/1.1" 404", "module": "h11_impl", "function": "send", "line": 480}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60598 - "OPTIONS /ativos?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60600 - "OPTIONS /relacionamentos?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60612 - "OPTIONS /aplicacoes?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60626 - "OPTIONS /clusters?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60632 - "OPTIONS /ativos?limit=5 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60642 - "OPTIONS /auth/me HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60598 - "OPTIONS /auth/me HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60600 - "OPTIONS /auth/me HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60612 - "OPTIONS /auth/me HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60626 - "GET /ativos?limit=1 HTTP/1.1" 307", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60600 - "GET /relacionamentos?limit=1 HTTP/1.1" 307", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60598 - "GET /aplicacoes?limit=1 HTTP/1.1" 307", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60642 - "GET /clusters?limit=1 HTTP/1.1" 307", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60632 - "GET /ativos?limit=5 HTTP/1.1" 307", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60598 - "OPTIONS /ativos/?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60600 - "OPTIONS /relacionamentos/?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60626 - "OPTIONS /aplicacoes/?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60612 - "GET /auth/me HTTP/1.1" 401", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60600 - "OPTIONS /clusters/?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60598 - "OPTIONS /ativos/?limit=5 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T12:15:25", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60626 - "GET /ativos/?limit=1 HTTP/1.1" 403", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60632 - "GET /relacionamentos/?limit=1 HTTP/1.1" 403", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T12:15:25", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60642 - "GET /aplicacoes/?limit=1 HTTP/1.1" 403", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60612 - "GET /auth/me HTTP/1.1" 401", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60632 - "OPTIONS /auth/refresh HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60642 - "POST /auth/refresh HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T12:15:25", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60626 - "GET /clusters/?limit=1 HTTP/1.1" 403", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60632 - "GET /auth/me HTTP/1.1" 401", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60612 - "GET /ativos/?limit=5 HTTP/1.1" 403", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60642 - "POST /auth/refresh HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60632 - "GET /auth/me HTTP/1.1" 401", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60632 - "GET /auth/me HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60642 - "POST /auth/refresh HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60612 - "POST /auth/refresh HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60632 - "GET /auth/me HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60632 - "GET /auth/me HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60632 - "GET /auth/me HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:34", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60654 - "GET /ativos?limit=1 HTTP/1.1" 307", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:34", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60662 - "GET /relacionamentos?limit=1 HTTP/1.1" 307", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:34", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60654 - "GET /aplicacoes?limit=1 HTTP/1.1" 307", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:34", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60662 - "GET /clusters?limit=1 HTTP/1.1" 307", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:34", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60654 - "GET /ativos?limit=5 HTTP/1.1" 307", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:34", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T12:15:34", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60662 - "GET /ativos/?limit=1 HTTP/1.1" 403", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:34", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T12:15:34", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60654 - "GET /relacionamentos/?limit=1 HTTP/1.1" 403", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:34", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T12:15:34", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60662 - "GET /aplicacoes/?limit=1 HTTP/1.1" 403", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:34", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T12:15:34", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60654 - "GET /clusters/?limit=1 HTTP/1.1" 403", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:34", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T12:15:34", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60662 - "GET /ativos/?limit=5 HTTP/1.1" 403", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:37", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60662 - "OPTIONS /auth/logout HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:15:37", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60662 - "POST /auth/logout HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:16:22", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:59808 - "OPTIONS /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T12:16:22", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T12:16:22", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:59808 - "POST /auth/ad/login HTTP/1.1" 503", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T13:33:44", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:47592 - "OPTIONS /auth/test/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T13:33:44", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T13:33:44", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:47592 - "POST /auth/test/login HTTP/1.1" 403", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T13:33:55", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:47604 - "OPTIONS /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T13:33:55", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T13:33:55", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:47604 - "POST /auth/ad/login HTTP/1.1" 503", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T13:35:44", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52276 - "GET / HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T13:35:44", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T13:35:44", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52284 - "GET /login HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T13:35:44", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T13:35:44", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52292 - "GET /favicon.ico HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T13:36:03", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T13:36:03", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:35914 - "GET /login HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T13:37:00", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T13:37:00", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:34922 - "POST /auth/ad/login HTTP/1.1" 503", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T13:42:26", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:57378 - "GET / HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T13:42:27", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T13:42:27", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:57378 - "GET /favicon.ico HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T13:42:31", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:57378 - "GET /docs HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T13:42:34", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:57378 - "GET /openapi.json HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T13:43:08", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T13:43:08", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:53816 - "POST /auth/ad/login HTTP/1.1" 503", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-24T13:44:23", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-24T13:44:23", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:43350 - "POST /auth/ad/login HTTP/1.1" 503", "module": "httptools_impl", "function": "send", "line": 483}

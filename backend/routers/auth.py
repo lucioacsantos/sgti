@@ -123,15 +123,16 @@ async def ad_login(
         access_token = create_access_token(token_data)
         refresh_token = create_refresh_token(token_data)
         
-        import bcrypt
-        # Update local user with refresh token hash (for revocation)
+        import hashlib
+
+        # Gera hash SHA-256 do refresh token
+        refresh_token_hash = hashlib.sha256(refresh_token.encode('utf-8')).hexdigest()
+
+        # Atualiza o local_user
         local_user.token_hash = json.dumps({
             "roles": roles,
             "ad_user": True,
-            "refresh_token_hash": bcrypt.hashpw(
-                refresh_token.encode(), 
-                bcrypt.gensalt()
-            ).decode()
+            "refresh_token_hash": refresh_token_hash
         })
         db.commit()
         

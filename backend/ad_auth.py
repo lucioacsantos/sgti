@@ -2,7 +2,7 @@
 Active Directory / LDAP Authentication Module
 """
 import ldap3
-from ldap3 import Server, Connection, ALL, SUBTREE, NTLM, SASL, KERBEROS
+from ldap3 import Server, Connection, ALL, SUBTREE, SIMPLE, Tls
 from ldap3.core.exceptions import LDAPException
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta
@@ -14,9 +14,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 import jwt
 import os
+import ssl
 from pathlib import Path
 from dotenv import load_dotenv
-import bcrypt
 
 load_dotenv(Path(__file__).parent.parent / ".env")
 
@@ -27,19 +27,19 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")
 REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 
 # AD/LDAP Settings
-AD_SERVER = os.getenv("AD_SERVER", "ldap://localhost:389")
+AD_SERVER = os.getenv("AD_SERVER", "ldap://pwdc01.energia.org.br")
 AD_PORT = int(os.getenv("AD_PORT", "389"))
-AD_DOMAIN = os.getenv("AD_DOMAIN", "EXAMPLE.COM")
-AD_BASE_DN = os.getenv("AD_BASE_DN", "DC=example,DC=com")
+AD_DOMAIN = os.getenv("AD_DOMAIN", "energia.org.br")
+AD_BASE_DN = os.getenv("AD_BASE_DN", "DC=energia,DC=org,DC=br")
 AD_BIND_DN = os.getenv("AD_BIND_DN", "")
 AD_BIND_PASSWORD = os.getenv("AD_BIND_PASSWORD", "")
 AD_USE_SSL = os.getenv("AD_USE_SSL", "false").lower() == "true"
 AD_SEARCH_FILTER = os.getenv("AD_SEARCH_FILTER", "(sAMAccountName={username})")
 AD_GROUP_SEARCH_FILTER = os.getenv("AD_GROUP_SEARCH_FILTER", "(member={user_dn})")
 
-# Role mapping from AD groups to application roles
-# Loaded dynamically from .env (e.g., ROLE_ADMIN=G_GESIN_GOSD_OMIS)
+
 def get_role_mapping() -> Dict[str, List[str]]:
+    """Carrega mapeamento de roles do .env (ex: ROLE_ADMIN=G_GESIN_GOSD_OMIS)"""
     mapping = {}
     for key, value in os.environ.items():
         if key.startswith("ROLE_"):
@@ -54,24 +54,27 @@ class ADAuthError(Exception):
     pass
 
 
+def _create_server() -> Server:
+    """Instancia o servidor LDAP com suporte a SSL/TLS se configurado"""
+    tls_config = Tls(validate=ssl.CERT_NONE) if AD_USE_SSL else None
+    return Server(AD_SERVER, port=AD_PORT, get_info=ALL, use_ssl=AD_USE_SSL, tls=tls_config)
+
+
 def get_ad_connection() -> Connection:
-    """Create and return an AD/LDAP connection"""
+    """Cria conexão usando a conta de serviço com autenticação SIMPLE"""
     try:
-        server = Server(AD_SERVER, get_info=ALL, use_ssl=AD_USE_SSL)
-        
+        server = _create_server()
         if AD_BIND_DN and AD_BIND_PASSWORD:
-            # Service account bind
+            user = AD_BIND_DN if "@" in AD_BIND_DN or "=" in AD_BIND_DN else f"{AD_BIND_DN}@{AD_DOMAIN}"
             conn = Connection(
                 server,
-                user=AD_BIND_DN,
+                user=user,
                 password=AD_BIND_PASSWORD,
-                authentication=NTLM,
+                authentication=SIMPLE,
                 auto_bind=True
             )
         else:
-            # Anonymous bind (if allowed)
-            conn = Connection(server, authentication=NTLM, auto_bind=True)
-        
+            conn = Connection(server, auto_bind=True)
         return conn
     except LDAPException as e:
         raise ADAuthError(f"Failed to connect to AD: {str(e)}")
@@ -79,28 +82,28 @@ def get_ad_connection() -> Connection:
 
 def authenticate_user(username: str, password: str) -> Optional[Dict[str, Any]]:
     """
-    Authenticate a user against Active Directory.
-    Returns user info dict if successful, None otherwise.
+    Autentica o usuário no Active Directory via SIMPLE Bind.
+    Elimina a dependência de NTLM/MD4.
     """
     try:
-        # Create connection for user authentication
-        server = Server(AD_SERVER, get_info=ALL, use_ssl=AD_USE_SSL)
+        server = _create_server()
         
-        # Try to bind with user credentials
-        user_dn = f"{AD_DOMAIN}\\{username}"
+        # Monta o formato UPN (usuario@dominio.com) para bind SIMPLE
+        user_principal = f"{username}@{AD_DOMAIN}" if "@" not in username else username
+        
         conn = Connection(
             server,
-            user=user_dn,
+            user=user_principal,
             password=password,
-            authentication=NTLM,
+            authentication=SIMPLE,
             auto_bind=True
         )
         
         if not conn.bound:
             return None
         
-        # Search for user details
-        search_filter = AD_SEARCH_FILTER.format(username=username)
+        # Realiza a busca dos atributos e grupos usando a própria conexão autenticada
+        search_filter = AD_SEARCH_FILTER.format(username=username.split("@")[0])
         conn.search(
             search_base=AD_BASE_DN,
             search_filter=search_filter,
@@ -112,11 +115,12 @@ def authenticate_user(username: str, password: str) -> Optional[Dict[str, Any]]:
         )
         
         if not conn.entries:
+            conn.unbind()
             return None
         
         entry = conn.entries[0]
         
-        # Get user's groups
+        # Extrai os grupos aos quais o usuário pertence
         groups = []
         if hasattr(entry, 'memberOf') and entry.memberOf:
             for group_dn in entry.memberOf.values:
@@ -140,75 +144,43 @@ def authenticate_user(username: str, password: str) -> Optional[Dict[str, Any]]:
         raise ADAuthError(f"AD authentication failed: {str(e)}")
 
 
-def get_user_groups(user_dn: str) -> List[str]:
-    """Get all groups a user is member of (including nested groups)"""
-    try:
-        conn = get_ad_connection()
-        
-        # Search for groups where user is a member
-        search_filter = AD_GROUP_SEARCH_FILTER.format(user_dn=user_dn)
-        conn.search(
-            search_base=AD_BASE_DN,
-            search_filter=search_filter,
-            search_scope=SUBTREE,
-            attributes=['cn', 'distinguishedName']
-        )
-        
-        groups = []
-        for entry in conn.entries:
-            groups.append(str(entry.cn))
-        
-        conn.unbind()
-        return groups
-    except LDAPException:
-        return []
-
-
 def map_ad_groups_to_roles(ad_groups: List[str]) -> List[str]:
-    """Map AD groups to application roles"""
+    """Mapeia grupos do AD para roles da aplicação com base no .env"""
     roles = []
     role_map = get_role_mapping()
     
     for group in ad_groups:
-        # Extract group CN for easier matching
         group_cn = group.split(',')[0].replace('CN=', '') if 'CN=' in group else group
         
         for role, groups in role_map.items():
             if any(g.lower() in group.lower() or g.lower() == group_cn.lower() for g in groups):
                 roles.append(role)
     
-    # Default role if no mapping found
     if not roles:
         roles = ["viewer"]
     
-    return list(set(roles))  # Remove duplicates
+    return list(set(roles))
 
 
 def create_or_update_local_user(db: Session, ad_user: Dict[str, Any]) -> models.ServiceAccount:
-    """Create or update local user record based on AD user info"""
+    """Cria ou atualiza usuário no banco local"""
+    import json
     username = ad_user["username"]
-    
-    # Check if user exists locally
     local_user = db.query(models.ServiceAccount).filter(
         models.ServiceAccount.name == username
     ).first()
     
-    # Map AD groups to roles
     roles = map_ad_groups_to_roles(ad_user.get("groups", []))
+    payload_data = json.dumps({"roles": roles, "ad_user": True, "email": ad_user.get("email")})
     
     if local_user:
-        # Update existing user
         local_user.is_active = True
         local_user.expires_at = datetime.utcnow() + timedelta(days=365)
-        # Store roles in token_hash field as JSON (or create a separate field)
-        import json
-        local_user.token_hash = json.dumps({"roles": roles, "ad_user": True})
+        local_user.token_hash = payload_data
     else:
-        # Create new local user
-        import json
         local_user = models.ServiceAccount(
             name=username,
-            token_hash=json.dumps({"roles": roles, "ad_user": True}),
+            token_hash=payload_data,
             expires_at=datetime.utcnow() + timedelta(days=365),
             is_active=True,
         )
@@ -220,36 +192,72 @@ def create_or_update_local_user(db: Session, ad_user: Dict[str, Any]) -> models.
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-    """Create JWT access token"""
     to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.utcnow() + (expires_delta if expires_delta else timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire, "type": "access"})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
 def create_refresh_token(data: dict) -> str:
-    """Create JWT refresh token"""
     to_encode = data.copy()
     expire = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     to_encode.update({"exp": expire, "type": "refresh"})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
 def decode_token(token: str) -> Optional[dict]:
-    """Decode and validate JWT token"""
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload
-    except jwt.ExpiredSignatureError:
-        return None
-    except jwt.JWTError:
+        return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    except (jwt.ExpiredSignatureError, jwt.JWTError):
         return None
 
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/ad/login")
+
+
+def get_current_user(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+) -> models.ServiceAccount:
+    payload = decode_token(token)
+    if not payload or payload.get("type") != "access":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    username = payload.get("sub")
+    user = db.query(models.ServiceAccount).filter(
+        models.ServiceAccount.name == username,
+        models.ServiceAccount.is_active == True
+    ).first()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found or inactive",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user
+
+
+def require_role(required_roles: List[str]):
+    def role_checker(current_user: models.ServiceAccount = Depends(get_current_user)) -> models.ServiceAccount:
+        import json
+        try:
+            user_data = json.loads(current_user.token_hash)
+            user_roles = user_data.get("roles", [])
+        except Exception:
+            user_roles = []
+        
+        if not any(role in user_roles for role in required_roles):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Required role(s): {required_roles}"
+            )
+        return current_user
+    return role_checker
 
 def get_current_user_from_token(
     token: str, 
@@ -273,45 +281,6 @@ def get_current_user_from_token(
     ).first()
     
     return user
-
-
-# OAuth2 scheme for token extraction
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/ad/login")
-
-
-def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    db: Session = Depends(get_db)
-) -> models.ServiceAccount:
-    """FastAPI dependency to get current authenticated user"""
-    user = get_current_user_from_token(token, db)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    return user
-
-
-def require_role(required_roles: List[str]):
-    """Dependency factory for role-based access control"""
-    def role_checker(current_user: models.ServiceAccount = Depends(get_current_user)) -> models.ServiceAccount:
-        import json
-        try:
-            user_data = json.loads(current_user.token_hash)
-            user_roles = user_data.get("roles", [])
-        except:
-            user_roles = []
-        
-        if not any(role in user_roles for role in required_roles):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Required role(s): {required_roles}"
-            )
-        return current_user
-    return role_checker
-
 
 def create_test_user(db: Session, username: str = "testuser", roles: List[str] = None) -> models.ServiceAccount:
     """Create or get a test user for testing purposes (only works when TESTING=1)"""
