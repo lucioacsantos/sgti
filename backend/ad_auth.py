@@ -2,7 +2,7 @@
 Active Directory / LDAP Authentication Module
 """
 import ldap3
-from ldap3 import Server, Connection, ALL, SUBTREE, SIMPLE, Tls
+from ldap3 import Server, Connection, ALL, SUBTREE, SIMPLE, Tls, ALL_ATTRIBUTES
 from ldap3.core.exceptions import LDAPException
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta
@@ -81,67 +81,75 @@ def get_ad_connection() -> Connection:
 
 
 def authenticate_user(username: str, password: str) -> Optional[Dict[str, Any]]:
-    """
-    Autentica o usuário no Active Directory via SIMPLE Bind.
-    Elimina a dependência de NTLM/MD4.
-    """
     try:
         server = _create_server()
         
-        # Monta o formato UPN (usuario@dominio.com) para bind SIMPLE
-        user_principal = f"{username}@{AD_DOMAIN}" if "@" not in username else username
+        # 1. Conecta via conta de serviço para localizar o DN do usuário
+        service_conn = get_ad_connection()
+        clean_username = username.split("@")[0]
+        search_filter = AD_SEARCH_FILTER.format(username=clean_username)
         
-        conn = Connection(
+        # Solicita ALL_ATTRIBUTES ('*') para evitar erro de schema inexistente
+        service_conn.search(
+            search_base=AD_BASE_DN,
+            search_filter=search_filter,
+            search_scope=SUBTREE,
+            attributes=ALL_ATTRIBUTES
+        )
+        
+        if not service_conn.entries:
+            service_conn.unbind()
+            return None
+        
+        entry = service_conn.entries[0]
+        user_dn = entry.entry_dn
+        service_conn.unbind()
+        
+        # 2. Realiza o Bind com o DN localizado e a senha do usuário
+        user_conn = Connection(
             server,
-            user=user_principal,
+            user=user_dn,
             password=password,
             authentication=SIMPLE,
             auto_bind=True
         )
         
-        if not conn.bound:
+        if not user_conn.bound:
             return None
         
-        # Realiza a busca dos atributos e grupos usando a própria conexão autenticada
-        search_filter = AD_SEARCH_FILTER.format(username=username.split("@")[0])
-        conn.search(
-            search_base=AD_BASE_DN,
-            search_filter=search_filter,
-            search_scope=SUBTREE,
-            attributes=[
-                'sAMAccountName', 'displayName', 'mail', 'userPrincipalName',
-                'memberOf', 'distinguishedName', 'givenName', 'sn'
-            ]
-        )
+        user_conn.unbind()
         
-        if not conn.entries:
-            conn.unbind()
-            return None
-        
-        entry = conn.entries[0]
-        
-        # Extrai os grupos aos quais o usuário pertence
+        # 3. Extrai grupos
         groups = []
         if hasattr(entry, 'memberOf') and entry.memberOf:
             for group_dn in entry.memberOf.values:
                 groups.append(str(group_dn))
         
+        # Resolve username para OpenLDAP (uid) ou Active Directory (sAMAccountName)
+        account_name = str(entry.uid) if hasattr(entry, 'uid') and entry.uid else (
+            str(entry.sAMAccountName) if hasattr(entry, 'sAMAccountName') and entry.sAMAccountName else clean_username
+        )
+        
+        # Resolve displayName
+        display_name = str(entry.displayName) if hasattr(entry, 'displayName') and entry.displayName else (
+            str(entry.cn) if hasattr(entry, 'cn') and entry.cn else account_name
+        )
+        
         user_info = {
-            "username": str(entry.sAMAccountName),
-            "display_name": str(entry.displayName) if hasattr(entry, 'displayName') and entry.displayName else username,
-            "email": str(entry.mail) if hasattr(entry, 'mail') and entry.mail else f"{username}@{AD_DOMAIN.lower()}",
+            "username": account_name,
+            "display_name": display_name,
+            "email": str(entry.mail) if hasattr(entry, 'mail') and entry.mail else f"{clean_username}@{AD_DOMAIN.lower()}",
             "user_principal_name": str(entry.userPrincipalName) if hasattr(entry, 'userPrincipalName') and entry.userPrincipalName else None,
-            "distinguished_name": str(entry.distinguishedName) if hasattr(entry, 'distinguishedName') and entry.distinguishedName else None,
+            "distinguished_name": user_dn,
             "groups": groups,
             "given_name": str(entry.givenName) if hasattr(entry, 'givenName') and entry.givenName else None,
             "surname": str(entry.sn) if hasattr(entry, 'sn') and entry.sn else None,
         }
         
-        conn.unbind()
         return user_info
         
     except LDAPException as e:
-        raise ADAuthError(f"AD authentication failed: {str(e)}")
+        raise ADAuthError(f"AD/LDAP authentication failed: {str(e)}")
 
 
 def map_ad_groups_to_roles(ad_groups: List[str]) -> List[str]:

@@ -1,0 +1,25 @@
+# Unidade Organizacional para Usuários
+dn: ou=users,dc=lacstech,dc=local
+objectClass: organizationalUnit
+ou: users
+
+# Unidade Organizacional para Grupos
+dn: ou=groups,dc=lacstech,dc=local
+objectClass: organizationalUnit
+ou: groups
+
+# Usuário de Teste (joao)
+dn: uid=lucio,ou=users,dc=lacstech,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: Lucio
+sn: Santos
+givenName: Lucio
+cn: Lucio Santos
+displayName: Lucio Santos
+mail: luciosantos@lacstech.local
+userPassword: Admin123
+uidNumber: 10001
+gidNumber: 10001
+homeDirectory: /home/lucio

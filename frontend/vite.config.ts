@@ -1,26 +1,13 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import vue from '@vitejs/plugin-vue'
+import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [vue(), tailwindcss()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
-  server: {
-    port: 3000,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
-      '/data-collection': {
-        target: 'http://localhost:8001',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/data-collection/, ''),
-      },
-    },
-  },
+      '@': path.resolve(__dirname, './src')
+    }
+  }
 })
