@@ -23,7 +23,7 @@ const router = createRouter({
           name: 'dashboard',
           component: () => import('@/views/DashboardView.vue')
         },
-        /*{
+        {
           path: 'assets',
           name: 'assets',
           component: () => import('@/views/assets/AssetsView.vue')
@@ -32,12 +32,12 @@ const router = createRouter({
           path: 'infrastructure',
           name: 'infrastructure',
           component: () => import('@/views/infrastructure/InfraView.vue')
-        },*/
+        },
         {
           path: 'reference-data',
           name: 'reference-data',
           component: () => import('@/views/reference/ReferenceDataView.vue')
-        }/*,
+        },
         {
           path: 'audit',
           name: 'audit',
@@ -47,7 +47,7 @@ const router = createRouter({
           path: 'integrations',
           name: 'integrations',
           component: () => import('@/views/integrations/IntegrationsView.vue')
-        } */
+        }
       ]
     }
   ]

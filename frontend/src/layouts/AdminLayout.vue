@@ -64,7 +64,7 @@ const menuItems = [
         </h1>
         <div class="flex items-center gap-3">
           <span class="text-xs bg-slate-800 px-2.5 py-1 rounded text-slate-300 font-mono">
-            {{ authStore.user?.username }}
+            {{ authStore.user?.display_name }}
           </span>
         </div>
       </header>

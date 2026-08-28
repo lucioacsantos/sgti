@@ -15,11 +15,13 @@ import os
 from database import get_db
 import models
 import ad_auth
+import ad_auth
 from ad_auth import (
     authenticate_user, create_or_update_local_user, create_access_token,
     create_refresh_token, decode_token, get_current_user_from_token,
     ADAuthError, create_test_user, create_test_tokens
 )
+
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 

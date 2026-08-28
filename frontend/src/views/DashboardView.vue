@@ -71,7 +71,7 @@ onMounted(() => {
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-950/60 p-6 rounded-xl border border-slate-800">
       <div>
         <h2 class="text-xl font-bold text-slate-100">
-          Olá, <span class="text-emerald-400 font-mono">{{ authStore.user?.username }}</span>
+          Olá, <span class="text-emerald-400 font-mono">{{ authStore.user?.display_name }}</span>
         </h2>
         <p class="text-xs text-slate-400 mt-1">
           Bem-vindo ao console central de infraestrutura, ativos e governança de rede.

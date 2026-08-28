@@ -17,7 +17,7 @@ def read_audit_logs(
     skip: int = 0,
     limit: int = 50,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     query = db.query(models.AuditLog)
     if entidade:

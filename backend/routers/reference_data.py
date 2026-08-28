@@ -13,7 +13,7 @@ router = APIRouter(tags=["Dados Auxiliares"])
 @router.get("/tipos-ativos/", response_model=list[schemas.TipoAtivoResponse])
 def read_tipos_ativos(
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Listing asset types", extra={"service_account": current_service.name})
     return db.query(models.TipoAtivo).all()
@@ -22,7 +22,7 @@ def read_tipos_ativos(
 @router.get("/status-ativos/", response_model=list[schemas.StatusAtivoResponse])
 def read_status_ativos(
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Listing asset statuses", extra={"service_account": current_service.name})
     return db.query(models.StatusAtivo).all()
@@ -31,7 +31,7 @@ def read_status_ativos(
 @router.get("/ambientes/", response_model=list[schemas.AmbienteResponse])
 def read_ambientes(
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Listing environments", extra={"service_account": current_service.name})
     return db.query(models.Ambiente).all()
@@ -40,7 +40,7 @@ def read_ambientes(
 @router.get("/criticidades/", response_model=list[schemas.CriticidadeResponse])
 def read_criticidades(
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Listing criticities", extra={"service_account": current_service.name})
     return db.query(models.Criticidade).all()
@@ -50,7 +50,7 @@ def read_criticidades(
 def create_sistema_operacional(
     sistema_operacional: schemas.SistemaOperacionalCreate,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Creating OS", extra={"service_account": current_service.name, "os_abbreviation": sistema_operacional.abreviacao})
     db_sistema_operacional = models.SistemaOperacional(**sistema_operacional.model_dump(exclude_unset=True))
@@ -63,7 +63,7 @@ def create_sistema_operacional(
 @router.get("/sistema-operacional/", response_model=list[schemas.SistemaOperacionalResponse])
 def read_sistemas_operacionais(
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Listing operating systems", extra={"service_account": current_service.name})
     return db.query(models.SistemaOperacional).all()
@@ -72,7 +72,7 @@ def read_sistemas_operacionais(
 @router.get("/areas/", response_model=list[schemas.AreasResponse])
 def read_areas(
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Listing areas", extra={"service_account": current_service.name})
     return db.query(models.Areas).all()
@@ -84,7 +84,7 @@ def read_areas(
 def create_area(
     area: schemas.AreasResponse,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Creating area", extra={"service_account": current_service.name, "area_nome": area.nome})
     db_area = models.Areas(nome=area.nome, sigla=area.sigla)
@@ -99,7 +99,7 @@ def update_area(
     area_id: int,
     area: schemas.AreasResponse,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Updating area", extra={"service_account": current_service.name, "area_id": area_id})
     db_area = db.query(models.Areas).filter(models.Areas.id == area_id).first()
@@ -116,7 +116,7 @@ def update_area(
 def delete_area(
     area_id: int,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Deleting area", extra={"service_account": current_service.name, "area_id": area_id})
     db_area = db.query(models.Areas).filter(models.Areas.id == area_id).first()
@@ -131,7 +131,7 @@ def delete_area(
 def create_asset_type(
     tipo: schemas.TipoAtivoResponse,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Creating asset type", extra={"service_account": current_service.name, "tipo_nome": tipo.nome})
     db_tipo = models.TipoAtivo(nome=tipo.nome)
@@ -146,7 +146,7 @@ def update_asset_type(
     tipo_id: int,
     tipo: schemas.TipoAtivoResponse,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Updating asset type", extra={"service_account": current_service.name, "tipo_id": tipo_id})
     db_tipo = db.query(models.TipoAtivo).filter(models.TipoAtivo.id == tipo_id).first()
@@ -162,7 +162,7 @@ def update_asset_type(
 def delete_asset_type(
     tipo_id: int,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Deleting asset type", extra={"service_account": current_service.name, "tipo_id": tipo_id})
     db_tipo = db.query(models.TipoAtivo).filter(models.TipoAtivo.id == tipo_id).first()
@@ -177,7 +177,7 @@ def delete_asset_type(
 def create_environment(
     ambiente: schemas.AmbienteResponse,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Creating environment", extra={"service_account": current_service.name, "ambiente_nome": ambiente.nome})
     db_ambiente = models.Ambiente(nome=ambiente.nome)
@@ -192,7 +192,7 @@ def update_environment(
     ambiente_id: int,
     ambiente: schemas.AmbienteResponse,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Updating environment", extra={"service_account": current_service.name, "ambiente_id": ambiente_id})
     db_ambiente = db.query(models.Ambiente).filter(models.Ambiente.id == ambiente_id).first()
@@ -208,7 +208,7 @@ def update_environment(
 def delete_environment(
     ambiente_id: int,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Deleting environment", extra={"service_account": current_service.name, "ambiente_id": ambiente_id})
     db_ambiente = db.query(models.Ambiente).filter(models.Ambiente.id == ambiente_id).first()
@@ -223,7 +223,7 @@ def delete_environment(
 def create_status(
     status: schemas.StatusAtivoResponse,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Creating status", extra={"service_account": current_service.name, "status_nome": status.nome})
     db_status = models.StatusAtivo(nome=status.nome)
@@ -238,7 +238,7 @@ def update_status(
     status_id: int,
     status: schemas.StatusAtivoResponse,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Updating status", extra={"service_account": current_service.name, "status_id": status_id})
     db_status = db.query(models.StatusAtivo).filter(models.StatusAtivo.id == status_id).first()
@@ -254,7 +254,7 @@ def update_status(
 def delete_status(
     status_id: int,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Deleting status", extra={"service_account": current_service.name, "status_id": status_id})
     db_status = db.query(models.StatusAtivo).filter(models.StatusAtivo.id == status_id).first()
@@ -269,7 +269,7 @@ def delete_status(
 def create_criticidade(
     criticidade: schemas.CriticidadeResponse,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Creating criticidade", extra={"service_account": current_service.name, "criticidade_nivel": criticidade.nivel})
     db_criticidade = models.Criticidade(nivel=criticidade.nivel)
@@ -284,7 +284,7 @@ def update_criticidade(
     criticidade_id: int,
     criticidade: schemas.CriticidadeResponse,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Updating criticidade", extra={"service_account": current_service.name, "criticidade_id": criticidade_id})
     db_criticidade = db.query(models.Criticidade).filter(models.Criticidade.id == criticidade_id).first()
@@ -300,7 +300,7 @@ def update_criticidade(
 def delete_criticidade(
     criticidade_id: int,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Deleting criticidade", extra={"service_account": current_service.name, "criticidade_id": criticidade_id})
     db_criticidade = db.query(models.Criticidade).filter(models.Criticidade.id == criticidade_id).first()
@@ -315,7 +315,7 @@ def delete_criticidade(
 def create_operating_system_admin(
     so: schemas.SistemaOperacionalCreate,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Creating OS (admin)", extra={"service_account": current_service.name, "so_abbreviation": so.abreviacao})
     db_so = models.SistemaOperacional(**so.model_dump(exclude_unset=True))
@@ -330,7 +330,7 @@ def update_operating_system_admin(
     so_id: int,
     so: schemas.SistemaOperacionalCreate,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Updating OS (admin)", extra={"service_account": current_service.name, "so_id": so_id})
     db_so = db.query(models.SistemaOperacional).filter(models.SistemaOperacional.id == so_id).first()
@@ -347,7 +347,7 @@ def update_operating_system_admin(
 def delete_operating_system_admin(
     so_id: int,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Deleting OS (admin)", extra={"service_account": current_service.name, "so_id": so_id})
     db_so = db.query(models.SistemaOperacional).filter(models.SistemaOperacional.id == so_id).first()
@@ -361,7 +361,7 @@ def delete_operating_system_admin(
 @router.get("/admin/relationship-types", response_model=list[schemas.TipoRelacionamentoResponse])
 def read_tipos_relacionamento_admin(
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Listing relationship types (admin)", extra={"service_account": current_service.name})
     return db.query(models.TipoRelacionamento).all()
@@ -371,7 +371,7 @@ def read_tipos_relacionamento_admin(
 def create_tipo_relacionamento_admin(
     tipo: schemas.TipoRelacionamentoCreate,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Creating relationship type (admin)", extra={"service_account": current_service.name, "tipo_nome": tipo.nome})
     db_tipo = models.TipoRelacionamento(**tipo.model_dump(exclude_unset=True))
@@ -386,7 +386,7 @@ def update_tipo_relacionamento_admin(
     tipo_id: int,
     tipo: schemas.TipoRelacionamentoCreate,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Updating relationship type (admin)", extra={"service_account": current_service.name, "tipo_id": tipo_id})
     db_tipo = db.query(models.TipoRelacionamento).filter(models.TipoRelacionamento.id == tipo_id).first()
@@ -403,7 +403,7 @@ def update_tipo_relacionamento_admin(
 def delete_tipo_relacionamento_admin(
     tipo_id: int,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Deleting relationship type (admin)", extra={"service_account": current_service.name, "tipo_id": tipo_id})
     db_tipo = db.query(models.TipoRelacionamento).filter(models.TipoRelacionamento.id == tipo_id).first()

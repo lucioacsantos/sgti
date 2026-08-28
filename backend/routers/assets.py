@@ -15,7 +15,7 @@ router = APIRouter(prefix="/ativos", tags=["Ativos"])
 def create_ativo(
     ativo: schemas.AtivoCreate,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Creating asset", extra={"service_account": current_service.name, "asset_name": ativo.nome})
 
@@ -54,7 +54,7 @@ def read_ativos(
     skip: int = 0,
     limit: int = 50,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Listing assets", extra={"service_account": current_service.name, "skip": skip, "limit": limit})
     ativos = db.query(models.Ativo).offset(skip).limit(min(limit, 100)).all()
@@ -67,7 +67,7 @@ def upsert_ativo(
     ativo: schemas.AtivoUpdate,
     response: Response,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Upserting asset", extra={"service_account": current_service.name, "asset_name": nome})
 
@@ -161,7 +161,7 @@ def read_ativo(nome: str, db: Session = Depends(get_db)):
 def delete_ativo(
     nome: str,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Deleting asset", extra={"service_account": current_service.name, "asset_name": nome})
     db_ativo = db.query(models.Ativo).filter(

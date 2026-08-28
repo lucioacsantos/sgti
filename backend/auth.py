@@ -1,20 +1,50 @@
-from fastapi import Security, HTTPException, Depends, status, Request
+from fastapi import Security, HTTPException, Depends, status, Request, Header
 from fastapi.security.api_key import APIKeyHeader
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from database import get_db
-from typing import cast
+from typing import cast, Optional, Union
 from urllib import error, request
+from ad_auth import get_current_user
 import json
 import models, datetime
 import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv(Path(__file__).parent.parent / ".env")
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/ad/login", auto_error=False)
+
+load_dotenv()
 
 # Define o nome do Header que a automação deve enviar
 API_KEY_NAME = "X-Service-Token"
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
+
+def get_current_actor(
+    db: Session = Depends(get_db),
+    bearer_token: Optional[str] = Depends(oauth2_scheme),
+    x_service_token: Optional[str] = Header(None, alias="x-service-token")
+) -> models.ServiceAccount:
+    
+    # 1. Se veio Bearer Token (Frontend / Usuário AD)
+    if bearer_token:
+        try:
+            return get_current_user(bearer_token, db)
+        except Exception:
+            pass # Falha na validação do JWT continua para checar service token ou dispara 401
+
+    # 2. Se veio Service Token (Automações de Backend / Scripts legados)
+    if x_service_token:
+        service = get_service_account(x_service_token, db)
+        if service:
+            return service
+
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Autenticação necessária via Bearer Token (AD) ou X-Service-Token",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
 
 def get_service_account(
     api_key: str = Depends(api_key_header), 

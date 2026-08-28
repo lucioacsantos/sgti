@@ -16,7 +16,7 @@ def upsert_endereco_ip(
     payload: schemas.EnderecoIpUpsert,
     response: Response,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Upserting IP address", extra={"service_account": current_service.name, "asset_id": payload.ativo_id, "ip": payload.ip})
 
@@ -79,7 +79,7 @@ def read_enderecos_ip(
     skip: int = 0,
     limit: int = 50,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     query = db.query(models.EnderecoIp)
     if ativo_id:
@@ -91,7 +91,7 @@ def read_enderecos_ip(
 def delete_endereco_ip(
     ip_id: int,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Deleting IP address", extra={"service_account": current_service.name, "ip_id": ip_id})
     db_ip = db.query(models.EnderecoIp).filter(models.EnderecoIp.id == ip_id).first()

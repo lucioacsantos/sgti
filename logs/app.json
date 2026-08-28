@@ -6063,3 +6063,710 @@ ValueError: password cannot be longer than 72 bytes, truncate manually if necess
 {"timestamp": "2026-08-26T23:11:24", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:54150 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "h11_impl", "function": "send", "line": 480}
 {"timestamp": "2026-08-26T23:11:24", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
 {"timestamp": "2026-08-26T23:11:24", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:54154 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "h11_impl", "function": "send", "line": 480}
+{"timestamp": "2026-08-27T15:24:09", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50798 - "OPTIONS /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-27T15:24:10", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-27T15:24:10", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50798 - "POST /auth/ad/login HTTP/1.1" 401", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-27T15:26:37", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:57140 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-27T15:26:38", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:57140 - "OPTIONS /assets/?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-27T15:26:38", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:57144 - "OPTIONS /audit/?limit=5 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-27T15:26:38", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-27T15:26:38", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-27T15:26:38", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:57140 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-27T15:26:38", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:57144 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-27T18:13:40", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51206 - "OPTIONS /assets/?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-27T18:13:40", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51210 - "OPTIONS /audit/?limit=5 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-27T18:13:40", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-27T18:13:40", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-27T18:13:40", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51210 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-27T18:13:40", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51206 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 483}
+{"timestamp": "2026-08-28T10:25:46", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:55504 - "GET / HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T10:25:46", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T10:25:46", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:55504 - "GET /favicon.ico HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T10:25:57", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:44858 - "GET /health HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T10:26:00", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:44858 - "GET /docs HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T10:26:01", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:44858 - "GET /openapi.json HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T10:26:59", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37800 - "OPTIONS /assets/?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T10:26:59", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37808 - "OPTIONS /audit/?limit=5 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T10:26:59", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T10:26:59", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T10:26:59", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37808 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T10:26:59", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37800 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T10:55:28", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50032 - "OPTIONS /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T10:55:28", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T10:55:28", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50032 - "POST /auth/ad/login HTTP/1.1" 503", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T10:55:37", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T10:55:37", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50042 - "POST /auth/ad/login HTTP/1.1" 503", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T10:56:14", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T10:56:14", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:35756 - "POST /auth/ad/login HTTP/1.1" 503", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T10:57:47", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52602 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T10:58:36", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45604 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T10:58:52", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:44384 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T10:58:52", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:44384 - "OPTIONS /assets/?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T10:58:52", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:44388 - "OPTIONS /audit/?limit=5 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T10:58:52", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T10:58:52", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:44384 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T10:58:52", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T10:58:52", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:44388 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T11:42:52", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T11:42:52", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:39122 - "POST /auth/ad/login HTTP/1.1" 401", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T11:43:13", "logger": "main", "level": "ERROR", "message": "Validation error", "module": "main", "function": "validation_exception_handler", "line": 95}
+{"timestamp": "2026-08-28T11:43:13", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52272 - "POST /auth/ad/login HTTP/1.1" 422", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T11:43:31", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T11:43:31", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60290 - "POST /auth/ad/login HTTP/1.1" 401", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T11:45:04", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:44950 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T11:45:14", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:59754 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:14:39", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51768 - "OPTIONS /assets/?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:14:39", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51784 - "OPTIONS /audit/?limit=5 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:14:39", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51788 - "OPTIONS /assets/?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:14:39", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51800 - "OPTIONS /audit/?limit=5 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:14:39", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37684 - "OPTIONS /assets/?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:14:39", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37694 - "OPTIONS /audit/?limit=5 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:14:40", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T14:14:40", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T14:14:40", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42544 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:14:40", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42542 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:14:40", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T14:14:40", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42544 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:14:40", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T14:14:40", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42542 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:14:46", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T14:14:46", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T14:14:46", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42560 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:14:46", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42576 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:14:48", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42576 - "OPTIONS /reference-data/asset-types HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:14:48", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T14:14:48", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42576 - "GET /reference-data/asset-types HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:14:51", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T14:14:51", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42576 - "GET /reference-data/asset-types HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:15:24", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T14:15:24", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42580 - "GET /reference-data/asset-types HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:16:51", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52122 - "OPTIONS /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:16:51", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/mnt/c/Desenvolvimento/sgti/backend/routers/auth.py", line 87, in ad_login
+    ad_user = authenticate_user(request.username, request.password)
+              ^^^^^^^^^^^^^^^^^
+NameError: name 'authenticate_user' is not defined
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2734, in app
+    await route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1279, in handle
+    await app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 158, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 144, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 706, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 352, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/routers/auth.py", line 148, in ad_login
+    except ADAuthError as e:
+           ^^^^^^^^^^^
+NameError: name 'ADAuthError' is not defined
+{"timestamp": "2026-08-28T14:16:51", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52122 - "POST /auth/ad/login HTTP/1.1" 500", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:38:40", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37056 - "OPTIONS /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:38:40", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/mnt/c/Desenvolvimento/sgti/backend/routers/auth.py", line 87, in ad_login
+    ad_user = authenticate_user(request.username, request.password)
+              ^^^^^^^^^^^^^^^^^
+NameError: name 'authenticate_user' is not defined
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2734, in app
+    await route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1279, in handle
+    await app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 158, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 144, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 706, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 352, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/routers/auth.py", line 148, in ad_login
+    except ADAuthError as e:
+           ^^^^^^^^^^^
+NameError: name 'ADAuthError' is not defined
+{"timestamp": "2026-08-28T14:38:40", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37056 - "POST /auth/ad/login HTTP/1.1" 500", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:41:24", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:56402 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:41:24", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:56402 - "OPTIONS /assets/?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:41:24", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:56414 - "OPTIONS /audit/?limit=5 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:41:24", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T14:41:24", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T14:41:24", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:56414 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:41:24", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:56402 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:41:27", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:56402 - "OPTIONS /reference-data/asset-types HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:41:27", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T14:41:27", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:56402 - "GET /reference-data/asset-types HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:41:42", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T14:41:42", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T14:41:42", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51698 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:41:42", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51706 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:42:52", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:47256 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:43:06", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T14:43:06", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:55116 - "GET /reference-data/asset-types HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:43:29", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T14:43:29", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:34180 - "GET /tipos-ativos/ HTTP/1.1" 403", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:43:44", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2734, in app
+    await route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1279, in handle
+    await app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 158, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 144, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 481, in app
+    solved_result = await solve_dependencies(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/dependencies/utils.py", line 676, in solve_dependencies
+    solved = await run_in_threadpool(call, **solved_result.values)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/to_thread.py", line 56, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2476, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 967, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/auth.py", line 37, in get_service_account
+    if acc.verify_token(api_key):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/models.py", line 127, in verify_token
+    return bcrypt.checkpw(token.encode(), self.token_hash.encode())
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: password cannot be longer than 72 bytes, truncate manually if necessary (e.g. my_password[:72])
+{"timestamp": "2026-08-28T14:43:44", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:41024 - "GET /tipos-ativos/ HTTP/1.1" 500", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T14:45:21", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2734, in app
+    await route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1279, in handle
+    await app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 158, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 144, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 481, in app
+    solved_result = await solve_dependencies(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/dependencies/utils.py", line 676, in solve_dependencies
+    solved = await run_in_threadpool(call, **solved_result.values)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/to_thread.py", line 56, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2476, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 967, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/auth.py", line 37, in get_service_account
+    if acc.verify_token(api_key):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/models.py", line 127, in verify_token
+    return bcrypt.checkpw(token.encode(), self.token_hash.encode())
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Invalid salt
+{"timestamp": "2026-08-28T14:45:21", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45492 - "GET /tipos-ativos/ HTTP/1.1" 500", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:07:16", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37046 - "OPTIONS /reference-data/asset-types HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:07:16", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:07:16", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37046 - "GET /reference-data/asset-types HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:07:29", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37062 - "OPTIONS /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:07:30", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37062 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:07:30", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37062 - "OPTIONS /assets/?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:07:30", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37062 - "OPTIONS /audit/?limit=5 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:07:30", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:07:30", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37062 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:07:30", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:07:30", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37062 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:10:41", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:54990 - "OPTIONS /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:10:42", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:54990 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:10:42", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:54990 - "OPTIONS /assets/?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:10:42", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:54998 - "OPTIONS /audit/?limit=5 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:10:42", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:10:42", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:54990 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:10:42", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:10:42", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:54998 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:22:43", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50696 - "OPTIONS /assets/?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:22:43", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50708 - "OPTIONS /audit/?limit=5 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:22:43", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:22:43", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:22:43", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50696 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:22:43", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50708 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:23:48", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:23:48", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:55050 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:23:48", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:23:48", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:55052 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:24:17", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:55054 - "OPTIONS /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:24:18", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:55054 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:24:18", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:24:18", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:55054 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:24:18", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:24:18", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:55054 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:24:35", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:49194 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:24:35", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:24:35", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:49194 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:24:35", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:24:35", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:49194 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:25:35", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:25:35", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:40830 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:25:35", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:25:35", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:40830 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:25:53", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50260 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:25:53", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:25:53", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50260 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:25:53", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:25:53", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50260 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:26:42", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42770 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:26:42", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:26:42", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42770 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:26:42", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:26:42", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42770 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:29:32", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:29:32", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:29:32", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50258 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:29:32", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50264 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:29:56", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50280 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:29:57", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:29:57", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50280 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:29:57", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:29:57", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50280 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:30:34", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:30:34", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:46650 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:30:34", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:30:34", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:46650 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:41:30", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:54458 - "OPTIONS /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:41:31", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:54458 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:41:31", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:54458 - "OPTIONS /assets/?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:41:31", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:54470 - "OPTIONS /audit/?limit=5 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:41:31", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:41:31", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:41:31", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:54470 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:41:31", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:54458 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:42:26", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:38000 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:42:26", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:42:27", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:42:27", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:38000 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:42:27", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:38006 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:47:08", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52660 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:47:08", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:47:08", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52660 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:47:08", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T15:47:08", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52668 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T15:54:36", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2734, in app
+    await route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1279, in handle
+    await app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 158, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 144, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 481, in app
+    solved_result = await solve_dependencies(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/dependencies/utils.py", line 676, in solve_dependencies
+    solved = await run_in_threadpool(call, **solved_result.values)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/to_thread.py", line 56, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2476, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 967, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/auth.py", line 37, in get_service_account
+    if acc.verify_token(api_key):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/models.py", line 127, in verify_token
+    return bcrypt.checkpw(token.encode(), self.token_hash.encode())
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: password cannot be longer than 72 bytes, truncate manually if necessary (e.g. my_password[:72])
+{"timestamp": "2026-08-28T15:54:36", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:46722 - "GET /tipos-ativos/ HTTP/1.1" 500", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T16:22:13", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2734, in app
+    await route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1279, in handle
+    await app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 158, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 144, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 481, in app
+    solved_result = await solve_dependencies(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/dependencies/utils.py", line 676, in solve_dependencies
+    solved = await run_in_threadpool(call, **solved_result.values)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/to_thread.py", line 56, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2476, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 967, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/auth.py", line 37, in get_service_account
+    if acc.verify_token(api_key):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/models.py", line 127, in verify_token
+    return bcrypt.checkpw(token.encode(), self.token_hash.encode())
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: password cannot be longer than 72 bytes, truncate manually if necessary (e.g. my_password[:72])
+{"timestamp": "2026-08-28T16:22:13", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:39220 - "GET /tipos-ativos/ HTTP/1.1" 500", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T16:27:08", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:36080 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T16:30:40", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T16:30:40", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:48502 - "POST /tipos-ativos/ HTTP/1.1" 405", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T16:30:59", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T16:30:59", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:59750 - "POST /tipos-ativos/ HTTP/1.1" 405", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T16:31:27", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T16:31:27", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51604 - "POST /tipos-ativos/ HTTP/1.1" 405", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T16:31:52", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T16:31:52", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:32782 - "GET /tipos-ativos/ HTTP/1.1" 403", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T16:33:17", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:46252 - "GET /tipos-ativos HTTP/1.1" 307", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T16:33:21", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:46262 - "GET /tipos-ativos HTTP/1.1" 307", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T16:33:23", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T16:33:23", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:53886 - "GET /tipos-ativos/ HTTP/1.1" 403", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T16:33:34", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T16:33:34", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:58418 - "GET /clusters/ HTTP/1.1" 403", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T16:33:53", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:55298 - "OPTIONS /reference-data/asset-types HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T16:33:53", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T16:33:53", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:55298 - "GET /reference-data/asset-types HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:08:46", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T17:08:46", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:58700 - "GET /clusters/ HTTP/1.1" 403", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:11:33", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T17:11:33", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51318 - "GET /tipo-relacionamento/ HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:12:33", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T17:12:33", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:40534 - "GET /tipos-relacionamento/ HTTP/1.1" 403", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:15:37", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T17:15:37", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:32994 - "GET /tipos-relacionamento/ HTTP/1.1" 401", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:16:09", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:34500 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:16:37", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:60878 - "GET /tipos-relacionamento/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:19:14", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:46698 - "GET /aplicacoes/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:30:39", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:39018 - "OPTIONS /assets/?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:30:39", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:39020 - "OPTIONS /audit/?limit=5 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:30:39", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T17:30:39", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T17:30:39", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:39020 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:30:39", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:39018 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:30:44", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T17:30:44", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T17:30:44", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:39018 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:30:44", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:39020 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:30:48", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:39018 - "OPTIONS /reference-data/asset-types HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:30:48", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T17:30:48", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:39018 - "GET /reference-data/asset-types HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:30:57", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T17:30:57", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:39026 - "GET /reference-data/asset-types HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:31:04", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T17:31:04", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:34622 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:31:04", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T17:31:04", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:34632 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:34:01", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:48530 - "GET /ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:34:46", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51808 - "GET /enderecos-ip/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:39:31", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:55192 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:43:21", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37422 - "OPTIONS /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:43:22", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37422 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:43:22", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37422 - "OPTIONS /assets/?limit=1 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:43:22", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37432 - "OPTIONS /audit/?limit=5 HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:43:22", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T17:43:22", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T17:43:22", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37422 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:43:22", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37432 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:44:45", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T17:44:45", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51624 - "POST /auth/ad/login HTTP/1.1" 503", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:44:52", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51626 - "POST /auth/ad/login HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:44:52", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T17:44:52", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51626 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-08-28T17:44:52", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-08-28T17:44:52", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51626 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}

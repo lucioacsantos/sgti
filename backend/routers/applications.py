@@ -13,7 +13,7 @@ router = APIRouter(prefix="/aplicacoes", tags=["Aplicações"])
 def create_aplicacao(
     aplicacao: schemas.AplicacaoCreate,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Creating application", extra={"service_account": current_service.name, "system": aplicacao.sistema})
     db_aplicacao = models.Aplicacao(**aplicacao.model_dump(exclude_unset=True))
@@ -26,7 +26,7 @@ def create_aplicacao(
 @router.get("/", response_model=list[schemas.AplicacaoResponse])
 def read_aplicacoes(
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Listing applications", extra={"service_account": current_service.name})
     return db.query(models.Aplicacao).all()
@@ -36,7 +36,7 @@ def read_aplicacoes(
 def read_aplicacao(
     aplicacao_id: int,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Reading application", extra={"service_account": current_service.name, "aplicacao_id": aplicacao_id})
     aplicacao = db.query(models.Aplicacao).filter(models.Aplicacao.id == aplicacao_id).first()

@@ -14,7 +14,7 @@ router = APIRouter(prefix="/tipos-relacionamento", tags=["Tipos de Relacionament
 def create_tipo_relacionamento(
     tipo: schemas.TipoRelacionamentoCreate,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Creating relationship type", extra={"service_account": current_service.name, "tipo_nome": tipo.nome})
     db_tipo = models.TipoRelacionamento(**tipo.model_dump(exclude_unset=True))
@@ -27,7 +27,7 @@ def create_tipo_relacionamento(
 @router.get("/", response_model=list[schemas.TipoRelacionamentoResponse])
 def read_tipos_relacionamento(
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Listing relationship types", extra={"service_account": current_service.name})
     return db.query(models.TipoRelacionamento).all()
@@ -37,7 +37,7 @@ def read_tipos_relacionamento(
 def read_tipo_relacionamento(
     tipo_id: int,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Reading relationship type", extra={"service_account": current_service.name, "tipo_id": tipo_id})
     tipo = db.query(models.TipoRelacionamento).filter(models.TipoRelacionamento.id == tipo_id).first()
@@ -54,7 +54,7 @@ rel_router = APIRouter(prefix="/relacionamentos", tags=["Relacionamentos"])
 def create_relacionamento(
     rel: schemas.RelacionamentoCreate,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Creating relationship", extra={"service_account": current_service.name, "origem_id": rel.origem_id, "destino_id": rel.destino_id})
     origem = db.query(models.Ativo).filter(models.Ativo.id == rel.origem_id).first()
@@ -80,7 +80,7 @@ def read_relacionamentos(
     skip: int = 0,
     limit: int = 50,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Listing relationships", extra={"service_account": current_service.name, "origem_id": origem_id, "destino_id": destino_id})
     query = db.query(models.Relacionamento).options(
@@ -99,7 +99,7 @@ def read_relacionamentos(
 def read_relacionamento(
     rel_id: int,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Reading relationship", extra={"service_account": current_service.name, "rel_id": rel_id})
     rel = db.query(models.Relacionamento).options(

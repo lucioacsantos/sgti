@@ -15,7 +15,7 @@ cluster_router = APIRouter(prefix="/clusters", tags=["Clusters"])
 def create_cluster(
     cluster: schemas.ClusterCreate,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Creating cluster", extra={"service_account": current_service.name, "cluster_nome": cluster.nome})
     if cluster.ativo_id:
@@ -32,7 +32,7 @@ def create_cluster(
 @cluster_router.get("/", response_model=list[schemas.ClusterResponse])
 def read_clusters(
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Listing clusters", extra={"service_account": current_service.name})
     return db.query(models.Cluster).all()
@@ -42,7 +42,7 @@ def read_clusters(
 def read_cluster(
     cluster_id: int,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Reading cluster", extra={"service_account": current_service.name, "cluster_id": cluster_id})
     cluster = db.query(models.Cluster).filter(models.Cluster.id == cluster_id).first()
@@ -59,7 +59,7 @@ namespace_router = APIRouter(prefix="/namespaces", tags=["Namespaces"])
 def create_namespace(
     namespace: schemas.NamespaceCreate,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Creating namespace", extra={"service_account": current_service.name, "namespace_nome": namespace.nome})
     if namespace.cluster_id:
@@ -80,7 +80,7 @@ def create_namespace(
 @namespace_router.get("/", response_model=list[schemas.NamespaceResponse])
 def read_namespaces(
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Listing namespaces", extra={"service_account": current_service.name})
     return db.query(models.Namespace).all()
@@ -90,7 +90,7 @@ def read_namespaces(
 def read_namespace(
     namespace_id: int,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Reading namespace", extra={"service_account": current_service.name, "namespace_id": namespace_id})
     namespace = db.query(models.Namespace).filter(models.Namespace.id == namespace_id).first()
@@ -107,7 +107,7 @@ servico_router = APIRouter(prefix="/servicos", tags=["Serviços"])
 def create_servico(
     servico: schemas.ServicoCreate,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Creating service", extra={"service_account": current_service.name, "servico_nome": servico.nome})
     if servico.ativo_id:
@@ -124,7 +124,7 @@ def create_servico(
 @servico_router.get("/", response_model=list[schemas.ServicoResponse])
 def read_servicos(
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Listing services", extra={"service_account": current_service.name})
     return db.query(models.Servico).all()
@@ -134,7 +134,7 @@ def read_servicos(
 def read_servico(
     servico_id: int,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Reading service", extra={"service_account": current_service.name, "servico_id": servico_id})
     servico = db.query(models.Servico).filter(models.Servico.id == servico_id).first()
@@ -151,7 +151,7 @@ servico_negocio_router = APIRouter(prefix="/servicos-negocio", tags=["Serviços 
 def create_servico_negocio(
     servico: schemas.ServicoNegocioCreate,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Creating business service", extra={"service_account": current_service.name, "name": servico.nome})
     if servico.ativo_id:
@@ -168,7 +168,7 @@ def create_servico_negocio(
 @servico_negocio_router.get("/", response_model=list[schemas.ServicoNegocioResponse])
 def read_servicos_negocio(
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Listing business services", extra={"service_account": current_service.name})
     return db.query(models.ServicoNegocio).all()
@@ -178,7 +178,7 @@ def read_servicos_negocio(
 def read_servico_negocio(
     servico_id: int,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Reading business service", extra={"service_account": current_service.name, "servico_id": servico_id})
     servico = db.query(models.ServicoNegocio).filter(models.ServicoNegocio.id == servico_id).first()
@@ -195,7 +195,7 @@ instancia_router = APIRouter(prefix="/instancias-aplicacao", tags=["Instâncias 
 def create_instancia_aplicacao(
     instancia: schemas.InstanciaAplicacaoCreate,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Creating application instance", extra={"service_account": current_service.name, "aplicacao_id": instancia.aplicacao_id})
     aplicacao = db.query(models.Aplicacao).filter(models.Aplicacao.id == instancia.aplicacao_id).first()
@@ -216,7 +216,7 @@ def create_instancia_aplicacao(
 def read_instancias_aplicacao(
     aplicacao_id: Optional[int] = None,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Listing application instances", extra={"service_account": current_service.name, "aplicacao_id": aplicacao_id})
     query = db.query(models.InstanciaAplicacao)
@@ -229,7 +229,7 @@ def read_instancias_aplicacao(
 def read_instancia_aplicacao(
     instancia_id: int,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.debug("Reading application instance", extra={"service_account": current_service.name, "instancia_id": instancia_id})
     instancia = db.query(models.InstanciaAplicacao).filter(models.InstanciaAplicacao.id == instancia_id).first()
