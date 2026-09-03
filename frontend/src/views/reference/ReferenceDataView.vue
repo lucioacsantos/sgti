@@ -45,7 +45,7 @@ const formData = ref<Partial<ReferenceItem>>({
 const filteredItems = computed(() => {
   if (!search.value) return items.value
   const term = search.value.toLowerCase()
-  return items.value.filter(item => 
+  return items.value.filter((item: any) => 
     item.name.toLowerCase().includes(term) || 
     (item.code && item.code.toLowerCase().includes(term)) ||
     (item.description && item.description.toLowerCase().includes(term))

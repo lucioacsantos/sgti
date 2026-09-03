@@ -25,11 +25,11 @@ const stats = ref({
   recentAuditLogs: 0
 })
 
-const servicesStatus = ref({
+/* const servicesStatus = ref({
   apiStatus: 'online',
   zabbixIntegration: 'active',
   adSync: 'active'
-})
+}) */
 
 const recentEvents = ref<Array<{ id: number; action: string; user: string; timestamp: string }>>([])
 const isLoading = ref(true)

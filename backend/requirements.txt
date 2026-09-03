@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+psycopg2-binary
+pandas
+openpyxl
+requests
+python-dotenv
+alembic
+bcrypt
+slowapi
+ldap3
+pyjwt
+pyotp
+qrcode[pil]
