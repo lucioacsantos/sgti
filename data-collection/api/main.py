@@ -78,7 +78,7 @@ async def health_check(db: Session = Depends(get_db)):
         db.execute("SELECT 1")
         return {"status": "healthy", "database": "connected", "timestamp": datetime.utcnow().isoformat()}
     except Exception as e:
-        return {"status": "degraded", "database": "disconnected", "error": str(e)}
+        return {"status": "degraded", "database": "disconnected"}
 
 
 @app.get("/health/detailed", tags=["Health"])

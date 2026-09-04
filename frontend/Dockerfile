@@ -1,4 +1,4 @@
-FROM registry.redhat.io/rhel10/nodejs-24-minimal:latest AS build
+FROM node:20-alpine AS build
 
 WORKDIR /app
 
@@ -8,7 +8,7 @@ RUN npm ci
 COPY --exclude=node_modules --exclude=.vscode . .
 RUN npm run build
 
-FROM registry.redhat.io/rhel10/nginx-126:latest
+FROM nginx:alpine
 
 COPY --from=build /app/dist /usr/share/nginx/html
 
