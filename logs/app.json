@@ -6770,3 +6770,23 @@ ValueError: password cannot be longer than 72 bytes, truncate manually if necess
 {"timestamp": "2026-08-28T17:44:52", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51626 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
 {"timestamp": "2026-08-28T17:44:52", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
 {"timestamp": "2026-08-28T17:44:52", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51626 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-04T14:32:47", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:38004 - "OPTIONS /auth/ad/login HTTP/1.1" 200", "module": "h11_impl", "function": "send", "line": 482}
+{"timestamp": "2026-09-04T14:32:49", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:38004 - "POST /auth/ad/login HTTP/1.1" 200", "module": "h11_impl", "function": "send", "line": 482}
+{"timestamp": "2026-09-04T14:32:49", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:38004 - "OPTIONS /assets/?limit=1 HTTP/1.1" 200", "module": "h11_impl", "function": "send", "line": 482}
+{"timestamp": "2026-09-04T14:32:49", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:38020 - "OPTIONS /audit/?limit=5 HTTP/1.1" 200", "module": "h11_impl", "function": "send", "line": 482}
+{"timestamp": "2026-09-04T14:32:49", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-04T14:32:49", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-04T14:32:49", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:38020 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "h11_impl", "function": "send", "line": 482}
+{"timestamp": "2026-09-04T14:32:49", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:38004 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "h11_impl", "function": "send", "line": 482}
+{"timestamp": "2026-09-04T15:59:19", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42384 - "OPTIONS /assets/?limit=1 HTTP/1.1" 200", "module": "h11_impl", "function": "send", "line": 482}
+{"timestamp": "2026-09-04T15:59:19", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42398 - "OPTIONS /audit/?limit=5 HTTP/1.1" 200", "module": "h11_impl", "function": "send", "line": 482}
+{"timestamp": "2026-09-04T15:59:19", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-04T15:59:19", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42398 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "h11_impl", "function": "send", "line": 482}
+{"timestamp": "2026-09-04T15:59:19", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-04T15:59:19", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42398 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "h11_impl", "function": "send", "line": 482}
+{"timestamp": "2026-09-04T18:03:01", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37542 - "OPTIONS /assets/?limit=1 HTTP/1.1" 200", "module": "h11_impl", "function": "send", "line": 482}
+{"timestamp": "2026-09-04T18:03:01", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37552 - "OPTIONS /audit/?limit=5 HTTP/1.1" 200", "module": "h11_impl", "function": "send", "line": 482}
+{"timestamp": "2026-09-04T18:03:01", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-04T18:03:01", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-04T18:03:01", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37552 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "h11_impl", "function": "send", "line": 482}
+{"timestamp": "2026-09-04T18:03:01", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37542 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "h11_impl", "function": "send", "line": 482}
