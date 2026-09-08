@@ -1,19 +1,20 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { Lock, User, KeyRound, ShieldCheck, AlertCircle, Loader2 } from 'lucide-vue-next'
+import { Lock, User, ShieldCheck, AlertCircle, Loader2 } from 'lucide-vue-next'
 
+const router = useRouter()
 const authStore = useAuthStore()
 
 const username = ref('')
 const password = ref('')
-const provider = ref<'local' | 'ad'>('ad')
 const isLoading = ref(false)
 const errorMessage = ref<string | null>(null)
 
 async function handleSubmit() {
   if (!username.value || !password.value) {
-    errorMessage.value = 'Preencha todos os campos para prosseguir.'
+    errorMessage.value = 'Informe usuário e senha para prosseguir.'
     return
   }
 
@@ -21,17 +22,12 @@ async function handleSubmit() {
   isLoading.value = true
 
   try {
-    await authStore.login({
-      username: username.value,
-      password: password.value,
-      provider: provider.value
-    })
+    await authStore.login(username.value, password.value)
+    router.push({ name: 'dashboard' })
   } catch (error: any) {
-    if (error.response?.data?.detail) {
-      errorMessage.value = error.response.data.detail
-    } else {
-      errorMessage.value = 'Falha na autenticação. Verifique suas credenciais e a conexão.'
-    }
+    errorMessage.value = typeof error === 'string'
+      ? error
+      : error?.response?.data?.detail || 'Falha na autenticação. Verifique suas credenciais e a conexão.'
   } finally {
     isLoading.value = false
   }
@@ -46,41 +42,19 @@ async function handleSubmit() {
     <div class="w-full max-w-md z-10">
       <!-- Card Container -->
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-2xl backdrop-blur-sm">
-        
+
         <!-- Header -->
         <div class="flex flex-col items-center mb-8">
           <div class="h-12 w-12 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-3">
             <ShieldCheck class="w-6 h-6 text-emerald-400" />
           </div>
           <h2 class="text-xl font-bold tracking-wide text-slate-100">Controle de Acesso</h2>
-          <p class="text-xs text-slate-400 mt-1">Painel Administrativo de Infraestrutura e Ativos</p>
-        </div>
-
-        <!-- Provider Switcher -->
-        <div class="grid grid-cols-2 gap-1 p-1 bg-slate-950 rounded-lg border border-slate-800 mb-6">
-          <button
-            type="button"
-            @click="provider = 'ad'"
-            class="py-2 text-xs font-medium rounded-md transition-all flex items-center justify-center gap-2"
-            :class="provider === 'ad' ? 'bg-slate-800 text-emerald-400 shadow-sm' : 'text-slate-400 hover:text-slate-200'"
-          >
-            <KeyRound class="w-3.5 h-3.5" />
-            Active Directory
-          </button>
-          <button
-            type="button"
-            @click="provider = 'local'"
-            class="py-2 text-xs font-medium rounded-md transition-all flex items-center justify-center gap-2"
-            :class="provider === 'local' ? 'bg-slate-800 text-emerald-400 shadow-sm' : 'text-slate-400 hover:text-slate-200'"
-          >
-            <User class="w-3.5 h-3.5" />
-            Usuário Local
-          </button>
+          <p class="text-xs text-slate-400 mt-1">CMDB ::: Painel Administrativo de Ativos e Infraestrutura</p>
         </div>
 
         <!-- Feedback de Erro -->
-        <div 
-          v-if="errorMessage" 
+        <div
+          v-if="errorMessage"
           class="mb-6 p-3 bg-rose-500/10 border border-rose-500/20 rounded-lg flex items-start gap-2.5 text-rose-400 text-xs leading-relaxed"
         >
           <AlertCircle class="w-4 h-4 shrink-0 mt-0.5" />
@@ -91,7 +65,7 @@ async function handleSubmit() {
         <form @submit.prevent="handleSubmit" class="space-y-4">
           <div>
             <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-              {{ provider === 'ad' ? 'Usuário de Rede (sAMAccountName)' : 'Nome de Usuário' }}
+              Usuário de Rede (sAMAccountName)
             </label>
             <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
@@ -140,7 +114,7 @@ async function handleSubmit() {
         <!-- Footer Info -->
         <div class="mt-6 pt-6 border-t border-slate-800/80 text-center">
           <p class="text-[11px] text-slate-500">
-            Acessos monitorados e auditados em conformidade com as diretrizes de segurança.
+            Autenticação via Active Directory. Acessos monitorados e auditados.
           </p>
         </div>
 

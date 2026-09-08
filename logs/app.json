@@ -7082,3 +7082,861 @@ ValueError: password cannot be longer than 72 bytes, truncate manually if necess
 {"timestamp": "2026-09-08T11:29:28", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:41150 - "GET /assets/?limit=1 HTTP/1.1" 404", "module": "h11_impl", "function": "send", "line": 482}
 {"timestamp": "2026-09-08T11:29:28", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
 {"timestamp": "2026-09-08T11:29:28", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:41150 - "GET /audit/?limit=5 HTTP/1.1" 404", "module": "h11_impl", "function": "send", "line": 482}
+{"timestamp": "2026-09-08T11:52:07", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T11:52:07", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:08", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T11:52:08", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:08", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T11:52:08", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T11:52:08", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 409 Conflict"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:09", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T11:52:09", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:10", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:10", "logger": "routers.assets", "level": "INFO", "message": "Upserting asset", "module": "assets", "function": "upsert_ativo", "line": 72}
+{"timestamp": "2026-09-08T11:52:10", "logger": "httpx", "level": "INFO", "message": "HTTP Request: PUT http://testserver/ativos/server-new "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:11", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T11:52:11", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:12", "logger": "routers.assets", "level": "INFO", "message": "Upserting asset", "module": "assets", "function": "upsert_ativo", "line": 72}
+{"timestamp": "2026-09-08T11:52:12", "logger": "httpx", "level": "INFO", "message": "HTTP Request: PUT http://testserver/ativos/server-update "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:12", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T11:52:13", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:13", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/server-read "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:13", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T11:52:13", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:14", "logger": "routers.assets", "level": "INFO", "message": "Deleting asset", "module": "assets", "function": "delete_ativo", "line": 166}
+{"timestamp": "2026-09-08T11:52:14", "logger": "httpx", "level": "INFO", "message": "HTTP Request: DELETE http://testserver/ativos/server-delete "HTTP/1.1 204 No Content"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:14", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T11:52:14", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/server-delete "HTTP/1.1 404 Not Found"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:14", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T11:52:14", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 401 Unauthorized"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:15", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T11:52:15", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:15", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/audit-logs/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:16", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T11:52:16", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:16", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/audit-logs/?entidade=ativo "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:17", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T11:52:17", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:18", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/audit-logs/?entidade=ativo&entidade_id=1 "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:18", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:18", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T11:52:18", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 401 Unauthorized"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:18", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T11:52:19", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 401 Unauthorized"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:19", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T11:52:19", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 401 Unauthorized"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:20", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T11:52:20", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 401 Unauthorized"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:21", "logger": "routers.infrastructure", "level": "INFO", "message": "Creating cluster", "module": "infrastructure", "function": "create_cluster", "line": 20}
+{"timestamp": "2026-09-08T11:52:21", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/clusters/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:22", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/clusters/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:22", "logger": "routers.infrastructure", "level": "INFO", "message": "Creating namespace", "module": "infrastructure", "function": "create_namespace", "line": 64}
+{"timestamp": "2026-09-08T11:52:22", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/namespaces/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:23", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/namespaces/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:24", "logger": "routers.infrastructure", "level": "INFO", "message": "Creating service", "module": "infrastructure", "function": "create_servico", "line": 112}
+{"timestamp": "2026-09-08T11:52:24", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/servicos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:25", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/servicos/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:26", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T11:52:26", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:26", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T11:52:26", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:27", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T11:52:27", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:27", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T11:52:27", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:28", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T11:52:28", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:28", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T11:52:28", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:29", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T11:52:29", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:29", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T11:52:29", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:30", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/enderecos-ip/?ativo_id=1 "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:30", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T11:52:30", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:31", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T11:52:31", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:31", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/enderecos-ip/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:32", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T11:52:32", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:32", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T11:52:32", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:32", "logger": "routers.ip_addresses", "level": "INFO", "message": "Deleting IP address", "module": "ip_addresses", "function": "delete_endereco_ip", "line": 96}
+{"timestamp": "2026-09-08T11:52:33", "logger": "httpx", "level": "INFO", "message": "HTTP Request: DELETE http://testserver/enderecos-ip/1 "HTTP/1.1 204 No Content"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:33", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/enderecos-ip/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:34", "logger": "routers.relationships", "level": "INFO", "message": "Creating relationship type", "module": "relationships", "function": "create_tipo_relacionamento", "line": 19}
+{"timestamp": "2026-09-08T11:52:34", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/tipos-relacionamento/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:34", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/tipos-relacionamento/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:35", "logger": "routers.relationships", "level": "INFO", "message": "Creating relationship", "module": "relationships", "function": "create_relacionamento", "line": 59}
+{"timestamp": "2026-09-08T11:52:35", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/relacionamentos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:36", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/relacionamentos/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T11:52:37", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/relacionamentos/1 "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:00:58", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:00:58", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:00", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:01:00", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:00", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:01:00", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T12:01:00", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 409 Conflict"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:02", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:01:02", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:02", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:04", "logger": "routers.assets", "level": "INFO", "message": "Upserting asset", "module": "assets", "function": "upsert_ativo", "line": 72}
+{"timestamp": "2026-09-08T12:01:05", "logger": "httpx", "level": "INFO", "message": "HTTP Request: PUT http://testserver/ativos/server-new "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:06", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:01:07", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:07", "logger": "routers.assets", "level": "INFO", "message": "Upserting asset", "module": "assets", "function": "upsert_ativo", "line": 72}
+{"timestamp": "2026-09-08T12:01:07", "logger": "httpx", "level": "INFO", "message": "HTTP Request: PUT http://testserver/ativos/server-update "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:09", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:01:10", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:10", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/server-read "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:11", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:01:11", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:11", "logger": "routers.assets", "level": "INFO", "message": "Deleting asset", "module": "assets", "function": "delete_ativo", "line": 166}
+{"timestamp": "2026-09-08T12:01:11", "logger": "httpx", "level": "INFO", "message": "HTTP Request: DELETE http://testserver/ativos/server-delete "HTTP/1.1 204 No Content"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:11", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T12:01:11", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/server-delete "HTTP/1.1 404 Not Found"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:12", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T12:01:12", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 401 Unauthorized"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:12", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:01:12", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:13", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/audit-logs/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:14", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:01:14", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:14", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/audit-logs/?entidade=ativo "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:15", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:01:15", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:15", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/audit-logs/?entidade=ativo&entidade_id=1 "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:16", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:16", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T12:01:16", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 401 Unauthorized"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:16", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T12:01:16", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 401 Unauthorized"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:17", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T12:01:17", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 401 Unauthorized"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:17", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T12:01:17", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 401 Unauthorized"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:18", "logger": "routers.infrastructure", "level": "INFO", "message": "Creating cluster", "module": "infrastructure", "function": "create_cluster", "line": 20}
+{"timestamp": "2026-09-08T12:01:18", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/clusters/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:19", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/clusters/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:19", "logger": "routers.infrastructure", "level": "INFO", "message": "Creating namespace", "module": "infrastructure", "function": "create_namespace", "line": 64}
+{"timestamp": "2026-09-08T12:01:19", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/namespaces/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:20", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/namespaces/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:20", "logger": "routers.infrastructure", "level": "INFO", "message": "Creating service", "module": "infrastructure", "function": "create_servico", "line": 112}
+{"timestamp": "2026-09-08T12:01:21", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/servicos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:21", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/servicos/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:22", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:01:22", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:22", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T12:01:22", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:23", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:01:23", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:23", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T12:01:23", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:23", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T12:01:24", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:24", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:01:24", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:24", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T12:01:25", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:25", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T12:01:25", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:25", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/enderecos-ip/?ativo_id=1 "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:26", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:01:26", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:26", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T12:01:26", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:26", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/enderecos-ip/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:27", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:01:27", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:27", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T12:01:27", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:28", "logger": "routers.ip_addresses", "level": "INFO", "message": "Deleting IP address", "module": "ip_addresses", "function": "delete_endereco_ip", "line": 96}
+{"timestamp": "2026-09-08T12:01:28", "logger": "httpx", "level": "INFO", "message": "HTTP Request: DELETE http://testserver/enderecos-ip/1 "HTTP/1.1 204 No Content"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:28", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/enderecos-ip/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:29", "logger": "routers.relationships", "level": "INFO", "message": "Creating relationship type", "module": "relationships", "function": "create_tipo_relacionamento", "line": 19}
+{"timestamp": "2026-09-08T12:01:29", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/tipos-relacionamento/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:29", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/tipos-relacionamento/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:30", "logger": "routers.relationships", "level": "INFO", "message": "Creating relationship", "module": "relationships", "function": "create_relacionamento", "line": 59}
+{"timestamp": "2026-09-08T12:01:30", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/relacionamentos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:31", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/relacionamentos/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:32", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/relacionamentos/1 "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:01:43", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/home/lucoi/Desenvolvimento/sgti/backend/ad_auth.py", line 210, in decode_token
+    return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/jwt/api_jwt.py", line 365, in decode
+    decoded = self.decode_complete(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/jwt/api_jwt.py", line 262, in decode_complete
+    decoded = self._jws.decode_complete(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/jwt/api_jws.py", line 253, in decode_complete
+    self._verify_signature(signing_input, header, signature, key, algorithms)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/jwt/api_jws.py", line 368, in _verify_signature
+    raise InvalidSignatureError("Signature verification failed")
+jwt.exceptions.InvalidSignatureError: Signature verification failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+  File "/usr/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/routing.py", line 457, in app
+    solved_result = await solve_dependencies(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/dependencies/utils.py", line 649, in solve_dependencies
+    solved_result = await solve_dependencies(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/dependencies/utils.py", line 680, in solve_dependencies
+    solved = await run_in_threadpool(call, **solved_result.values)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/anyio/to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/backend/ad_auth.py", line 222, in get_current_user
+    payload = decode_token(token)
+              ^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/backend/ad_auth.py", line 211, in decode_token
+    except (jwt.ExpiredSignatureError, jwt.JWTError):
+                                       ^^^^^^^^^^^^
+AttributeError: module 'jwt' has no attribute 'JWTError'. Did you mean: 'PyJWTError'?
+{"timestamp": "2026-09-08T12:02:17", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T12:02:17", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/auth/admin/users "HTTP/1.1 401 Unauthorized"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:02:37", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/auth/admin/users "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:02:38", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/auth/admin/tokens "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:02:38", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+  File "/usr/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/routing.py", line 457, in app
+    solved_result = await solve_dependencies(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/dependencies/utils.py", line 680, in solve_dependencies
+    solved = await run_in_threadpool(call, **solved_result.values)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/anyio/to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/backend/auth.py", line 39, in get_current_actor
+    service = get_service_account(x_service_token, db)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/backend/auth.py", line 67, in get_service_account
+    if acc.verify_token(api_key):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/backend/models.py", line 129, in verify_token
+    return bcrypt.checkpw(token.encode(), self.token_hash.encode())
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Invalid salt
+{"timestamp": "2026-09-08T12:02:54", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/auth/admin/users "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:02:55", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/auth/admin/tokens "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:02:55", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:02:55", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/auth/admin/tokens "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:02:56", "logger": "httpx", "level": "INFO", "message": "HTTP Request: DELETE http://testserver/auth/admin/tokens/3 "HTTP/1.1 204 No Content"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:02:56", "logger": "httpx", "level": "INFO", "message": "HTTP Request: PATCH http://testserver/auth/admin/users/1 "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:02:56", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T12:02:56", "logger": "httpx", "level": "INFO", "message": "HTTP Request: PATCH http://testserver/auth/admin/users/1 "HTTP/1.1 401 Unauthorized"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:03:05", "logger": "httpx", "level": "INFO", "message": "HTTP Request: PATCH http://testserver/auth/admin/users/1 "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:03:05", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T12:03:05", "logger": "httpx", "level": "INFO", "message": "HTTP Request: PATCH http://testserver/auth/admin/users/1 "HTTP/1.1 401 Unauthorized"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:03:11", "logger": "httpx", "level": "INFO", "message": "HTTP Request: PATCH http://testserver/auth/admin/users/1 "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:03:29", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/auth/2fa/setup "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:03:29", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/auth/2fa/verify "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:03:29", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/auth/me "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:03:29", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/auth/admin/users/1/2fa/disable "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:03:29", "logger": "httpx", "level": "INFO", "message": "HTTP Request: PATCH http://testserver/auth/admin/users/1 "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:03:29", "logger": "httpx", "level": "INFO", "message": "HTTP Request: PATCH http://testserver/auth/admin/users/1 "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:03:29", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/auth/admin/tokens "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:03:30", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:03:30", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/auth/admin/tokens "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:03:30", "logger": "routers.assets", "level": "INFO", "message": "Upserting asset", "module": "assets", "function": "upsert_ativo", "line": 72}
+{"timestamp": "2026-09-08T12:03:30", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.IntegrityError: NOT NULL constraint failed: ativo.tipo_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+  File "/usr/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/routing.py", line 330, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/anyio/to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/backend/routers/assets.py", line 106, in upsert_ativo
+    db.commit()
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2030, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1311, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1286, in _prepare_impl
+    self.session.flush()
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4331, in flush
+    self._flush(objects)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4466, in _flush
+    with util.safe_reraise():
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4427, in _flush
+    flush_context.execute()
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1419, in execute
+    return meth(
+           ^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) NOT NULL constraint failed: ativo.tipo_id
+[SQL: INSERT INTO ativo (nome, descricao, tipo_id, ambiente_id, status_id, criticidade_id, sor_id, areas_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id, created_at, updated_at]
+[parameters: ('servidor-teste-01', None, None, None, None, None, None, None)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+{"timestamp": "2026-09-08T12:03:42", "logger": "routers.assets", "level": "INFO", "message": "Upserting asset", "module": "assets", "function": "upsert_ativo", "line": 72}
+{"timestamp": "2026-09-08T12:03:42", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.IntegrityError: NOT NULL constraint failed: ativo.tipo_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+  File "/usr/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/routing.py", line 330, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/anyio/to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/backend/routers/assets.py", line 106, in upsert_ativo
+    db.commit()
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2030, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1311, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1286, in _prepare_impl
+    self.session.flush()
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4331, in flush
+    self._flush(objects)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4466, in _flush
+    with util.safe_reraise():
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4427, in _flush
+    flush_context.execute()
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1419, in execute
+    return meth(
+           ^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) NOT NULL constraint failed: ativo.tipo_id
+[SQL: INSERT INTO ativo (nome, descricao, tipo_id, ambiente_id, status_id, criticidade_id, sor_id, areas_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id, created_at, updated_at]
+[parameters: ('servidor-teste-01', None, None, None, None, None, None, None)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+{"timestamp": "2026-09-08T12:03:50", "logger": "routers.assets", "level": "INFO", "message": "Upserting asset", "module": "assets", "function": "upsert_ativo", "line": 72}
+{"timestamp": "2026-09-08T12:03:50", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.IntegrityError: NOT NULL constraint failed: ativo.tipo_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+  File "/usr/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/fastapi/routing.py", line 330, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/starlette/concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/anyio/to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/backend/routers/assets.py", line 106, in upsert_ativo
+    db.commit()
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2030, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1311, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1286, in _prepare_impl
+    self.session.flush()
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4331, in flush
+    self._flush(objects)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4466, in _flush
+    with util.safe_reraise():
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4427, in _flush
+    flush_context.execute()
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1419, in execute
+    return meth(
+           ^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/lucoi/Desenvolvimento/sgti/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) NOT NULL constraint failed: ativo.tipo_id
+[SQL: INSERT INTO ativo (nome, descricao, tipo_id, ambiente_id, status_id, criticidade_id, sor_id, areas_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id, created_at, updated_at]
+[parameters: ('servidor-teste-01', None, None, None, None, None, None, None)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+{"timestamp": "2026-09-08T12:04:09", "logger": "routers.assets", "level": "INFO", "message": "Upserting asset", "module": "assets", "function": "upsert_ativo", "line": 72}
+{"timestamp": "2026-09-08T12:04:09", "logger": "httpx", "level": "INFO", "message": "HTTP Request: PUT http://testserver/ativos/servidor-teste-01 "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:09", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:09", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/audit-logs/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:09", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/health "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:09", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/?skip=0&limit=1 "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:10", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T12:04:10", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:10", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/enderecos-ip/?ativo_id=1 "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:25", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:04:25", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:27", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:04:28", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:28", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:04:28", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T12:04:28", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 409 Conflict"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:29", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:04:30", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:30", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:31", "logger": "routers.assets", "level": "INFO", "message": "Upserting asset", "module": "assets", "function": "upsert_ativo", "line": 72}
+{"timestamp": "2026-09-08T12:04:31", "logger": "httpx", "level": "INFO", "message": "HTTP Request: PUT http://testserver/ativos/server-new "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:32", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:04:32", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:32", "logger": "routers.assets", "level": "INFO", "message": "Upserting asset", "module": "assets", "function": "upsert_ativo", "line": 72}
+{"timestamp": "2026-09-08T12:04:33", "logger": "httpx", "level": "INFO", "message": "HTTP Request: PUT http://testserver/ativos/server-update "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:33", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:04:33", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:33", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/server-read "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:34", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:04:34", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:35", "logger": "routers.assets", "level": "INFO", "message": "Deleting asset", "module": "assets", "function": "delete_ativo", "line": 166}
+{"timestamp": "2026-09-08T12:04:35", "logger": "httpx", "level": "INFO", "message": "HTTP Request: DELETE http://testserver/ativos/server-delete "HTTP/1.1 204 No Content"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:35", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T12:04:35", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/server-delete "HTTP/1.1 404 Not Found"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:35", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T12:04:35", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 401 Unauthorized"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:36", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:04:36", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:36", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/audit-logs/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:37", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:04:37", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:37", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/audit-logs/?entidade=ativo "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:38", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:04:38", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:38", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/audit-logs/?entidade=ativo&entidade_id=1 "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:39", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:39", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T12:04:39", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 401 Unauthorized"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:39", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T12:04:39", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 401 Unauthorized"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:40", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T12:04:40", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 401 Unauthorized"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:40", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-08T12:04:40", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/ativos/ "HTTP/1.1 401 Unauthorized"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:41", "logger": "routers.infrastructure", "level": "INFO", "message": "Creating cluster", "module": "infrastructure", "function": "create_cluster", "line": 20}
+{"timestamp": "2026-09-08T12:04:41", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/clusters/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:41", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/clusters/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:42", "logger": "routers.infrastructure", "level": "INFO", "message": "Creating namespace", "module": "infrastructure", "function": "create_namespace", "line": 64}
+{"timestamp": "2026-09-08T12:04:42", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/namespaces/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:43", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/namespaces/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:43", "logger": "routers.infrastructure", "level": "INFO", "message": "Creating service", "module": "infrastructure", "function": "create_servico", "line": 112}
+{"timestamp": "2026-09-08T12:04:43", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/servicos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:44", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/servicos/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:45", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:04:45", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:45", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T12:04:45", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:46", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:04:46", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:46", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T12:04:46", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:46", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T12:04:46", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:47", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:04:47", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:47", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T12:04:47", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:48", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T12:04:48", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:48", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/enderecos-ip/?ativo_id=1 "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:49", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:04:49", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:49", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T12:04:49", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:49", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/enderecos-ip/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:50", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-08T12:04:50", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/ativos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:50", "logger": "routers.ip_addresses", "level": "INFO", "message": "Upserting IP address", "module": "ip_addresses", "function": "upsert_endereco_ip", "line": 21}
+{"timestamp": "2026-09-08T12:04:50", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/enderecos-ip/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:51", "logger": "routers.ip_addresses", "level": "INFO", "message": "Deleting IP address", "module": "ip_addresses", "function": "delete_endereco_ip", "line": 96}
+{"timestamp": "2026-09-08T12:04:51", "logger": "httpx", "level": "INFO", "message": "HTTP Request: DELETE http://testserver/enderecos-ip/1 "HTTP/1.1 204 No Content"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:51", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/enderecos-ip/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:51", "logger": "routers.relationships", "level": "INFO", "message": "Creating relationship type", "module": "relationships", "function": "create_tipo_relacionamento", "line": 19}
+{"timestamp": "2026-09-08T12:04:52", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/tipos-relacionamento/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:52", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/tipos-relacionamento/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:53", "logger": "routers.relationships", "level": "INFO", "message": "Creating relationship", "module": "relationships", "function": "create_relacionamento", "line": 59}
+{"timestamp": "2026-09-08T12:04:53", "logger": "httpx", "level": "INFO", "message": "HTTP Request: POST http://testserver/relacionamentos/ "HTTP/1.1 201 Created"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:54", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/relacionamentos/ "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}
+{"timestamp": "2026-09-08T12:04:54", "logger": "httpx", "level": "INFO", "message": "HTTP Request: GET http://testserver/relacionamentos/1 "HTTP/1.1 200 OK"", "module": "_client", "function": "_send_single_request", "line": 1025}

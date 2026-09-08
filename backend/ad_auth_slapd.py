@@ -216,7 +216,7 @@ def create_refresh_token(data: dict) -> str:
 def decode_token(token: str) -> Optional[dict]:
     try:
         return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    except (jwt.ExpiredSignatureError, jwt.JWTError):
+    except jwt.PyJWTError:
         return None
 
 

@@ -6,15 +6,16 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
+from datetime import datetime, timedelta, timezone
 import pyotp
 import qrcode
 import io
 import base64
 import os
+import secrets
 
 from database import get_db
 import models
-import ad_auth
 import ad_auth
 from ad_auth import (
     authenticate_user, create_or_update_local_user, create_access_token,
@@ -78,6 +79,39 @@ class UserResponse(BaseModel):
     two_fa_enabled: bool
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class AdminUserOut(BaseModel):
+    id: int
+    username: str
+    display_name: str
+    email: str
+    roles: list
+    is_active: bool
+    is_service_account: bool
+    two_fa_enabled: bool
+    created_at: Optional[str] = None
+    expires_at: Optional[str] = None
+
+
+class AdminUserUpdate(BaseModel):
+    is_active: Optional[bool] = None
+    roles: Optional[List[str]] = None
+    expires_at: Optional[datetime] = None
+
+
+class ServiceTokenCreate(BaseModel):
+    name: str
+    expires_at: Optional[datetime] = None
+
+
+class ServiceTokenOut(BaseModel):
+    id: int
+    name: str
+    is_active: bool
+    created_at: Optional[str] = None
+    expires_at: Optional[str] = None
+    token: Optional[str] = None
 
 
 @router.post("/ad/login", response_model=TokenResponse)
@@ -286,54 +320,52 @@ async def get_current_user_info(
     current_user: models.ServiceAccount = Depends(ad_auth.get_current_user)
 ):
     """Get current user info from JWT token"""
-    import json
-    try:
-        user_data = json.loads(current_user.token_hash)
-        roles = user_data.get("roles", ["viewer"])
-    except:
-        roles = ["viewer"]
-    
+    roles = _read_roles(current_user)
+
     return UserResponse(
         id=current_user.id,
         username=current_user.name,
         display_name=current_user.name,
-        email=f"{current_user.name}@{ad_auth.AD_DOMAIN.lower()}",
+        email=_user_email(current_user),
         roles=roles,
         groups=[],
         requires_2fa=False,
-        two_fa_enabled=False,
+        two_fa_enabled=bool(current_user.totp_enabled),
     )
 
 
 # 2FA Endpoints (using TOTP)
 @router.post("/2fa/setup", response_model=TwoFASetupResponse)
 async def setup_2fa(
-    current_user: models.ServiceAccount = Depends(ad_auth.get_current_user)
+    current_user: models.ServiceAccount = Depends(ad_auth.get_current_user),
+    db: Session = Depends(get_db)
 ):
     """Generate 2FA secret and QR code for authenticator app"""
     # Generate secret
     secret = pyotp.random_base32()
-    
+
     # Create TOTP URI
     totp = pyotp.TOTP(secret)
     provisioning_uri = totp.provisioning_uri(
         name=current_user.name,
         issuer_name="SGTI CMDB"
     )
-    
+
     # Generate QR code
     qr = qrcode.QRCode(version=1, box_size=10, border=5)
     qr.add_data(provisioning_uri)
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
-    
+
     # Convert to base64
     buffered = io.BytesIO()
     img.save(buffered, format="PNG")
     qr_code_b64 = base64.b64encode(buffered.getvalue()).decode()
-    
-    # Store secret temporarily (in production, encrypt and store in DB)
-    # For now, return it to frontend
+
+    # Persist secret (not yet enabled; activated after verify)
+    current_user.totp_secret = secret
+    db.commit()
+
     return TwoFASetupResponse(
         secret=secret,
         qr_code=f"data:image/png;base64,{qr_code_b64}",
@@ -343,42 +375,81 @@ async def setup_2fa(
 @router.post("/2fa/verify")
 async def verify_2fa(
     request: TwoFAVerifyRequest,
-    current_user: models.ServiceAccount = Depends(ad_auth.get_current_user)
+    current_user: models.ServiceAccount = Depends(ad_auth.get_current_user),
+    db: Session = Depends(get_db)
 ):
-    """Verify 2FA code during setup"""
-    # In production, you'd verify against stored secret
-    # For now, accept any 6-digit code
-    if len(request.code) == 6 and request.code.isdigit():
-        return {"message": "2FA verified successfully", "verified": True}
-    
-    raise HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        detail="Invalid 2FA code"
-    )
+    """Verify 2FA code during setup and enable 2FA"""
+    if not current_user.totp_secret:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Nenhum setup de 2FA pendente. Solicite um novo QR Code."
+        )
+
+    totp = pyotp.TOTP(current_user.totp_secret)
+    if not totp.verify(request.code, valid_window=1):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Código 2FA inválido."
+        )
+
+    current_user.totp_enabled = True
+    db.commit()
+    return {"message": "2FA habilitado com sucesso", "verified": True}
 
 
 @router.post("/2fa/enable")
 async def enable_2fa(
     request: TwoFAEnableRequest,
-    current_user: models.ServiceAccount = Depends(ad_auth.get_current_user)
+    current_user: models.ServiceAccount = Depends(ad_auth.get_current_user),
+    db: Session = Depends(get_db)
 ):
-    """Enable 2FA for user"""
-    # In production, store the secret and enable 2FA flag
-    return {"message": "2FA enabled successfully"}
+    """Enable 2FA for user (alias for verify with code confirmation)"""
+    if not current_user.totp_secret:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Solicite um setup de 2FA antes de habilitar."
+        )
+
+    totp = pyotp.TOTP(current_user.totp_secret)
+    if not totp.verify(request.code, valid_window=1):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Código 2FA inválido."
+        )
+
+    current_user.totp_enabled = True
+    db.commit()
+    return {"message": "2FA habilitado com sucesso"}
 
 
 @router.post("/2fa/disable")
 async def disable_2fa(
     request: TwoFADisableRequest,
-    current_user: models.ServiceAccount = Depends(ad_auth.get_current_user)
+    current_user: models.ServiceAccount = Depends(ad_auth.get_current_user),
+    db: Session = Depends(get_db)
 ):
-    """Disable 2FA for user"""
-    # In production, verify password and disable 2FA
-    return {"message": "2FA disabled successfully"}
+    """Disable 2FA for user (requires password confirmation)"""
+    try:
+        ad_user = authenticate_user(current_user.name, request.password)
+        if not ad_user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Senha inválida."
+            )
+    except ADAuthError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Serviço de autenticação indisponível: {str(e)}"
+        )
+
+    current_user.totp_enabled = False
+    current_user.totp_secret = None
+    db.commit()
+    return {"message": "2FA desabilitado com sucesso"}
 
 
 # Admin endpoints
-@router.get("/admin/users")
+@router.get("/admin/users", response_model=List[AdminUserOut])
 async def list_users(
     skip: int = 0,
     limit: int = 100,
@@ -387,27 +458,175 @@ async def list_users(
 ):
     """List all users (admin only)"""
     users = db.query(models.ServiceAccount).offset(skip).limit(limit).all()
-    
+
     result = []
     for user in users:
-        import json
+        roles = _read_roles(user)
+        is_ad_user = _is_ad_user(user)
+        email = _user_email(user)
+        result.append(AdminUserOut(
+            id=user.id,
+            username=user.name,
+            display_name=user.name,
+            email=email,
+            roles=roles,
+            is_active=user.is_active,
+            is_service_account=not is_ad_user,
+            two_fa_enabled=bool(user.totp_enabled),
+            created_at=user.created_at.isoformat() if user.created_at else None,
+            expires_at=user.expires_at.isoformat() if user.expires_at else None,
+        ))
+
+    return result
+
+
+@router.patch("/admin/users/{user_id}", response_model=AdminUserOut)
+async def update_user(
+    user_id: int,
+    payload: AdminUserUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.ServiceAccount = Depends(ad_auth.require_role(["admin"]))
+):
+    """Activate/deactivate a user account (admin only)"""
+    import json
+
+    user = db.query(models.ServiceAccount).filter(
+        models.ServiceAccount.id == user_id
+    ).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuário não encontrado")
+
+    if payload.is_active is not None:
+        user.is_active = payload.is_active
+
+    if payload.roles is not None:
         try:
             user_data = json.loads(user.token_hash)
-            roles = user_data.get("roles", ["viewer"])
-        except:
-            roles = ["viewer"]
-        
-        result.append({
-            "id": user.id,
-            "username": user.name,
-            "display_name": user.name,
-            "email": f"{user.name}@{ad_auth.AD_DOMAIN.lower()}",
-            "roles": roles,
-            "is_active": user.is_active,
-            "created_at": user.created_at.isoformat() if user.created_at else None,
-        })
-    
+        except Exception:
+            user_data = {}
+        user_data["roles"] = payload.roles
+        user.token_hash = json.dumps(user_data)
+
+    if payload.expires_at is not None:
+        user.expires_at = payload.expires_at
+
+    db.commit()
+    db.refresh(user)
+
+    roles = _read_roles(user)
+    is_ad_user = _is_ad_user(user)
+    return AdminUserOut(
+        id=user.id,
+        username=user.name,
+        display_name=user.name,
+        email=_user_email(user),
+        roles=roles,
+        is_active=user.is_active,
+        is_service_account=not is_ad_user,
+        two_fa_enabled=bool(user.totp_enabled),
+        created_at=user.created_at.isoformat() if user.created_at else None,
+        expires_at=user.expires_at.isoformat() if user.expires_at else None,
+    )
+
+
+@router.post("/admin/users/{user_id}/2fa/disable")
+async def admin_disable_2fa(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.ServiceAccount = Depends(ad_auth.require_role(["admin"]))
+):
+    """Disable 2FA for a user (admin only)"""
+    user = db.query(models.ServiceAccount).filter(
+        models.ServiceAccount.id == user_id
+    ).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuário não encontrado")
+
+    if not user.totp_enabled:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="2FA já está desabilitado para este usuário")
+
+    user.totp_enabled = False
+    user.totp_secret = None
+    db.commit()
+    return {"message": f"2FA desabilitado para o usuário {user.name}"}
+
+
+@router.get("/admin/tokens", response_model=List[ServiceTokenOut])
+async def list_service_tokens(
+    db: Session = Depends(get_db),
+    current_user: models.ServiceAccount = Depends(ad_auth.require_role(["admin"]))
+):
+    """List service tokens (automation accounts) — admin only"""
+    accounts = db.query(models.ServiceAccount).all()
+    result = []
+    for acc in accounts:
+        if _is_ad_user(acc):
+            continue
+        result.append(ServiceTokenOut(
+            id=acc.id,
+            name=acc.name,
+            is_active=acc.is_active,
+            created_at=acc.created_at.isoformat() if acc.created_at else None,
+            expires_at=acc.expires_at.isoformat() if acc.expires_at else None,
+        ))
     return result
+
+
+@router.post("/admin/tokens", response_model=ServiceTokenOut, status_code=201)
+async def create_service_token(
+    payload: ServiceTokenCreate,
+    db: Session = Depends(get_db),
+    current_user: models.ServiceAccount = Depends(ad_auth.require_role(["admin"]))
+):
+    """Create a service token (automation account) — admin only. Token plaintext shown once."""
+    existing = db.query(models.ServiceAccount).filter(
+        models.ServiceAccount.name == payload.name
+    ).first()
+    if existing:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"Já existe uma conta com o nome '{payload.name}'")
+
+    token = secrets.token_urlsafe(43)
+    expires_at = payload.expires_at or (datetime.now(timezone.utc) + timedelta(days=365))
+
+    account = models.ServiceAccount(
+        name=payload.name,
+        expires_at=expires_at,
+        is_active=True,
+    )
+    account.set_token(token)
+    db.add(account)
+    db.commit()
+    db.refresh(account)
+
+    return ServiceTokenOut(
+        id=account.id,
+        name=account.name,
+        is_active=account.is_active,
+        created_at=account.created_at.isoformat() if account.created_at else None,
+        expires_at=account.expires_at.isoformat() if account.expires_at else None,
+        token=token,
+    )
+
+
+@router.delete("/admin/tokens/{account_id}", status_code=204)
+async def delete_service_token(
+    account_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.ServiceAccount = Depends(ad_auth.require_role(["admin"]))
+):
+    """Delete a service token (automation account) — admin only"""
+    account = db.query(models.ServiceAccount).filter(
+        models.ServiceAccount.id == account_id
+    ).first()
+    if not account:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Token de serviço não encontrado")
+
+    if _is_ad_user(account):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Não é possível excluir uma conta de usuário AD via tokens")
+
+    db.delete(account)
+    db.commit()
+    return None
 
 
 @router.get("/admin/roles")
@@ -416,3 +635,34 @@ async def get_roles(
 ):
     """Get all available roles"""
     return ["admin", "analyst", "reviewer", "reconciliator", "revisor", "viewer"]
+
+
+def _read_roles(user: models.ServiceAccount) -> list:
+    import json
+    try:
+        user_data = json.loads(user.token_hash)
+        return user_data.get("roles", ["viewer"])
+    except Exception:
+        return ["viewer"]
+
+
+def _is_ad_user(user: models.ServiceAccount) -> bool:
+    """AD users store roles JSON in token_hash; service tokens store bcrypt hashes."""
+    import json
+    try:
+        user_data = json.loads(user.token_hash)
+        return isinstance(user_data, dict) and user_data.get("ad_user") is True
+    except Exception:
+        return False
+
+
+def _user_email(user: models.ServiceAccount) -> str:
+    import json
+    try:
+        user_data = json.loads(user.token_hash)
+        email = user_data.get("email")
+        if email:
+            return email
+    except Exception:
+        pass
+    return f"{user.name}@{ad_auth.AD_DOMAIN.lower()}"

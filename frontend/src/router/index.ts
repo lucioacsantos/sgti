@@ -47,8 +47,18 @@ const router = createRouter({
           path: 'integrations',
           name: 'integrations',
           component: () => import('@/views/integrations/IntegrationsView.vue')
+        },
+        {
+          path: 'admin',
+          name: 'admin',
+          component: () => import('@/views/admin/AdminView.vue'),
+          meta: { requiresAdmin: true }
         }
       ]
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/dashboard'
     }
   ]
 })
@@ -58,6 +68,8 @@ router.beforeEach((to, _from, next) => {
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next({ name: 'login' })
   } else if (to.name === 'login' && authStore.isAuthenticated) {
+    next({ name: 'dashboard' })
+  } else if (to.meta.requiresAdmin && !authStore.isAdmin) {
     next({ name: 'dashboard' })
   } else {
     next()

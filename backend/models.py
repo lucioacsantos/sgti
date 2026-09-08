@@ -117,6 +117,8 @@ class ServiceAccount(Base):
     created_at = Column(DateTime, server_default=func.now())
     expires_at = Column(DateTime, nullable=False)
     is_active = Column(Boolean, default=True)
+    totp_secret = Column(String(64), nullable=True)
+    totp_enabled = Column(Boolean, default=False, nullable=False, server_default="false")
 
     def set_token(self, token: str) -> None:
         """Hash and store token."""
@@ -124,7 +126,11 @@ class ServiceAccount(Base):
 
     def verify_token(self, token: str) -> bool:
         """Verify a plaintext token against stored hash."""
-        return bcrypt.checkpw(token.encode(), self.token_hash.encode())
+        try:
+            return bcrypt.checkpw(token.encode(), self.token_hash.encode())
+        except ValueError:
+            # token_hash não é um hash bcrypt (ex.: JSON de usuário AD)
+            return False
 
 
 # TABELA TIPO RELACIONAMENTO
