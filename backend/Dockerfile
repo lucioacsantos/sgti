@@ -1,4 +1,4 @@
-FROM registry.redhat.io/rhel10/python-314-minimal
+FROM python:3.14.7-slim
 
 WORKDIR /app
 
