@@ -66267,3 +66267,1734 @@ DETAIL:  Key (ambiente_id)=(0) is not present in table "ambiente".
 {"timestamp": "2026-09-10T18:27:54", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50840 - "GET /criticidades/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
 {"timestamp": "2026-09-10T18:27:55", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50854 - "GET /sistema-operacional/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
 {"timestamp": "2026-09-10T18:27:57", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50862 - "GET /ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:10:07", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:36884 - "GET /ambientes/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:10:08", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:36900 - "GET /areas/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:10:08", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:36906 - "GET /tipos-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:10:09", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:36910 - "GET /status-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:10:09", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:36920 - "GET /criticidades/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:10:10", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:36930 - "GET /sistema-operacional/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:10:12", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:36934 - "GET /ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:10:13", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-11T09:10:13", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.ForeignKeyViolation: insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2734, in app
+    await route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1279, in handle
+    await app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 158, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 144, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 706, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 354, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/to_thread.py", line 56, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2476, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 967, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/routers/assets.py", line 35, in create_ativo
+    db.commit()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2035, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1316, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1290, in _prepare_impl
+    self.session.flush()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4353, in flush
+    self._flush(objects)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4488, in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 122, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4449, in _flush
+    flush_context.execute()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 465, in execute
+    rec.execute(self)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 641, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 94, in save_obj
+    _emit_insert_statements(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1234, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1421, in execute
+    return meth(
+           ^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1643, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2365, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.ForeignKeyViolation) insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+[SQL: INSERT INTO ativo (nome, descricao, tipo_id, ambiente_id, status_id, criticidade_id, sor_id, areas_id) VALUES (%(nome)s, %(descricao)s, %(tipo_id)s, %(ambiente_id)s, %(status_id)s, %(criticidade_id)s, %(sor_id)s, %(areas_id)s) RETURNING ativo.id, ativo.created_at, ativo.updated_at]
+[parameters: {'nome': 'lab-eda01', 'descricao': 'Servidor VMware Virtual Platform - S/N: N/A', 'tipo_id': 3, 'ambiente_id': 2, 'status_id': 1, 'criticidade_id': 1, 'sor_id': 0, 'areas_id': 1}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+{"timestamp": "2026-09-11T09:10:13", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52256 - "POST /ativos/ HTTP/1.1" 500", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:10:14", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-11T09:10:14", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.ForeignKeyViolation: insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2734, in app
+    await route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1279, in handle
+    await app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 158, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 144, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 706, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 354, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/to_thread.py", line 56, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2476, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 967, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/routers/assets.py", line 35, in create_ativo
+    db.commit()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2035, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1316, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1290, in _prepare_impl
+    self.session.flush()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4353, in flush
+    self._flush(objects)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4488, in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 122, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4449, in _flush
+    flush_context.execute()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 465, in execute
+    rec.execute(self)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 641, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 94, in save_obj
+    _emit_insert_statements(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1234, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1421, in execute
+    return meth(
+           ^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1643, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2365, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.ForeignKeyViolation) insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+[SQL: INSERT INTO ativo (nome, descricao, tipo_id, ambiente_id, status_id, criticidade_id, sor_id, areas_id) VALUES (%(nome)s, %(descricao)s, %(tipo_id)s, %(ambiente_id)s, %(status_id)s, %(criticidade_id)s, %(sor_id)s, %(areas_id)s) RETURNING ativo.id, ativo.created_at, ativo.updated_at]
+[parameters: {'nome': 'lab-eda03', 'descricao': 'Servidor VMware Virtual Platform - S/N: N/A', 'tipo_id': 3, 'ambiente_id': 2, 'status_id': 1, 'criticidade_id': 1, 'sor_id': 0, 'areas_id': 1}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+{"timestamp": "2026-09-11T09:10:14", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52268 - "POST /ativos/ HTTP/1.1" 500", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:10:14", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-11T09:10:14", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.ForeignKeyViolation: insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2734, in app
+    await route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1279, in handle
+    await app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 158, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 144, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 706, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 354, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/to_thread.py", line 56, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2476, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 967, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/routers/assets.py", line 35, in create_ativo
+    db.commit()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2035, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1316, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1290, in _prepare_impl
+    self.session.flush()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4353, in flush
+    self._flush(objects)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4488, in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 122, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4449, in _flush
+    flush_context.execute()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 465, in execute
+    rec.execute(self)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 641, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 94, in save_obj
+    _emit_insert_statements(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1234, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1421, in execute
+    return meth(
+           ^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1643, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2365, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.ForeignKeyViolation) insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+[SQL: INSERT INTO ativo (nome, descricao, tipo_id, ambiente_id, status_id, criticidade_id, sor_id, areas_id) VALUES (%(nome)s, %(descricao)s, %(tipo_id)s, %(ambiente_id)s, %(status_id)s, %(criticidade_id)s, %(sor_id)s, %(areas_id)s) RETURNING ativo.id, ativo.created_at, ativo.updated_at]
+[parameters: {'nome': 'lab-eda04', 'descricao': 'Servidor VMware Virtual Platform - S/N: N/A', 'tipo_id': 3, 'ambiente_id': 2, 'status_id': 1, 'criticidade_id': 1, 'sor_id': 0, 'areas_id': 1}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+{"timestamp": "2026-09-11T09:10:14", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52274 - "POST /ativos/ HTTP/1.1" 500", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:10:14", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-11T09:10:14", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.ForeignKeyViolation: insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2734, in app
+    await route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1279, in handle
+    await app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 158, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 144, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 706, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 354, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/to_thread.py", line 56, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2476, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 967, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/routers/assets.py", line 35, in create_ativo
+    db.commit()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2035, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1316, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1290, in _prepare_impl
+    self.session.flush()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4353, in flush
+    self._flush(objects)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4488, in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 122, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4449, in _flush
+    flush_context.execute()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 465, in execute
+    rec.execute(self)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 641, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 94, in save_obj
+    _emit_insert_statements(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1234, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1421, in execute
+    return meth(
+           ^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1643, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2365, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.ForeignKeyViolation) insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+[SQL: INSERT INTO ativo (nome, descricao, tipo_id, ambiente_id, status_id, criticidade_id, sor_id, areas_id) VALUES (%(nome)s, %(descricao)s, %(tipo_id)s, %(ambiente_id)s, %(status_id)s, %(criticidade_id)s, %(sor_id)s, %(areas_id)s) RETURNING ativo.id, ativo.created_at, ativo.updated_at]
+[parameters: {'nome': 'lab-gitops-im', 'descricao': 'Servidor VMware20,1 - S/N: N/A', 'tipo_id': 3, 'ambiente_id': 2, 'status_id': 1, 'criticidade_id': 1, 'sor_id': 0, 'areas_id': 1}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+{"timestamp": "2026-09-11T09:10:14", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52280 - "POST /ativos/ HTTP/1.1" 500", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:10:15", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-11T09:10:15", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.ForeignKeyViolation: insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2734, in app
+    await route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1279, in handle
+    await app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 158, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 144, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 706, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 354, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/to_thread.py", line 56, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2476, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 967, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/routers/assets.py", line 35, in create_ativo
+    db.commit()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2035, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1316, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1290, in _prepare_impl
+    self.session.flush()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4353, in flush
+    self._flush(objects)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4488, in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 122, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4449, in _flush
+    flush_context.execute()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 465, in execute
+    rec.execute(self)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 641, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 94, in save_obj
+    _emit_insert_statements(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1234, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1421, in execute
+    return meth(
+           ^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1643, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2365, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.ForeignKeyViolation) insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+[SQL: INSERT INTO ativo (nome, descricao, tipo_id, ambiente_id, status_id, criticidade_id, sor_id, areas_id) VALUES (%(nome)s, %(descricao)s, %(tipo_id)s, %(ambiente_id)s, %(status_id)s, %(criticidade_id)s, %(sor_id)s, %(areas_id)s) RETURNING ativo.id, ativo.created_at, ativo.updated_at]
+[parameters: {'nome': 'lab-imagemode', 'descricao': 'Servidor VMware Virtual Platform - S/N: N/A', 'tipo_id': 3, 'ambiente_id': 2, 'status_id': 1, 'criticidade_id': 1, 'sor_id': 0, 'areas_id': 1}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+{"timestamp": "2026-09-11T09:10:15", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52288 - "POST /ativos/ HTTP/1.1" 500", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:10:15", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-11T09:10:15", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.ForeignKeyViolation: insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2734, in app
+    await route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1279, in handle
+    await app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 158, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 144, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 706, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 354, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/to_thread.py", line 56, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2476, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 967, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/routers/assets.py", line 35, in create_ativo
+    db.commit()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2035, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1316, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1290, in _prepare_impl
+    self.session.flush()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4353, in flush
+    self._flush(objects)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4488, in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 122, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4449, in _flush
+    flush_context.execute()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 465, in execute
+    rec.execute(self)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 641, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 94, in save_obj
+    _emit_insert_statements(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1234, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1421, in execute
+    return meth(
+           ^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1643, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2365, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.ForeignKeyViolation) insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+[SQL: INSERT INTO ativo (nome, descricao, tipo_id, ambiente_id, status_id, criticidade_id, sor_id, areas_id) VALUES (%(nome)s, %(descricao)s, %(tipo_id)s, %(ambiente_id)s, %(status_id)s, %(criticidade_id)s, %(sor_id)s, %(areas_id)s) RETURNING ativo.id, ativo.created_at, ativo.updated_at]
+[parameters: {'nome': 'lab-mongodb', 'descricao': 'Servidor VMware Virtual Platform - S/N: N/A', 'tipo_id': 3, 'ambiente_id': 2, 'status_id': 1, 'criticidade_id': 1, 'sor_id': 0, 'areas_id': 1}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+{"timestamp": "2026-09-11T09:10:15", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52304 - "POST /ativos/ HTTP/1.1" 500", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:10:16", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-11T09:10:16", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.ForeignKeyViolation: insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2734, in app
+    await route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1279, in handle
+    await app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 158, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 144, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 706, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 354, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/to_thread.py", line 56, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2476, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 967, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/routers/assets.py", line 35, in create_ativo
+    db.commit()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2035, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1316, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1290, in _prepare_impl
+    self.session.flush()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4353, in flush
+    self._flush(objects)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4488, in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 122, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4449, in _flush
+    flush_context.execute()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 465, in execute
+    rec.execute(self)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 641, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 94, in save_obj
+    _emit_insert_statements(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1234, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1421, in execute
+    return meth(
+           ^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1643, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2365, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.ForeignKeyViolation) insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+[SQL: INSERT INTO ativo (nome, descricao, tipo_id, ambiente_id, status_id, criticidade_id, sor_id, areas_id) VALUES (%(nome)s, %(descricao)s, %(tipo_id)s, %(ambiente_id)s, %(status_id)s, %(criticidade_id)s, %(sor_id)s, %(areas_id)s) RETURNING ativo.id, ativo.created_at, ativo.updated_at]
+[parameters: {'nome': 'lab-post01', 'descricao': 'Servidor VMware Virtual Platform - S/N: N/A', 'tipo_id': 3, 'ambiente_id': 2, 'status_id': 1, 'criticidade_id': 1, 'sor_id': 0, 'areas_id': 1}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+{"timestamp": "2026-09-11T09:10:16", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52318 - "POST /ativos/ HTTP/1.1" 500", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:10:16", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-11T09:10:16", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.ForeignKeyViolation: insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2734, in app
+    await route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1279, in handle
+    await app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 158, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 144, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 706, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 354, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/to_thread.py", line 56, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2476, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 967, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/routers/assets.py", line 35, in create_ativo
+    db.commit()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2035, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1316, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1290, in _prepare_impl
+    self.session.flush()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4353, in flush
+    self._flush(objects)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4488, in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 122, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4449, in _flush
+    flush_context.execute()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 465, in execute
+    rec.execute(self)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 641, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 94, in save_obj
+    _emit_insert_statements(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1234, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1421, in execute
+    return meth(
+           ^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1643, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2365, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.ForeignKeyViolation) insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+[SQL: INSERT INTO ativo (nome, descricao, tipo_id, ambiente_id, status_id, criticidade_id, sor_id, areas_id) VALUES (%(nome)s, %(descricao)s, %(tipo_id)s, %(ambiente_id)s, %(status_id)s, %(criticidade_id)s, %(sor_id)s, %(areas_id)s) RETURNING ativo.id, ativo.created_at, ativo.updated_at]
+[parameters: {'nome': 'lab-sydb01', 'descricao': 'Servidor VMware Virtual Platform - S/N: N/A', 'tipo_id': 3, 'ambiente_id': 2, 'status_id': 1, 'criticidade_id': 1, 'sor_id': 0, 'areas_id': 1}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+{"timestamp": "2026-09-11T09:10:16", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52322 - "POST /ativos/ HTTP/1.1" 500", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:10:17", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-11T09:10:17", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.ForeignKeyViolation: insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2734, in app
+    await route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1279, in handle
+    await app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 158, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 144, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 706, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 354, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/to_thread.py", line 56, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2476, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 967, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/routers/assets.py", line 35, in create_ativo
+    db.commit()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2035, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1316, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1290, in _prepare_impl
+    self.session.flush()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4353, in flush
+    self._flush(objects)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4488, in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 122, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4449, in _flush
+    flush_context.execute()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 465, in execute
+    rec.execute(self)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 641, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 94, in save_obj
+    _emit_insert_statements(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1234, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1421, in execute
+    return meth(
+           ^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1643, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2365, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.ForeignKeyViolation) insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+[SQL: INSERT INTO ativo (nome, descricao, tipo_id, ambiente_id, status_id, criticidade_id, sor_id, areas_id) VALUES (%(nome)s, %(descricao)s, %(tipo_id)s, %(ambiente_id)s, %(status_id)s, %(criticidade_id)s, %(sor_id)s, %(areas_id)s) RETURNING ativo.id, ativo.created_at, ativo.updated_at]
+[parameters: {'nome': 'lab-sydb02', 'descricao': 'Servidor VMware Virtual Platform - S/N: N/A', 'tipo_id': 3, 'ambiente_id': 2, 'status_id': 1, 'criticidade_id': 1, 'sor_id': 0, 'areas_id': 1}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+{"timestamp": "2026-09-11T09:10:17", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52334 - "POST /ativos/ HTTP/1.1" 500", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:10:17", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-11T09:10:17", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.ForeignKeyViolation: insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2734, in app
+    await route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1279, in handle
+    await app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 158, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 144, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 706, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 354, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/to_thread.py", line 56, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2476, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 967, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/routers/assets.py", line 35, in create_ativo
+    db.commit()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2035, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1316, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1290, in _prepare_impl
+    self.session.flush()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4353, in flush
+    self._flush(objects)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4488, in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 122, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4449, in _flush
+    flush_context.execute()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 465, in execute
+    rec.execute(self)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 641, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 94, in save_obj
+    _emit_insert_statements(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1234, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1421, in execute
+    return meth(
+           ^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1643, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2365, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.ForeignKeyViolation) insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+[SQL: INSERT INTO ativo (nome, descricao, tipo_id, ambiente_id, status_id, criticidade_id, sor_id, areas_id) VALUES (%(nome)s, %(descricao)s, %(tipo_id)s, %(ambiente_id)s, %(status_id)s, %(criticidade_id)s, %(sor_id)s, %(areas_id)s) RETURNING ativo.id, ativo.created_at, ativo.updated_at]
+[parameters: {'nome': 'lab-sydb03', 'descricao': 'Servidor VMware Virtual Platform - S/N: N/A', 'tipo_id': 3, 'ambiente_id': 2, 'status_id': 1, 'criticidade_id': 1, 'sor_id': 0, 'areas_id': 1}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+{"timestamp": "2026-09-11T09:10:17", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52338 - "POST /ativos/ HTTP/1.1" 500", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:10:18", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-11T09:10:18", "logger": "main", "level": "ERROR", "message": "Unhandled exception", "module": "main", "function": "general_exception_handler", "line": 112}
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.ForeignKeyViolation: insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/main.py", line 69, in add_correlation_id
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2734, in app
+    await route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 1279, in handle
+    await app(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 158, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 144, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 706, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/fastapi/routing.py", line 354, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/starlette/concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/to_thread.py", line 56, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2476, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 967, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Desenvolvimento/sgti/backend/routers/assets.py", line 35, in create_ativo
+    db.commit()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2035, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1316, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1290, in _prepare_impl
+    self.session.flush()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4353, in flush
+    self._flush(objects)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4488, in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 122, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4449, in _flush
+    flush_context.execute()
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 465, in execute
+    rec.execute(self)
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 641, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 94, in save_obj
+    _emit_insert_statements(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1234, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1421, in execute
+    return meth(
+           ^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1643, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2365, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/usr_ccee/.local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.ForeignKeyViolation) insert or update on table "ativo" violates foreign key constraint "ativo_sor_fk"
+DETAIL:  Key (sor_id)=(0) is not present in table "sor".
+
+[SQL: INSERT INTO ativo (nome, descricao, tipo_id, ambiente_id, status_id, criticidade_id, sor_id, areas_id) VALUES (%(nome)s, %(descricao)s, %(tipo_id)s, %(ambiente_id)s, %(status_id)s, %(criticidade_id)s, %(sor_id)s, %(areas_id)s) RETURNING ativo.id, ativo.created_at, ativo.updated_at]
+[parameters: {'nome': 'lab-uipath', 'descricao': 'Servidor VMware Virtual Platform - S/N: N/A', 'tipo_id': 3, 'ambiente_id': 2, 'status_id': 1, 'criticidade_id': 1, 'sor_id': 0, 'areas_id': 1}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+{"timestamp": "2026-09-11T09:10:18", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52348 - "POST /ativos/ HTTP/1.1" 500", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:11:13", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45014 - "GET /ambientes/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:11:13", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45020 - "GET /areas/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:11:14", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45026 - "GET /tipos-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:11:14", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45042 - "GET /status-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:11:15", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45054 - "GET /criticidades/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:11:15", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45064 - "GET /sistema-operacional/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:11:17", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45080 - "GET /ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:16:55", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:33226 - "GET /ambientes/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:16:55", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:33232 - "GET /areas/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:16:56", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:33234 - "GET /tipos-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:16:56", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:33236 - "GET /status-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:16:57", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:33244 - "GET /criticidades/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:16:57", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:33252 - "GET /sistema-operacional/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:16:59", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:33260 - "GET /ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:18:57", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:53282 - "GET /ambientes/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:18:58", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:53298 - "GET /areas/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:18:58", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:53314 - "GET /tipos-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:18:59", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:53324 - "GET /status-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:18:59", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:53334 - "GET /criticidades/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:19:00", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:53338 - "GET /sistema-operacional/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:19:01", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:53344 - "GET /ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:19:55", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52932 - "GET /ambientes/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:19:55", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52948 - "GET /areas/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:19:56", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52956 - "GET /tipos-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:19:56", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52958 - "GET /status-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:19:57", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52968 - "GET /criticidades/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:19:57", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52978 - "GET /sistema-operacional/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:19:59", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:52980 - "GET /ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:21:19", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:54548 - "GET /ambientes/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:21:19", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:54558 - "GET /areas/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:21:20", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:54572 - "GET /tipos-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:21:20", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:54580 - "GET /status-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:21:21", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:54592 - "GET /criticidades/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:21:21", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:54602 - "GET /sistema-operacional/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:21:23", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37062 - "GET /ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:21:24", "logger": "routers.assets", "level": "INFO", "message": "Creating asset", "module": "assets", "function": "create_ativo", "line": 20}
+{"timestamp": "2026-09-11T09:21:24", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:37066 - "POST /ativos/ HTTP/1.1" 201", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:34:32", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45382 - "GET /ambientes/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:34:33", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45384 - "GET /areas/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:34:33", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:44874 - "GET /tipos-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:34:33", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:44884 - "GET /status-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:34:34", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:44888 - "GET /criticidades/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:34:34", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:44904 - "GET /sistema-operacional/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:34:36", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:44908 - "GET /ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:35:12", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42108 - "GET /ambientes/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:35:12", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42124 - "GET /areas/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:35:13", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42134 - "GET /tipos-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:35:13", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:41014 - "GET /status-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:35:14", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:41018 - "GET /criticidades/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:35:14", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:41024 - "GET /sistema-operacional/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:35:16", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:41036 - "GET /ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:36:55", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:44770 - "GET /ambientes/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:36:56", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:44784 - "GET /areas/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:36:56", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:44796 - "GET /tipos-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:36:57", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:44804 - "GET /status-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:36:57", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:44820 - "GET /criticidades/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:36:58", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:44830 - "GET /sistema-operacional/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:36:59", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:44836 - "GET /ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:39:29", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45952 - "GET /ambientes/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:39:30", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45958 - "GET /areas/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:39:30", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45972 - "GET /tipos-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:39:30", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45974 - "GET /status-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:39:31", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45990 - "GET /criticidades/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:39:31", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45998 - "GET /sistema-operacional/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:39:33", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45846 - "GET /ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:42:24", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50088 - "GET /ambientes/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:42:24", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50104 - "GET /areas/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:42:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50114 - "GET /tipos-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:42:25", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50122 - "GET /status-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:42:26", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50128 - "GET /criticidades/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:42:26", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50134 - "GET /sistema-operacional/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T09:42:28", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:50140 - "GET /ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:11:21", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-11T14:11:21", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:55638 - "GET /ambientes/ HTTP/1.1" 401", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:11:21", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-11T14:11:21", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:55642 - "GET /areas/ HTTP/1.1" 401", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:11:22", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-11T14:11:22", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:55650 - "GET /tipos-ativos/ HTTP/1.1" 401", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:11:22", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-11T14:11:22", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:55654 - "GET /status-ativos/ HTTP/1.1" 401", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:11:23", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-11T14:11:23", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:59894 - "GET /criticidades/ HTTP/1.1" 401", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:11:23", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-11T14:11:23", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:59904 - "GET /sistema-operacional/ HTTP/1.1" 401", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:12:46", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-11T14:12:46", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:43684 - "GET /ambientes/ HTTP/1.1" 401", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:12:46", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-11T14:12:46", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:43686 - "GET /areas/ HTTP/1.1" 401", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:12:47", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-11T14:12:47", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:43694 - "GET /tipos-ativos/ HTTP/1.1" 401", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:12:47", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-11T14:12:47", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:43696 - "GET /status-ativos/ HTTP/1.1" 401", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:12:48", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-11T14:12:48", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:43704 - "GET /criticidades/ HTTP/1.1" 401", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:12:48", "logger": "main", "level": "ERROR", "message": "HTTP exception", "module": "main", "function": "http_exception_handler", "line": 77}
+{"timestamp": "2026-09-11T14:12:48", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:43706 - "GET /sistema-operacional/ HTTP/1.1" 401", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:13:30", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:41180 - "GET /ambientes/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:13:30", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:41186 - "GET /areas/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:13:30", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:41196 - "GET /tipos-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:13:31", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:41200 - "GET /status-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:13:31", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:41214 - "GET /criticidades/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:13:32", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:41230 - "GET /sistema-operacional/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:13:37", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:59180 - "GET /ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:14:39", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45338 - "GET /ambientes/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:14:39", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45340 - "GET /areas/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:14:40", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45348 - "GET /tipos-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:14:40", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45354 - "GET /status-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:14:40", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45370 - "GET /criticidades/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:14:41", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:45380 - "GET /sistema-operacional/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:14:46", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:57078 - "GET /ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:15:56", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:56548 - "GET /ambientes/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:15:57", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:56558 - "GET /areas/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:15:57", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:56572 - "GET /tipos-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:15:58", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:56574 - "GET /status-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:15:58", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:56588 - "GET /criticidades/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:15:59", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:56604 - "GET /sistema-operacional/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:16:04", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:56550 - "GET /ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:18:41", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51770 - "GET /ambientes/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:18:41", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51782 - "GET /areas/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:18:42", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51788 - "GET /tipos-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:18:42", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51790 - "GET /status-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:18:43", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51792 - "GET /criticidades/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:18:43", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51132 - "GET /sistema-operacional/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:18:49", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:51138 - "GET /ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:59:20", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42310 - "GET /ambientes/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:59:21", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42318 - "GET /areas/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:59:21", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42326 - "GET /tipos-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:59:22", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42342 - "GET /status-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:59:22", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42352 - "GET /criticidades/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:59:23", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:42354 - "GET /sistema-operacional/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T14:59:26", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:47704 - "GET /ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T15:00:44", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:46378 - "GET /ambientes/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T15:00:44", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:46386 - "GET /areas/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T15:00:45", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:46392 - "GET /tipos-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T15:00:45", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:46404 - "GET /status-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T15:00:45", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:46406 - "GET /criticidades/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T15:00:46", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:46420 - "GET /sistema-operacional/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T15:01:09", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:49202 - "GET /ambientes/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T15:01:10", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:49206 - "GET /areas/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T15:01:10", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:49218 - "GET /tipos-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T15:01:10", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:49232 - "GET /status-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T15:01:11", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:49234 - "GET /criticidades/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T15:01:11", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:49246 - "GET /sistema-operacional/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T15:01:15", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:47526 - "GET /ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T15:01:53", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:54036 - "GET /ambientes/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T15:01:53", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:33658 - "GET /areas/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T15:01:54", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:33666 - "GET /tipos-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T15:01:54", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:33678 - "GET /status-ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T15:01:54", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:33684 - "GET /criticidades/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T15:01:55", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:33696 - "GET /sistema-operacional/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
+{"timestamp": "2026-09-11T15:02:21", "logger": "uvicorn.access", "level": "INFO", "message": "127.0.0.1:35478 - "GET /ativos/ HTTP/1.1" 200", "module": "httptools_impl", "function": "send", "line": 485}
