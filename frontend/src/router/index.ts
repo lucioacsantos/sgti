@@ -49,6 +49,11 @@ const router = createRouter({
           component: () => import('@/views/integrations/IntegrationsView.vue')
         },
         {
+          path: 'assistant',
+          name: 'assistant',
+          component: () => import('@/views/assistant/AssistantView.vue')
+        },
+        {
           path: 'admin',
           name: 'admin',
           component: () => import('@/views/admin/AdminView.vue'),

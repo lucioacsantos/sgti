@@ -12,7 +12,7 @@ router = APIRouter(prefix="/ollama", tags=["Integração Ollama"])
 @router.post("/", response_model=schemas.OllamaResponse)
 def ask_ollama(
     question: schemas.OllamaRequest,
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Querying Ollama", extra={"service_account": current_service.name, "model": question.model})
     response = ollama.generate(question.question, question.model)
@@ -21,7 +21,7 @@ def ask_ollama(
 
 @router.get("/modelos/")
 def list_ollama_models(
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Listing Ollama models", extra={"service_account": current_service.name})
     return {"modelos": ollama.list_models()}
@@ -36,7 +36,7 @@ knowledge_router = APIRouter(prefix="/ollama/knowledge", tags=["Ollama - Base de
 def index_knowledge(
     payload: schemas.KnowledgeIndexRequest,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info(
         "Indexing knowledge base",
@@ -57,7 +57,7 @@ def index_knowledge(
 def search_knowledge(
     payload: schemas.KnowledgeSearchRequest,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Searching knowledge base", extra={"service_account": current_service.name, "query": payload.query})
     resultados = knowledge.search(db, payload.query, payload.top_k)
@@ -68,7 +68,7 @@ def search_knowledge(
 def ask_knowledge(
     payload: schemas.KnowledgeAskRequest,
     db: Session = Depends(get_db),
-    current_service: models.ServiceAccount = Depends(auth.get_service_account)
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("RAG question", extra={"service_account": current_service.name, "pergunta": payload.pergunta})
     return knowledge.answer_question(

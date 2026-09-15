@@ -3,7 +3,8 @@ import type {
   Ativo, EnderecoIp, TipoAtivo, Ambiente, StatusAtivo, Criticidade,
   SistemaOperacional, Area, TipoRelacionamento, Aplicacao, Cluster,
   Namespace, Servico, ServicoNegocio, InstanciaAplicacao, Relacionamento,
-  AuditLog, HealthStatus, ApiInfo
+  AuditLog, HealthStatus, ApiInfo,
+  KnowledgeAskRequest, KnowledgeAskResponse, OllamaModelo
 } from './cmdb'
 
 // ===== Health =====
@@ -216,6 +217,18 @@ export const infraService = {
 export const auditService = {
   async list(params?: { entidade?: string; entidade_id?: number; skip?: number; limit?: number }): Promise<AuditLog[]> {
     const { data } = await api.get<AuditLog[]>('/audit-logs/', { params })
+    return data
+  }
+}
+
+// ===== IA (Ollama RAG) =====
+export const aiService = {
+  async modelos(): Promise<OllamaModelo[]> {
+    const { data } = await api.get<{ modelos: OllamaModelo[] }>('/ollama/modelos/')
+    return data.modelos
+  },
+  async perguntar(payload: KnowledgeAskRequest): Promise<KnowledgeAskResponse> {
+    const { data } = await api.post<KnowledgeAskResponse>('/ollama/knowledge/perguntar', payload, { timeout: 300000 })
     return data
   }
 }

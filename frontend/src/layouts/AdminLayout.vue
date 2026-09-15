@@ -9,6 +9,7 @@ import {
   Database,
   ShieldAlert,
   Layers,
+  Bot,
   ShieldCheck,
   LogOut,
   KeyRound
@@ -24,6 +25,7 @@ const menuItems = computed(() => {
     { name: 'Infraestrutura', path: '/infrastructure', icon: Network },
     { name: 'Dados Mestres', path: '/reference-data', icon: Database },
     { name: 'Integrações', path: '/integrations', icon: Layers },
+    { name: 'Assistente IA', path: '/assistant', icon: Bot },
     { name: 'Auditoria', path: '/audit', icon: ShieldAlert },
   ]
   if (authStore.isAdmin) {
@@ -40,6 +42,7 @@ const pageTitle = computed(() => {
     'reference-data': 'Tabelas Auxiliares',
     audit: 'Trilha de Auditoria',
     integrations: 'Integrações & Automações',
+    assistant: 'Assistente IA — Procedimentos',
     admin: 'Administração'
   }
   return routeTitles[route.name as string] || 'SGTI - CMDB'

@@ -86,6 +86,33 @@ export interface HealthStatus {
   database: string
 }
 
+// ===== Ollama / RAG =====
+export interface TrechoCitado {
+  documento: string
+  arquivo: string
+  titulo_secao?: string | null
+  score: number
+  conteudo: string
+}
+
+export interface KnowledgeAskRequest {
+  pergunta: string
+  top_k?: number
+  chat_model?: string | null
+}
+
+export interface KnowledgeAskResponse {
+  pergunta: string
+  resposta: string
+  trechos: TrechoCitado[]
+}
+
+export interface OllamaModelo {
+  name: string
+  size?: number
+  details?: { parameter_size?: string; quantization_level?: string }
+}
+
 export interface ApiInfo {
   message: string
   status: string
