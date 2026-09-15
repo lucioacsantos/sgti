@@ -4,15 +4,52 @@ import sys
 from pathlib import Path
 
 
+class LifecycleFilter(logging.Filter):
+    """Reclassifica logs do uvicorn para não confundir ciclo de vida com erro.
+
+    Mensagens INFO de 'uvicorn.error' (startup/shutdown) são renomeadas para o
+    logger 'server'; erros reais (WARNING+) mantêm o nome 'uvicorn.error' e
+    continuam indo para o error.json. Logs de acesso viram 'access'.
+    """
+
+    _LIFECYCLE = (
+        "Started server process",
+        "Waiting for application startup",
+        "Application startup complete",
+        "Waiting for application shutdown",
+        "Application shutdown complete",
+        "Finished server process",
+        "Uvicorn running on",
+        "Started parent process",
+        "Shutting down",
+    )
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        if record.name.startswith("uvicorn.error"):
+            if record.levelno < logging.WARNING and any(
+                msg in record.getMessage() for msg in self._LIFECYCLE
+            ):
+                record.name = "server"
+            return True
+        if record.name.startswith("uvicorn.access"):
+            record.name = "access"
+        return True
+
+
 def setup_logging():
     """Configure structured logging for the application."""
-    
+
     log_dir = Path(__file__).parent.parent / "logs"
     log_dir.mkdir(exist_ok=True)
-    
+
     logging_config = {
         "version": 1,
         "disable_existing_loggers": False,
+        "filters": {
+            "lifecycle": {
+                "()": LifecycleFilter,
+            },
+        },
         "formatters": {
             "default": {
                 "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -33,6 +70,7 @@ def setup_logging():
                 "formatter": "default",
                 "stream": sys.stdout,
                 "level": "INFO",
+                "filters": ["lifecycle"],
             },
             "file": {
                 "class": "logging.handlers.RotatingFileHandler",
@@ -41,6 +79,7 @@ def setup_logging():
                 "maxBytes": 10485760,  # 10MB
                 "backupCount": 5,
                 "level": "INFO",
+                "filters": ["lifecycle"],
             },
             "error_file": {
                 "class": "logging.handlers.RotatingFileHandler",
@@ -49,6 +88,7 @@ def setup_logging():
                 "maxBytes": 10485760,
                 "backupCount": 5,
                 "level": "ERROR",
+                "filters": ["lifecycle"],
             },
         },
         "loggers": {
@@ -63,7 +103,7 @@ def setup_logging():
                 "propagate": False,
             },
             "uvicorn.error": {
-                "handlers": ["console", "error_file"],
+                "handlers": ["console", "file", "error_file"],
                 "level": "INFO",
                 "propagate": False,
             },
@@ -74,7 +114,7 @@ def setup_logging():
             },
         },
     }
-    
+
     logging.config.dictConfig(logging_config)
     return logging.getLogger(__name__)
 

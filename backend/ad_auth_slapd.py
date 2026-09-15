@@ -89,12 +89,13 @@ def authenticate_user(username: str, password: str) -> Optional[Dict[str, Any]]:
         clean_username = username.split("@")[0]
         search_filter = AD_SEARCH_FILTER.format(username=clean_username)
         
-        # Solicita ALL_ATTRIBUTES ('*') para evitar erro de schema inexistente
+        # Solicita ALL_ATTRIBUTES ('*') + memberOf explícito (atributo operacional
+        # do overlay memberOf não é retornado por '*')
         service_conn.search(
             search_base=AD_BASE_DN,
             search_filter=search_filter,
             search_scope=SUBTREE,
-            attributes=ALL_ATTRIBUTES
+            attributes=[ALL_ATTRIBUTES, "memberOf"]
         )
         
         if not service_conn.entries:
@@ -106,13 +107,17 @@ def authenticate_user(username: str, password: str) -> Optional[Dict[str, Any]]:
         service_conn.unbind()
         
         # 2. Realiza o Bind com o DN localizado e a senha do usuário
-        user_conn = Connection(
-            server,
-            user=user_dn,
-            password=password,
-            authentication=SIMPLE,
-            auto_bind=True
-        )
+        try:
+            user_conn = Connection(
+                server,
+                user=user_dn,
+                password=password,
+                authentication=SIMPLE,
+                auto_bind=True
+            )
+        except ldap3.core.exceptions.LDAPBindError:
+            # Credenciais inválidas: retorno None (não é erro de serviço)
+            return None
         
         if not user_conn.bound:
             return None

@@ -1,0 +1,36 @@
+services:
+  openldap:
+    image: osixia/openldap:latest
+    container_name: openldap_test
+    network_mode: host
+    environment:
+      LDAP_ORGANISATION: "SGTI Test"
+      LDAP_DOMAIN: "lacstech.local"
+      LDAP_ADMIN_PASSWORD: "admin"
+      LDAP_CONFIG_PASSWORD: "admin"
+    volumes:
+      - ./estrutura.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/00-estrutura.ldif:ro
+      - openldap_data:/var/lib/ldap
+      - openldap_config:/etc/ldap/slapd.d
+    command: ["--copy-service"]
+    healthcheck:
+      test: ["CMD-SHELL", "ldapsearch -x -H ldap://localhost:389 -D 'cn=admin,dc=lacstech,dc=local' -w admin -b 'dc=lacstech,dc=local' '(objectClass=organization)' || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  phpldapadmin:
+    image: osixia/phpldapadmin:latest
+    container_name: phpldapadmin_test
+    ports:
+      - "8080:80"
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: 127.0.0.1
+      PHPLDAPADMIN_HTTPS: "false"
+    depends_on:
+      openldap:
+        condition: service_healthy
+
+volumes:
+  openldap_data:
+  openldap_config:

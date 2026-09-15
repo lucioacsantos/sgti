@@ -20,6 +20,18 @@ import logging
 setup_logging()
 logger = get_logger(__name__)
 
+# TRAVA DE SOFTWARE: exige verificação do proprietário antes de qualquer acesso a dados
+try:
+    import crypto_guard
+    crypto_guard.unlock()
+    logger.info("crypto_lock desbloqueado", extra={"owner": "verified"})
+except Exception as _lock_exc:
+    logger.critical("crypto_lock bloqueado: %s", _lock_exc)
+    raise SystemExit(
+        f"SISTEMA BLOQUEADO: {_lock_exc}. "
+        "Configure SGTI_OWNER_NAME/SGTI_OWNER_CPF ou rode build_crypto_lock.py."
+    ) from _lock_exc
+
 # Inicializa o banco de dados (cria tabelas se não existirem)
 models.Base.metadata.create_all(bind=engine)
 
@@ -169,5 +181,7 @@ app.include_router(infrastructure.servico_negocio_router)
 app.include_router(infrastructure.instancia_router)
 app.include_router(audit.router)
 app.include_router(integrations.router)
+app.include_router(integrations.knowledge_router)
+app.include_router(integrations.alarm_router)
 app.include_router(integrations.zabbix_router)
 app.include_router(auth.router)

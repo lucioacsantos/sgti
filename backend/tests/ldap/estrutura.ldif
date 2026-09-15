@@ -1,3 +1,8 @@
+# Estrutura de teste do LDAP (OpenLDAP) alinhada com backend/ad_auth.py
+# Domínio: lacstech.local | Bind admin: cn=admin,dc=lacstech,dc=local / admin
+# A raiz dc=lacstech,dc=local é criada automaticamente pela imagem osixia
+# (LDAP_DOMAIN) — este LDIF adiciona apenas OUs, usuários e grupos.
+
 # Unidade Organizacional para Usuários
 dn: ou=users,dc=lacstech,dc=local
 objectClass: organizationalUnit
@@ -8,18 +13,66 @@ dn: ou=groups,dc=lacstech,dc=local
 objectClass: organizationalUnit
 ou: groups
 
-# Usuário de Teste (joao)
+# --- Usuários ---
+# O ad_auth.py faz bind com usuario@dominio e busca por (sAMAccountName={username}),
+# então cada usuário precisa de uid/sAMAccountName equivalentes e mail como UPN.
+
+# Usuário ADMIN (pertence a G_GESIN_GOSD_OMIS -> role admin)
 dn: uid=lucio,ou=users,dc=lacstech,dc=local
 objectClass: inetOrgPerson
 objectClass: posixAccount
-objectClass: shadowAccount
-uid: Lucio
+uid: lucio
+cn: Lucio Santos
 sn: Santos
 givenName: Lucio
-cn: Lucio Santos
 displayName: Lucio Santos
 mail: luciosantos@lacstech.local
 userPassword: Admin123
 uidNumber: 10001
 gidNumber: 10001
 homeDirectory: /home/lucio
+
+# Usuário READ (pertence a G_GESIN -> role read)
+dn: uid=analista,ou=users,dc=lacstech,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+uid: analista
+cn: Analista Teste
+sn: Teste
+givenName: Analista
+displayName: Analista Teste
+mail: analista@lacstech.local
+userPassword: Analista123
+uidNumber: 10002
+gidNumber: 10001
+homeDirectory: /home/analista
+
+# Usuário SEM GRUPO (recebe role viewer por padrão)
+dn: uid=estagio,ou=users,dc=lacstech,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+uid: estagio
+cn: Estagiario Teste
+sn: Teste
+givenName: Estagiario
+displayName: Estagiario Teste
+mail: estagio@lacstech.local
+userPassword: Estagio123
+uidNumber: 10003
+gidNumber: 10001
+homeDirectory: /home/estagio
+
+# --- Grupos (groupOfUniqueNames + uniqueMember: overlay memberOf da imagem
+# osixia popula o atributo memberOf do usuário) ---
+# Grupo ADMIN: G_GESIN_GOSD_OMIS (ROLE_ADMIN no .env)
+dn: cn=G_GESIN_GOSD_OMIS,ou=groups,dc=lacstech,dc=local
+objectClass: groupOfUniqueNames
+cn: G_GESIN_GOSD_OMIS
+description: Administradores do SGTI
+uniqueMember: uid=lucio,ou=users,dc=lacstech,dc=local
+
+# Grupo READ: G_GESIN (ROLE_READ no .env)
+dn: cn=G_GESIN,ou=groups,dc=lacstech,dc=local
+objectClass: groupOfUniqueNames
+cn: G_GESIN
+uniqueMember: uid=analista,ou=users,dc=lacstech,dc=local

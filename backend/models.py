@@ -11,6 +11,30 @@ if os.getenv("TESTING") == "1":
     JSONB = JSON
     INET = String
 
+import crypto_guard
+from sqlalchemy.types import TypeDecorator, String as SAString
+
+
+class EncryptedText(TypeDecorator):
+    """Coluna de texto cifrada com crypto_lock (AES-256-GCM) antes de ir ao banco."""
+
+    impl = SAString
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return None
+        if crypto_guard.is_encrypted(value):
+            return value
+        return crypto_guard.encrypt_value(value)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return None
+        if crypto_guard.is_encrypted(value):
+            return crypto_guard.decrypt_value(value)
+        return value
+
 
 # TABELAS DE APOIO
 class Criticidade(Base):
@@ -117,7 +141,7 @@ class ServiceAccount(Base):
     created_at = Column(DateTime, server_default=func.now())
     expires_at = Column(DateTime, nullable=False)
     is_active = Column(Boolean, default=True)
-    totp_secret = Column(String(64), nullable=True)
+    totp_secret = Column(EncryptedText, nullable=True)
     totp_enabled = Column(Boolean, default=False, nullable=False, server_default="false")
 
     def set_token(self, token: str) -> None:
@@ -224,6 +248,39 @@ class InstanciaAplicacao(Base):
     ativo = relationship("Ativo")
 
 
+# TABELA DOCUMENTO (BASE DE CONHECIMENTO - MANUAIS E PROCEDIMENTOS)
+class Documento(Base):
+    __tablename__ = "documento"
+
+    id = Column(Integer, primary_key=True)
+    nome = Column(String(255), unique=True, nullable=False, index=True)
+    arquivo = Column(String(512), nullable=False)
+    titulo = Column(String(255))
+    conteudo_hash = Column(String(64), nullable=False)
+    indexado_em = Column(DateTime, server_default=func.now())
+    atualizado_em = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    trechos = relationship(
+        "TrechoDocumento", back_populates="documento", cascade="all, delete-orphan"
+    )
+
+
+# TABELA TRECHO DOCUMENTO (CHUNK COM EMBEDDING)
+class TrechoDocumento(Base):
+    __tablename__ = "trecho_documento"
+
+    id = Column(Integer, primary_key=True)
+    documento_id = Column(
+        Integer, ForeignKey("documento.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    ordem = Column(Integer, nullable=False)
+    titulo_secao = Column(String(255))
+    conteudo = Column(Text, nullable=False)
+    embedding = Column(JSONB, nullable=False)
+
+    documento = relationship("Documento", back_populates="trechos")
+
+
 # TABELA AUDIT LOG
 class AuditLog(Base):
     __tablename__ = "audit_log"
@@ -234,7 +291,7 @@ class AuditLog(Base):
     acao = Column(String(50))
     antes = Column(JSONB)
     depois = Column(JSONB)
-    usuario = Column(String(255))
+    usuario = Column(EncryptedText)
     created_at = Column(DateTime, server_default=func.now(), index=True)
 
     __table_args__ = (

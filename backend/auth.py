@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
+import crypto_guard
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/ad/login", auto_error=False)
 
@@ -21,12 +22,20 @@ load_dotenv()
 API_KEY_NAME = "X-Service-Token"
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
+# Trava secundária: autenticação só funciona com o crypto_lock desbloqueado
+def _require_unlocked() -> None:
+    if not crypto_guard.is_unlocked():
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Sistema bloqueado: crypto_lock não verificado.",
+        )
+
 def get_current_actor(
     db: Session = Depends(get_db),
     bearer_token: Optional[str] = Depends(oauth2_scheme),
     x_service_token: Optional[str] = Header(None, alias="x-service-token")
 ) -> models.ServiceAccount:
-    
+    _require_unlocked()
     # 1. Se veio Bearer Token (Frontend / Usuário AD)
     if bearer_token:
         try:
@@ -40,16 +49,24 @@ def get_current_actor(
         if service:
             return service
 
+    if not bearer_token and not x_service_token:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Autenticação necessária via Bearer Token (AD) ou X-Service-Token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Autenticação necessária via Bearer Token (AD) ou X-Service-Token",
+        detail="Token inválido ou expirado",
         headers={"WWW-Authenticate": "Bearer"},
     )
 
 def get_service_account(
-    api_key: str = Depends(api_key_header), 
+    api_key: str = Depends(api_key_header),
     db: Session = Depends(get_db)
 ):
+    _require_unlocked()
     if not api_key:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 

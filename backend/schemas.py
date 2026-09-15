@@ -179,6 +179,64 @@ class ZabbixOllamaObservationResponse(BaseModel):
     zabbix_result: dict
 
 
+# ---- Base de conhecimento (RAG: nomic-embed-text + llama3.2) ----
+
+class KnowledgeIndexRequest(BaseModel):
+    """Solicita (re)indexação de um diretório de Markdown."""
+    diretorio: Optional[str] = None
+    recriar: bool = False
+
+class TrechoCitado(BaseModel):
+    documento: str
+    arquivo: str
+    titulo_secao: Optional[str] = None
+    score: float
+    conteudo: str
+
+class KnowledgeIndexResponse(BaseModel):
+    arquivos_encontrados: int
+    documentos_indexados: int
+    trechos_indexados: int
+    documentos_removidos: int
+    duracao_segundos: float
+
+class KnowledgeSearchRequest(BaseModel):
+    query: str
+    top_k: int = 5
+
+class KnowledgeSearchResponse(BaseModel):
+    query: str
+    resultados: list[TrechoCitado]
+
+class KnowledgeAskRequest(BaseModel):
+    pergunta: str
+    top_k: int = 5
+    chat_model: Optional[str] = None
+    embed_model: Optional[str] = None
+
+class KnowledgeAskResponse(BaseModel):
+    pergunta: str
+    resposta: str
+    trechos: list[TrechoCitado]
+
+class AlarmAnalysisRequest(BaseModel):
+    """Payload do webhook do Zabbix para análise de alarme via RAG + CMDB."""
+    event_id: str
+    host: str
+    problema: str
+    severidade: Optional[str] = None
+    mensagem: Optional[str] = None
+    top_k: int = 5
+
+class AlarmAnalysisResponse(BaseModel):
+    event_id: str
+    host: str
+    problema: str
+    analise: str
+    trechos: list[TrechoCitado]
+    contexto_cmdb: dict
+
+
 class TipoRelacionamentoBase(BaseModel):
     nome: str
     descricao: Optional[str] = None
