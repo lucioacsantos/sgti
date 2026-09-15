@@ -119,3 +119,55 @@ def test_delete_ativo(db_session, auth_headers):
 def test_auth_required():
     response = client.get("/ativos/")
     assert response.status_code == 403
+
+def _criar_referencias(db_session):
+    tipo = models.TipoAtivo(nome="Servidor")
+    status = models.StatusAtivo(nome="Ativo")
+    ambiente_prod = models.Ambiente(nome="Produção")
+    ambiente_dev = models.Ambiente(nome="Desenvolvimento")
+    area_ti = models.Areas(nome="Tecnologia", sigla="TI")
+    area_rh = models.Areas(nome="Recursos Humanos", sigla="RH")
+    db_session.add_all([tipo, status, ambiente_prod, ambiente_dev, area_ti, area_rh])
+    db_session.commit()
+    return tipo, status, ambiente_prod, ambiente_dev, area_ti, area_rh
+
+
+def test_read_ativos_filtro_search(db_session, auth_headers):
+    tipo, _, _, _, ti, rh = _criar_referencias(db_session)
+    client.post("/ativos/", json={"nome": "server-web", "tipo_id": tipo.id, "areas_id": ti.id}, headers=auth_headers)
+    client.post("/ativos/", json={"nome": "server-banco", "tipo_id": tipo.id, "areas_id": rh.id}, headers=auth_headers)
+
+    response = client.get("/ativos/", params={"search": "web"}, headers=auth_headers)
+    assert response.status_code == 200
+    nomes = [a["nome"] for a in response.json()]
+    assert nomes == ["server-web"]
+
+
+def test_read_ativos_filtro_ambiente(db_session, auth_headers):
+    tipo, _, prod, dev, _, _ = _criar_referencias(db_session)
+    client.post("/ativos/", json={"nome": "server-prod", "tipo_id": tipo.id, "ambiente_id": prod.id}, headers=auth_headers)
+    client.post("/ativos/", json={"nome": "server-dev", "tipo_id": tipo.id, "ambiente_id": dev.id}, headers=auth_headers)
+
+    response = client.get("/ativos/", params={"ambiente_id": prod.id}, headers=auth_headers)
+    nomes = [a["nome"] for a in response.json()]
+    assert nomes == ["server-prod"]
+
+
+def test_read_ativos_filtro_areas(db_session, auth_headers):
+    tipo, _, _, _, ti, rh = _criar_referencias(db_session)
+    client.post("/ativos/", json={"nome": "server-ti", "tipo_id": tipo.id, "areas_id": ti.id}, headers=auth_headers)
+    client.post("/ativos/", json={"nome": "server-rh", "tipo_id": tipo.id, "areas_id": rh.id}, headers=auth_headers)
+
+    response = client.get("/ativos/", params={"areas_id": rh.id}, headers=auth_headers)
+    nomes = [a["nome"] for a in response.json()]
+    assert nomes == ["server-rh"]
+
+
+def test_read_ativos_ordenado_alfabeticamente(db_session, auth_headers):
+    tipo, _, _, _, _, _ = _criar_referencias(db_session)
+    for nome in ["zulu", "Alfa", "mike", "Bravo"]:
+        client.post("/ativos/", json={"nome": nome, "tipo_id": tipo.id}, headers=auth_headers)
+
+    response = client.get("/ativos/", headers=auth_headers)
+    nomes = [a["nome"] for a in response.json()]
+    assert nomes == sorted(nomes, key=str.lower)

@@ -83,6 +83,8 @@ def read_ativos(
     if areas_id:
         query = query.filter(models.Ativo.areas_id == areas_id)
 
+    query = query.order_by(func.lower(models.Ativo.nome))
+
     ativos = query.offset(skip).limit(min(limit, 5000)).all()
     return ativos
 
