@@ -4,7 +4,7 @@ import { useAuthStore } from '@/stores/auth'
 import {
   ativosService, ipService, auditService, referenceService
 } from '@/services/cmdb.services'
-import type { Ativo, EnderecoIp, AuditLog } from '@/services/cmdb'
+import type { Ativo, EnderecoIp, AuditLog, Ambiente, Area } from '@/services/cmdb'
 import PaginationBar from '@/components/PaginationBar.vue'
 import ErrorAlert from '@/components/ErrorAlert.vue'
 import LoadingState from '@/components/LoadingState.vue'
@@ -23,6 +23,20 @@ const hasMore = ref(false)
 const isLoading = ref(false)
 const errorMessage = ref<string | null>(null)
 const search = ref('')
+const ambienteFilter = ref<number | null>(null)
+const areaFilter = ref<number | null>(null)
+
+const hasActiveFilter = computed(() =>
+  !!search.value.trim() || ambienteFilter.value !== null || areaFilter.value !== null
+)
+
+// ===== Debounce da busca =====
+const searchInput = ref('')
+let searchTimer: ReturnType<typeof setTimeout> | undefined
+watch(searchInput, (val) => {
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => { search.value = val }, 350)
+})
 
 // ===== Referências para exibição =====
 const tipos = ref<Map<number, string>>(new Map())
@@ -30,6 +44,8 @@ const ambientes = ref<Map<number, string>>(new Map())
 const statuses = ref<Map<number, string>>(new Map())
 const criticidades = ref<Map<number, string>>(new Map())
 const areas = ref<Map<number, string>>(new Map())
+const ambienteOptions = ref<Ambiente[]>([])
+const areaOptions = ref<Area[]>([])
 
 // ===== Detalhe do ativo =====
 const selected = ref<Ativo | null>(null)
@@ -43,22 +59,24 @@ const deleting = ref(false)
 
 const canDelete = computed(() => authStore.isAdmin || authStore.roles.includes('analyst'))
 
-const filtered = computed(() => {
-  if (!search.value) return ativos.value
-  const term = search.value.toLowerCase()
-  return ativos.value.filter(a =>
-    a.nome.toLowerCase().includes(term) ||
-    (a.descricao || '').toLowerCase().includes(term)
-  )
-})
-
 async function loadPage() {
   isLoading.value = true
   errorMessage.value = null
   try {
-    const data = await ativosService.list((page.value - 1) * pageSize.value, pageSize.value)
+    const filters = hasActiveFilter.value
+      ? {
+          search: search.value.trim() || undefined,
+          ambiente_id: ambienteFilter.value ?? undefined,
+          areas_id: areaFilter.value ?? undefined
+        }
+      : undefined
+    const data = await ativosService.list(
+      hasActiveFilter.value ? 0 : (page.value - 1) * pageSize.value,
+      hasActiveFilter.value ? 5000 : pageSize.value,
+      filters
+    )
     ativos.value = data
-    hasMore.value = data.length >= pageSize.value
+    hasMore.value = !hasActiveFilter.value && data.length >= pageSize.value
   } catch (err) {
     errorMessage.value = String(err)
     ativos.value = []
@@ -66,6 +84,23 @@ async function loadPage() {
     isLoading.value = false
   }
 }
+
+function clearFilters() {
+  searchInput.value = ''
+  clearTimeout(searchTimer)
+  search.value = ''
+  ambienteFilter.value = null
+  areaFilter.value = null
+  page.value = 1
+}
+
+watch([search, ambienteFilter, areaFilter], () => {
+  if (page.value === 1) {
+    loadPage()
+  } else {
+    page.value = 1 // watcher de page dispara o loadPage
+  }
+})
 
 async function loadReferences() {
   const [t, a, s, c, ar] = await Promise.allSettled([
@@ -76,10 +111,16 @@ async function loadReferences() {
     referenceService.areas()
   ])
   if (t.status === 'fulfilled') tipos.value = new Map(t.value.map(x => [x.id, x.nome]))
-  if (a.status === 'fulfilled') ambientes.value = new Map(a.value.map(x => [x.id, x.nome]))
+  if (a.status === 'fulfilled') {
+    ambientes.value = new Map(a.value.map(x => [x.id, x.nome]))
+    ambienteOptions.value = a.value
+  }
   if (s.status === 'fulfilled') statuses.value = new Map(s.value.map(x => [x.id, x.nome]))
   if (c.status === 'fulfilled') criticidades.value = new Map(c.value.map(x => [x.id, x.nivel]))
-  if (ar.status === 'fulfilled') areas.value = new Map(ar.value.map(x => [x.id, x.sigla]))
+  if (ar.status === 'fulfilled') {
+    areas.value = new Map(ar.value.map(x => [x.id, x.sigla]))
+    areaOptions.value = ar.value
+  }
 }
 
 watch(page, loadPage)
@@ -169,15 +210,42 @@ onMounted(async () => {
 
     <ErrorAlert :error="errorMessage" />
 
-    <!-- Busca -->
-    <div class="relative w-full max-w-sm">
-      <Search class="w-4 h-4 text-slate-500 absolute left-3 top-2.5 pointer-events-none" />
-      <input
-        v-model="search"
-        type="text"
-        placeholder="Filtrar ativos da página por nome ou descrição..."
-        class="w-full pl-9 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition-colors"
-      />
+    <!-- Filtros -->
+    <div class="flex flex-col sm:flex-row sm:items-end gap-3">
+      <div class="relative flex-1 max-w-md">
+        <Search class="w-4 h-4 text-slate-500 absolute left-3 top-2.5 pointer-events-none" />
+        <input
+          v-model="searchInput"
+          type="text"
+          placeholder="Filtrar por nome ou descrição..."
+          class="w-full pl-9 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition-colors"
+        />
+      </div>
+
+      <select
+        v-model="ambienteFilter"
+        class="px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors"
+      >
+        <option :value="null">Ambiente: todos</option>
+        <option v-for="amb in ambienteOptions" :key="amb.id" :value="amb.id">{{ amb.nome }}</option>
+      </select>
+
+      <select
+        v-model="areaFilter"
+        class="px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors"
+      >
+        <option :value="null">Área: todas</option>
+        <option v-for="area in areaOptions" :key="area.id" :value="area.id">{{ area.sigla }} — {{ area.nome }}</option>
+      </select>
+
+      <button
+        v-if="hasActiveFilter"
+        @click="clearFilters"
+        class="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs rounded-lg transition-colors"
+      >
+        <X class="w-3.5 h-3.5" />
+        Limpar filtros
+      </button>
     </div>
 
     <!-- Tabela -->
@@ -199,13 +267,13 @@ onMounted(async () => {
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-800/60 text-slate-300">
-            <tr v-if="filtered.length === 0">
+            <tr v-if="ativos.length === 0">
               <td colspan="8" class="p-8 text-center text-slate-500">
-                {{ search ? 'Nenhum ativo corresponde ao filtro nesta página.' : 'Nenhum ativo cadastrado.' }}
+                {{ hasActiveFilter ? 'Nenhum ativo corresponde aos filtros aplicados.' : 'Nenhum ativo cadastrado.' }}
               </td>
             </tr>
             <tr
-              v-for="ativo in filtered"
+              v-for="ativo in ativos"
               :key="ativo.id"
               class="hover:bg-slate-900/40 transition-colors"
             >
@@ -250,12 +318,16 @@ onMounted(async () => {
         </table>
 
         <PaginationBar
+          v-if="!hasActiveFilter"
           v-model:page="page"
           :page-size="pageSize"
           :has-more="hasMore"
           :count="ativos.length"
           :disabled="isLoading"
         />
+        <div v-else class="px-4 py-3 border-t border-slate-800 bg-slate-950/60 text-[11px] text-slate-500 font-mono">
+          Exibindo todos os registros correspondentes aos filtros — {{ ativos.length }} resultado(s)
+        </div>
       </template>
     </div>
 

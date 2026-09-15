@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from typing import Optional
 import models, schemas, auth, audit
 from database import get_db
@@ -53,11 +53,37 @@ def create_ativo(
 def read_ativos(
     skip: int = 0,
     limit: int = 50,
+    search: Optional[str] = None,
+    ambiente_id: Optional[int] = None,
+    areas_id: Optional[int] = None,
     db: Session = Depends(get_db),
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
-    logger.debug("Listing assets", extra={"service_account": current_service.name, "skip": skip, "limit": limit})
-    ativos = db.query(models.Ativo).offset(skip).limit(min(limit, 100)).all()
+    logger.debug(
+        "Listing assets",
+        extra={
+            "service_account": current_service.name,
+            "skip": skip,
+            "limit": limit,
+            "search": search,
+            "ambiente_id": ambiente_id,
+            "areas_id": areas_id,
+        },
+    )
+    query = db.query(models.Ativo)
+
+    if search:
+        termo = f"%{search.lower()}%"
+        query = query.filter(or_(
+            func.lower(models.Ativo.nome).like(termo),
+            func.lower(models.Ativo.descricao).like(termo),
+        ))
+    if ambiente_id:
+        query = query.filter(models.Ativo.ambiente_id == ambiente_id)
+    if areas_id:
+        query = query.filter(models.Ativo.areas_id == areas_id)
+
+    ativos = query.offset(skip).limit(min(limit, 5000)).all()
     return ativos
 
 
