@@ -227,5 +227,7 @@ def answer_question(
     trechos = search(db, pergunta, top_k)
     contexto = build_context(trechos)
     prompt = RAG_USER_TEMPLATE.format(contexto=contexto or "(nenhum trecho recuperado)", pergunta=pergunta)
-    resposta = ollama.chat(prompt, model=chat_model, system=RAG_SYSTEM_PROMPT)
+    # num_ctx 4096: RAG tipico usa <2k tokens; 8192 reserva VRAM desnecessaria
+    # (em GPUs pequenas causa descarte de modelos e cold-start lento)
+    resposta = ollama.chat(prompt, model=chat_model, system=RAG_SYSTEM_PROMPT, num_ctx=4096)
     return {"pergunta": pergunta, "resposta": resposta, "trechos": trechos}

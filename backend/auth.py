@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from typing import cast, Optional, Union
 from urllib import error, request
-from ad_auth import get_current_user
+from ldap_backend import get_current_user
 import json
 import models, datetime
 import os

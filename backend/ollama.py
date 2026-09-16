@@ -14,6 +14,9 @@ logger = logging.getLogger(__name__)
 DEFAULT_CHAT_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2")
 DEFAULT_EMBED_MODEL = os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text")
 OLLAMA_BASE_URL = os.getenv("OLLAMA_API_URL", "http://localhost:11434").rstrip("/")
+# Mantem modelos residentes na GPU/RAM entre chamadas (evita cold-start de
+# segundos a cada troca embed<->chat em GPUs pequenas). "-1" = nunca descarrega.
+OLLAMA_KEEP_ALIVE = os.getenv("OLLAMA_KEEP_ALIVE", "30m")
 
 
 def _post(path: str, payload: dict, timeout: int = 300) -> dict:
@@ -56,6 +59,7 @@ def chat(
         "model": model or DEFAULT_CHAT_MODEL,
         "messages": messages,
         "stream": False,
+        "keep_alive": OLLAMA_KEEP_ALIVE,
         "options": {"temperature": temperature, "num_ctx": num_ctx},
     }
     if images:
@@ -77,7 +81,7 @@ def embed(texts: list[str], model: str | None = None) -> list[list[float]]:
         return []
     response_data = _post(
         "/api/embed",
-        {"model": model or DEFAULT_EMBED_MODEL, "input": texts},
+        {"model": model or DEFAULT_EMBED_MODEL, "input": texts, "keep_alive": OLLAMA_KEEP_ALIVE},
     )
     embeddings = response_data.get("embeddings")
     if embeddings is None:
@@ -101,7 +105,12 @@ def generate(question: str, model: str | None = None) -> str:
     """Compatibilidade com o formato legado /api/generate."""
     response_data = _post(
         "/api/generate",
-        {"model": model or DEFAULT_CHAT_MODEL, "prompt": question, "stream": False},
+        {
+            "model": model or DEFAULT_CHAT_MODEL,
+            "prompt": question,
+            "stream": False,
+            "keep_alive": OLLAMA_KEEP_ALIVE,
+        },
     )
     answer = response_data.get("response")
     if answer is None:
