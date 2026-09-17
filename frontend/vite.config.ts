@@ -13,4 +13,11 @@ export default defineConfig({
       '@': path.resolve(import.meta.dirname, './src'),
     },
   },
+  server: {
+    host: '0.0.0.0',
+    allowedHosts: [
+      'sgti-cmdb.energia.org.br',
+      'localhost',
+    ],
+  },
 })
