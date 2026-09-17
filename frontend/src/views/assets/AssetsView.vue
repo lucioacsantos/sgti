@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import * as XLSX from 'xlsx'
 import { useAuthStore } from '@/stores/auth'
 import {
   ativosService, ipService, auditService, referenceService
@@ -10,7 +11,7 @@ import ErrorAlert from '@/components/ErrorAlert.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import {
-  Server, Search, Trash2, Eye, X, Globe, History, RefreshCw
+  Server, Search, Trash2, Eye, X, Globe, History, RefreshCw, Download
 } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
@@ -58,6 +59,61 @@ const toDelete = ref<Ativo | null>(null)
 const deleting = ref(false)
 
 const canDelete = computed(() => authStore.isAdmin || authStore.roles.includes('analyst'))
+
+// ===== Exportação XLSX =====
+const exporting = ref(false)
+
+async function exportToXlsx() {
+  if (exporting.value) return
+  exporting.value = true
+  errorMessage.value = null
+  try {
+    let data: Ativo[]
+    if (hasActiveFilter.value) {
+      data = await ativosService.list(0, 5000, {
+        search: search.value.trim() || undefined,
+        ambiente_id: ambienteFilter.value ?? undefined,
+        areas_id: areaFilter.value ?? undefined
+      })
+    } else {
+      data = []
+      let skip = 0
+      for (;;) {
+        const pageData = await ativosService.list(skip, 1000)
+        data.push(...pageData)
+        if (pageData.length < 1000) break
+        skip += 1000
+      }
+    }
+
+    const rows = data.map(a => ({
+      'ID': a.id,
+      'Nome': a.nome,
+      'Descrição': a.descricao || '',
+      'Tipo': tipos.value.get(a.tipo_id) || '',
+      'Ambiente': a.ambiente_id ? (ambientes.value.get(a.ambiente_id) || '') : '',
+      'Status': a.status_id ? (statuses.value.get(a.status_id) || '') : '',
+      'Criticidade': a.criticidade_id ? (criticidades.value.get(a.criticidade_id) || '') : '',
+      'Área': a.areas_id ? (areas.value.get(a.areas_id) || '') : '',
+      'Criado em': a.created_at ? new Date(a.created_at).toLocaleString('pt-BR') : ''
+    }))
+
+    const ws = XLSX.utils.json_to_sheet(rows)
+    ws['!cols'] = [
+      { wch: 8 }, { wch: 30 }, { wch: 50 }, { wch: 18 },
+      { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 20 }, { wch: 20 }
+    ]
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Ativos')
+
+    const suffix = hasActiveFilter.value ? `filtrado_${new Date().toISOString().slice(0, 10)}` : new Date().toISOString().slice(0, 10)
+    XLSX.writeFile(wb, `ativos_${suffix}.xlsx`)
+  } catch (err) {
+    errorMessage.value = String(err)
+  } finally {
+    exporting.value = false
+  }
+}
 
 async function loadPage() {
   isLoading.value = true
@@ -198,14 +254,26 @@ onMounted(async () => {
         </p>
       </div>
 
-      <button
-        @click="loadPage"
-        :disabled="isLoading"
-        class="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-lg transition-colors disabled:opacity-50"
-      >
-        <RefreshCw class="w-3.5 h-3.5" :class="{ 'animate-spin': isLoading }" />
-        Atualizar
-      </button>
+      <div class="flex items-center gap-2">
+        <button
+          @click="exportToXlsx"
+          :disabled="exporting"
+          class="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-lg transition-colors disabled:opacity-50"
+          :title="hasActiveFilter ? 'Exportar resultado da filtragem em XLSX' : 'Exportar lista completa em XLSX'"
+        >
+          <Download class="w-3.5 h-3.5" :class="{ 'animate-pulse': exporting }" />
+          {{ exporting ? 'Exportando...' : 'Exportar XLSX' }}
+        </button>
+
+        <button
+          @click="loadPage"
+          :disabled="isLoading"
+          class="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-lg transition-colors disabled:opacity-50"
+        >
+          <RefreshCw class="w-3.5 h-3.5" :class="{ 'animate-spin': isLoading }" />
+          Atualizar
+        </button>
+      </div>
     </div>
 
     <ErrorAlert :error="errorMessage" />

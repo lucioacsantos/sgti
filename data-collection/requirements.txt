@@ -1,41 +1,41 @@
 # Data Collection Service Requirements
 
 # Core
-fastapi
-uvicorn
-sqlalchemy
-pydantic
-pydantic-settings
-python-dotenv
-asyncpg
-psycopg2-binary
+fastapi==0.141.1
+uvicorn==0.53.0
+sqlalchemy==2.0.52
+pydantic==2.13.5
+pydantic-settings==2.15.0
+python-dotenv==1.2.3
+asyncpg==0.31.0
+psycopg2-binary==2.9.13
 
 # HTTP Client
-httpx
+httpx==0.28.1
 
 # VMware
-pyvmomi
+pyvmomi==9.1.1.0
 
 # Scheduling
-apscheduler
+apscheduler==3.11.3
 
 # Utilities
-python-multipart
-email-validator
-pyyaml
-jinja2
+python-multipart==0.0.32
+email-validator==2.3.0
+pyyaml==6.0.3
+jinja2==3.1.6
 
 # Security
-bcrypt
-python-jose
-passlib
+bcrypt==5.0.0
+python-jose==3.5.0
+passlib==1.7.4
 
 # Testing
-pytest
-pytest-asyncio
-httpx
-faker
+pytest==9.1.1
+pytest-asyncio==1.4.0
+httpx==0.28.1
+faker==40.39.0
 
 # Monitoring
-prometheus-client
-structlog
+prometheus-client==0.26.0
+structlog==26.1.0
