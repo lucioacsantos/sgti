@@ -54,6 +54,7 @@ def read_ativos(
     skip: int = 0,
     limit: int = 50,
     search: Optional[str] = None,
+    tipo_id: Optional[int] = None,
     ambiente_id: Optional[int] = None,
     areas_id: Optional[int] = None,
     db: Session = Depends(get_db),
@@ -66,6 +67,7 @@ def read_ativos(
             "skip": skip,
             "limit": limit,
             "search": search,
+            "tipo_id": tipo_id,
             "ambiente_id": ambiente_id,
             "areas_id": areas_id,
         },
@@ -78,6 +80,8 @@ def read_ativos(
             func.lower(models.Ativo.nome).like(termo),
             func.lower(models.Ativo.descricao).like(termo),
         ))
+    if tipo_id:
+        query = query.filter(models.Ativo.tipo_id == tipo_id)
     if ambiente_id:
         query = query.filter(models.Ativo.ambiente_id == ambiente_id)
     if areas_id:

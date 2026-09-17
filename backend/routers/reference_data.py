@@ -82,7 +82,7 @@ def read_areas(
 # Areas
 @router.post("/admin/areas", response_model=schemas.AreasResponse, status_code=201)
 def create_area(
-    area: schemas.AreasResponse,
+    area: schemas.AreasCreate,
     db: Session = Depends(get_db),
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
@@ -97,7 +97,7 @@ def create_area(
 @router.put("/admin/areas/{area_id}", response_model=schemas.AreasResponse)
 def update_area(
     area_id: int,
-    area: schemas.AreasResponse,
+    area: schemas.AreasCreate,
     db: Session = Depends(get_db),
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
@@ -129,7 +129,7 @@ def delete_area(
 # Asset Types
 @router.post("/admin/asset-types", response_model=schemas.TipoAtivoResponse, status_code=201)
 def create_asset_type(
-    tipo: schemas.TipoAtivoResponse,
+    tipo: schemas.TipoAtivoCreate,
     db: Session = Depends(get_db),
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
@@ -144,7 +144,7 @@ def create_asset_type(
 @router.put("/admin/asset-types/{tipo_id}", response_model=schemas.TipoAtivoResponse)
 def update_asset_type(
     tipo_id: int,
-    tipo: schemas.TipoAtivoResponse,
+    tipo: schemas.TipoAtivoCreate,
     db: Session = Depends(get_db),
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
@@ -175,7 +175,7 @@ def delete_asset_type(
 # Environments
 @router.post("/admin/environments", response_model=schemas.AmbienteResponse, status_code=201)
 def create_environment(
-    ambiente: schemas.AmbienteResponse,
+    ambiente: schemas.AmbienteCreate,
     db: Session = Depends(get_db),
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
@@ -190,7 +190,7 @@ def create_environment(
 @router.put("/admin/environments/{ambiente_id}", response_model=schemas.AmbienteResponse)
 def update_environment(
     ambiente_id: int,
-    ambiente: schemas.AmbienteResponse,
+    ambiente: schemas.AmbienteCreate,
     db: Session = Depends(get_db),
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
@@ -221,7 +221,7 @@ def delete_environment(
 # Statuses
 @router.post("/admin/statuses", response_model=schemas.StatusAtivoResponse, status_code=201)
 def create_status(
-    status: schemas.StatusAtivoResponse,
+    status: schemas.StatusAtivoCreate,
     db: Session = Depends(get_db),
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
@@ -236,7 +236,7 @@ def create_status(
 @router.put("/admin/statuses/{status_id}", response_model=schemas.StatusAtivoResponse)
 def update_status(
     status_id: int,
-    status: schemas.StatusAtivoResponse,
+    status: schemas.StatusAtivoCreate,
     db: Session = Depends(get_db),
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
@@ -267,7 +267,7 @@ def delete_status(
 # Criticities
 @router.post("/admin/criticities", response_model=schemas.CriticidadeResponse, status_code=201)
 def create_criticidade(
-    criticidade: schemas.CriticidadeResponse,
+    criticidade: schemas.CriticidadeCreate,
     db: Session = Depends(get_db),
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
@@ -282,7 +282,7 @@ def create_criticidade(
 @router.put("/admin/criticities/{criticidade_id}", response_model=schemas.CriticidadeResponse)
 def update_criticidade(
     criticidade_id: int,
-    criticidade: schemas.CriticidadeResponse,
+    criticidade: schemas.CriticidadeCreate,
     db: Session = Depends(get_db),
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):

@@ -5,7 +5,7 @@ import { useAuthStore } from '@/stores/auth'
 import {
   ativosService, ipService, auditService, referenceService
 } from '@/services/cmdb.services'
-import type { Ativo, EnderecoIp, AuditLog, Ambiente, Area } from '@/services/cmdb'
+import type { Ativo, EnderecoIp, AuditLog, Ambiente, Area, TipoAtivo } from '@/services/cmdb'
 import PaginationBar from '@/components/PaginationBar.vue'
 import ErrorAlert from '@/components/ErrorAlert.vue'
 import LoadingState from '@/components/LoadingState.vue'
@@ -24,11 +24,12 @@ const hasMore = ref(false)
 const isLoading = ref(false)
 const errorMessage = ref<string | null>(null)
 const search = ref('')
+const tipoFilter = ref<number | null>(null)
 const ambienteFilter = ref<number | null>(null)
 const areaFilter = ref<number | null>(null)
 
 const hasActiveFilter = computed(() =>
-  !!search.value.trim() || ambienteFilter.value !== null || areaFilter.value !== null
+  !!search.value.trim() || tipoFilter.value !== null || ambienteFilter.value !== null || areaFilter.value !== null
 )
 
 // ===== Debounce da busca =====
@@ -45,6 +46,7 @@ const ambientes = ref<Map<number, string>>(new Map())
 const statuses = ref<Map<number, string>>(new Map())
 const criticidades = ref<Map<number, string>>(new Map())
 const areas = ref<Map<number, string>>(new Map())
+const tipoOptions = ref<TipoAtivo[]>([])
 const ambienteOptions = ref<Ambiente[]>([])
 const areaOptions = ref<Area[]>([])
 
@@ -72,6 +74,7 @@ async function exportToXlsx() {
     if (hasActiveFilter.value) {
       data = await ativosService.list(0, 5000, {
         search: search.value.trim() || undefined,
+        tipo_id: tipoFilter.value ?? undefined,
         ambiente_id: ambienteFilter.value ?? undefined,
         areas_id: areaFilter.value ?? undefined
       })
@@ -122,6 +125,7 @@ async function loadPage() {
     const filters = hasActiveFilter.value
       ? {
           search: search.value.trim() || undefined,
+          tipo_id: tipoFilter.value ?? undefined,
           ambiente_id: ambienteFilter.value ?? undefined,
           areas_id: areaFilter.value ?? undefined
         }
@@ -145,12 +149,13 @@ function clearFilters() {
   searchInput.value = ''
   clearTimeout(searchTimer)
   search.value = ''
+  tipoFilter.value = null
   ambienteFilter.value = null
   areaFilter.value = null
   page.value = 1
 }
 
-watch([search, ambienteFilter, areaFilter], () => {
+watch([search, tipoFilter, ambienteFilter, areaFilter], () => {
   if (page.value === 1) {
     loadPage()
   } else {
@@ -166,7 +171,10 @@ async function loadReferences() {
     referenceService.criticidades(),
     referenceService.areas()
   ])
-  if (t.status === 'fulfilled') tipos.value = new Map(t.value.map(x => [x.id, x.nome]))
+  if (t.status === 'fulfilled') {
+    tipos.value = new Map(t.value.map(x => [x.id, x.nome]))
+    tipoOptions.value = t.value
+  }
   if (a.status === 'fulfilled') {
     ambientes.value = new Map(a.value.map(x => [x.id, x.nome]))
     ambienteOptions.value = a.value
@@ -289,6 +297,14 @@ onMounted(async () => {
           class="w-full pl-9 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition-colors"
         />
       </div>
+
+      <select
+        v-model="tipoFilter"
+        class="px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors"
+      >
+        <option :value="null">Tipo: todos</option>
+        <option v-for="tipo in tipoOptions" :key="tipo.id" :value="tipo.id">{{ tipo.nome }}</option>
+      </select>
 
       <select
         v-model="ambienteFilter"

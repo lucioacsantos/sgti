@@ -104,11 +104,17 @@ class TipoAtivoResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class TipoAtivoCreate(BaseModel):
+    nome: str
+
 class AmbienteResponse(BaseModel):
     id: int
     nome: str
 
     model_config = ConfigDict(from_attributes=True)
+
+class AmbienteCreate(BaseModel):
+    nome: str
 
 class StatusAtivoResponse(BaseModel):
     id: int
@@ -116,11 +122,17 @@ class StatusAtivoResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class StatusAtivoCreate(BaseModel):
+    nome: str
+
 class CriticidadeResponse(BaseModel):
     id: int
     nivel: str
 
     model_config = ConfigDict(from_attributes=True)
+
+class CriticidadeCreate(BaseModel):
+    nivel: str
 
 class SistemaOperacionalResponse(BaseModel):
     id: int
@@ -159,6 +171,10 @@ class AreasResponse(BaseModel):
     sigla: str
 
     model_config = ConfigDict(from_attributes=True)
+
+class AreasCreate(BaseModel):
+    nome: str
+    sigla: str
 
 class OllamaRequest(BaseModel):
     question: str

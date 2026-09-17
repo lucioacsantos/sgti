@@ -21,9 +21,10 @@ export const healthService = {
 
 // ===== Ativos =====
 export const ativosService = {
-  async list(skip = 0, limit = 50, filters?: { search?: string; ambiente_id?: number; areas_id?: number }): Promise<Ativo[]> {
+  async list(skip = 0, limit = 50, filters?: { search?: string; tipo_id?: number; ambiente_id?: number; areas_id?: number }): Promise<Ativo[]> {
     const params: Record<string, unknown> = { skip, limit }
     if (filters?.search) params.search = filters.search
+    if (filters?.tipo_id) params.tipo_id = filters.tipo_id
     if (filters?.ambiente_id) params.ambiente_id = filters.ambiente_id
     if (filters?.areas_id) params.areas_id = filters.areas_id
     const { data } = await api.get<Ativo[]>('/ativos/', { params })
