@@ -59,6 +59,12 @@ class TwoFADisableRequest(BaseModel):
     password: str
 
 
+class TwoFALoginRequest(BaseModel):
+    username: str
+    password: str
+    code: str
+
+
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
 
@@ -136,7 +142,27 @@ async def ad_login(
         
         # Create or update local user record
         local_user = create_or_update_local_user(db, ad_user)
-        
+
+        # Check if 2FA is required
+        two_fa_enabled = bool(local_user.totp_enabled)
+
+        if two_fa_enabled:
+            # Usuário com 2FA habilitado: NÃO emite tokens até validar o código TOTP.
+            # O frontend deve chamar /auth/2fa/login com as mesmas credenciais + código.
+            return TokenResponse(
+                access_token="",
+                refresh_token="",
+                user={
+                    "id": local_user.id,
+                    "username": ad_user["username"],
+                    "display_name": ad_user["display_name"],
+                    "email": ad_user["email"],
+                    "roles": [],
+                    "groups": ad_user.get("groups", []),
+                },
+                requires_2fa=True,
+            )
+
         # Get user roles from local storage
         import json
         try:
@@ -144,11 +170,7 @@ async def ad_login(
             roles = user_data.get("roles", ["viewer"])
         except:
             roles = ["viewer"]
-        
-        # Check if 2FA is required
-        requires_2fa = False
-        two_fa_enabled = False
-        
+
         # Create tokens
         token_data = {
             "sub": local_user.name,
@@ -183,14 +205,99 @@ async def ad_login(
                 "roles": roles,
                 "groups": ad_user.get("groups", []),
             },
-            requires_2fa=requires_2fa,
+            requires_2fa=False,
         )
-        
+
     except ADAuthError as e:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=f"Authentication service unavailable: {str(e)}"
         )
+
+
+@router.post("/2fa/login", response_model=TokenResponse)
+async def twofa_login(
+    request: TwoFALoginRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Second factor of authentication: validates credentials again + TOTP code.
+    Only issues tokens if totp_enabled is True and the code is valid.
+    """
+    try:
+        ad_user = authenticate_user(request.username, request.password)
+        if not ad_user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid username or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except ADAuthError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Authentication service unavailable: {str(e)}"
+        )
+
+    local_user = create_or_update_local_user(db, ad_user)
+
+    if not local_user.totp_enabled:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="2FA não está habilitado para este usuário. Faça login normal.",
+        )
+
+    if not local_user.totp_secret:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Nenhum segredo 2FA configurado. Peça a um admin para redefinir o 2FA.",
+        )
+
+    totp = pyotp.TOTP(local_user.totp_secret)
+    if not totp.verify(request.code.strip(), valid_window=1):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Código 2FA inválido ou expirado.",
+        )
+
+    import json
+    import hashlib
+    try:
+        user_data = json.loads(local_user.token_hash)
+        roles = user_data.get("roles", ["viewer"])
+    except Exception:
+        roles = ["viewer"]
+
+    token_data = {
+        "sub": local_user.name,
+        "roles": roles,
+        "user_id": local_user.id,
+    }
+
+    access_token = create_access_token(token_data)
+    refresh_token = create_refresh_token(token_data)
+
+    refresh_token_hash = hashlib.sha256(refresh_token.encode('utf-8')).hexdigest()
+
+    local_user.token_hash = json.dumps({
+        "roles": roles,
+        "ad_user": True,
+        "refresh_token_hash": refresh_token_hash
+    })
+    db.commit()
+
+    return TokenResponse(
+        access_token=access_token,
+        refresh_token=refresh_token,
+        user={
+            "id": local_user.id,
+            "username": ad_user["username"],
+            "display_name": ad_user["display_name"],
+            "email": ad_user["email"],
+            "roles": roles,
+            "groups": ad_user.get("groups", []),
+        },
+        requires_2fa=False,
+    )
 
 
 @router.post("/test/login", response_model=TokenResponse)

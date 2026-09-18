@@ -50,9 +50,6 @@ export const ipService = {
     if (ativoId) params.ativo_id = ativoId
     const { data } = await api.get<EnderecoIp[]>('/enderecos-ip/', { params })
     return data
-  },
-  async delete(ipId: number): Promise<void> {
-    await api.delete(`/enderecos-ip/${ipId}`)
   }
 }
 
@@ -173,7 +170,7 @@ export const referenceService = {
   }
 }
 
-// ===== Infraestrutura (somente leitura — criação via automação) =====
+// ===== Infraestrutura (leitura p/ todos; CRUD manual p/ admin) =====
 export const infraService = {
   async aplicacoes(): Promise<Aplicacao[]> {
     const { data } = await api.get<Aplicacao[]>('/aplicacoes/')
@@ -195,14 +192,47 @@ export const infraService = {
     const { data } = await api.get<Servico[]>('/servicos/')
     return data
   },
+  async createServico(payload: { nome: string; tipo?: string; ativo_id?: number | null }): Promise<Servico> {
+    const { data } = await api.post<Servico>('/servicos/', payload)
+    return data
+  },
+  async updateServico(id: number, payload: { nome: string; tipo?: string; ativo_id?: number | null }): Promise<Servico> {
+    const { data } = await api.put<Servico>(`/servicos/${id}`, payload)
+    return data
+  },
+  async deleteServico(id: number): Promise<void> {
+    await api.delete(`/servicos/${id}`)
+  },
   async servicosNegocio(): Promise<ServicoNegocio[]> {
     const { data } = await api.get<ServicoNegocio[]>('/servicos-negocio/')
     return data
+  },
+  async createServicoNegocio(payload: { nome: string; descricao?: string; ativo_id?: number | null }): Promise<ServicoNegocio> {
+    const { data } = await api.post<ServicoNegocio>('/servicos-negocio/', payload)
+    return data
+  },
+  async updateServicoNegocio(id: number, payload: { nome: string; descricao?: string; ativo_id?: number | null }): Promise<ServicoNegocio> {
+    const { data } = await api.put<ServicoNegocio>(`/servicos-negocio/${id}`, payload)
+    return data
+  },
+  async deleteServicoNegocio(id: number): Promise<void> {
+    await api.delete(`/servicos-negocio/${id}`)
   },
   async instancias(aplicacaoId?: number): Promise<InstanciaAplicacao[]> {
     const params = aplicacaoId ? { aplicacao_id: aplicacaoId } : undefined
     const { data } = await api.get<InstanciaAplicacao[]>('/instancias-aplicacao/', { params })
     return data
+  },
+  async createInstancia(payload: { aplicacao_id: number; ativo_id?: number | null; porta?: number | null; path_execucao?: string | null; comando_execucao?: string | null }): Promise<InstanciaAplicacao> {
+    const { data } = await api.post<InstanciaAplicacao>('/instancias-aplicacao/', payload)
+    return data
+  },
+  async updateInstancia(id: number, payload: { aplicacao_id: number; ativo_id?: number | null; porta?: number | null; path_execucao?: string | null; comando_execucao?: string | null }): Promise<InstanciaAplicacao> {
+    const { data } = await api.put<InstanciaAplicacao>(`/instancias-aplicacao/${id}`, payload)
+    return data
+  },
+  async deleteInstancia(id: number): Promise<void> {
+    await api.delete(`/instancias-aplicacao/${id}`)
   },
   async tiposRelacionamento(): Promise<TipoRelacionamento[]> {
     const { data } = await api.get<TipoRelacionamento[]>('/tipos-relacionamento/')
@@ -211,6 +241,17 @@ export const infraService = {
   async relacionamentos(params?: { origem_id?: number; destino_id?: number; skip?: number; limit?: number }): Promise<Relacionamento[]> {
     const { data } = await api.get<Relacionamento[]>('/relacionamentos/', { params })
     return data
+  },
+  async createRelacionamento(payload: { origem_id: number; destino_id: number; tipo_id: number; descricao?: string }): Promise<Relacionamento> {
+    const { data } = await api.post<Relacionamento>('/relacionamentos/', payload)
+    return data
+  },
+  async updateRelacionamento(id: number, payload: { origem_id: number; destino_id: number; tipo_id: number; descricao?: string }): Promise<Relacionamento> {
+    const { data } = await api.put<Relacionamento>(`/relacionamentos/${id}`, payload)
+    return data
+  },
+  async deleteRelacionamento(id: number): Promise<void> {
+    await api.delete(`/relacionamentos/${id}`)
   }
 }
 

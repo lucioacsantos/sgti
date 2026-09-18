@@ -11,7 +11,7 @@ import ErrorAlert from '@/components/ErrorAlert.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import {
-  Server, Search, Trash2, Eye, X, Globe, History, RefreshCw, Download
+  Server, Search, Trash2, Eye, X, Globe, History, RefreshCw, Download, Pencil, Loader2, Check
 } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
@@ -59,6 +59,54 @@ const detailLoading = ref(false)
 // ===== Exclusão =====
 const toDelete = ref<Ativo | null>(null)
 const deleting = ref(false)
+
+// ===== Edição manual (área / criticidade) =====
+const editing = ref(false)
+const saving = ref(false)
+const editForm = ref<{ areas_id: number | null; criticidade_id: number | null }>({ areas_id: null, criticidade_id: null })
+const editTarget = ref<Ativo | null>(null)
+
+function canEdit() {
+  return authStore.isAdmin || authStore.roles.includes('analyst')
+}
+
+function openEdit() {
+  if (!selected.value) return
+  editTarget.value = selected.value
+  editForm.value = {
+    areas_id: selected.value.areas_id ?? null,
+    criticidade_id: selected.value.criticidade_id ?? null
+  }
+  editing.value = true
+}
+
+function closeEdit() {
+  editing.value = false
+  editTarget.value = null
+}
+
+async function saveEdit() {
+  if (!editTarget.value) return
+  saving.value = true
+  errorMessage.value = null
+  try {
+    const payload: Partial<Ativo> = {}
+    if (editForm.value.areas_id !== editTarget.value.areas_id) payload.areas_id = editForm.value.areas_id ?? null
+    if (editForm.value.criticidade_id !== editTarget.value.criticidade_id) payload.criticidade_id = editForm.value.criticidade_id ?? null
+    if (Object.keys(payload).length === 0) {
+      closeEdit()
+      return
+    }
+    const updated = await ativosService.update(editTarget.value.nome, payload)
+    selected.value = updated
+    closeEdit()
+    await loadPage()
+  } catch (err) {
+    errorMessage.value = String(err)
+  } finally {
+    saving.value = false
+  }
+}
 
 const canDelete = computed(() => authStore.isAdmin || authStore.roles.includes('analyst'))
 
@@ -435,7 +483,18 @@ onMounted(async () => {
         <div class="p-5 space-y-6">
           <!-- Atributos -->
           <section>
-            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Atributos</h4>
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Atributos</h4>
+              <button
+                v-if="canEdit()"
+                @click="openEdit"
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-[11px] rounded-lg transition-colors"
+                title="Editar área e criticidade"
+              >
+                <Pencil class="w-3 h-3" />
+                Editar
+              </button>
+            </div>
             <dl class="grid grid-cols-2 gap-3 text-xs">
               <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-lg">
                 <dt class="text-slate-500 mb-1">Ambiente</dt>
@@ -512,7 +571,7 @@ onMounted(async () => {
                 <div class="flex items-center justify-between gap-2 mb-1">
                   <span
                     class="text-[10px] font-bold font-mono px-1.5 py-0.5 rounded"
-                    :class="log.acao === 'CREATE' ? 'bg-emerald-500/10 text-emerald-400' : log.acao === 'DELETE' ? 'bg-rose-500/10 text-rose-400' : 'bg-sky-500/10 text-sky-400'"
+                    :class="log.acao === 'CREATE' ? 'bg-emerald-500/10 text-emerald-400' : log.acao === 'DELETE' ? 'bg-rose-500/10 text-rose-400' : log.acao === 'UPDATE_MANUAL' ? 'bg-violet-500/10 text-violet-400' : 'bg-sky-500/10 text-sky-400'"
                   >
                     {{ log.acao || '—' }}
                   </span>
@@ -527,6 +586,71 @@ onMounted(async () => {
             </div>
           </section>
         </div>
+      </div>
+    </div>
+
+    <!-- Modal de edição manual (área / criticidade) -->
+    <div v-if="editing && editTarget" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+      <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-2xl">
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+          <div>
+            <h3 class="text-sm font-bold text-slate-100 font-mono">{{ editTarget.nome }}</h3>
+            <p class="text-[11px] text-slate-500 mt-0.5">Editar classificação — a alteração será registrada na trilha de auditoria.</p>
+          </div>
+          <button @click="closeEdit" class="text-slate-500 hover:text-slate-300">
+            <X class="w-4 h-4" />
+          </button>
+        </div>
+
+        <form @submit.prevent="saveEdit" class="space-y-4 text-xs">
+          <div>
+            <label class="block font-medium text-slate-300 mb-1">Área</label>
+            <select
+              v-model="editForm.areas_id"
+              class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-emerald-500"
+            >
+              <option :value="null">— sem área —</option>
+              <option v-for="area in areaOptions" :key="area.id" :value="area.id">{{ area.sigla }} — {{ area.nome }}</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-medium text-slate-300 mb-1">Criticidade</label>
+            <select
+              v-model="editForm.criticidade_id"
+              class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-emerald-500"
+            >
+              <option :value="null">— não classificado —</option>
+              <option
+                v-for="(nivel, id) in criticidades"
+                :key="id"
+                :value="id"
+                class="capitalize"
+              >
+                {{ nivel }}
+              </option>
+            </select>
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+            <button
+              type="button"
+              @click="closeEdit"
+              class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              :disabled="saving"
+              class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-semibold transition-colors disabled:opacity-50"
+            >
+              <Loader2 v-if="saving" class="w-3.5 h-3.5 animate-spin" />
+              <Check v-else class="w-3.5 h-3.5" />
+              Salvar
+            </button>
+          </div>
+        </form>
       </div>
     </div>
 

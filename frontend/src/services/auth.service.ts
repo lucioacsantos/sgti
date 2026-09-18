@@ -11,8 +11,8 @@ export interface AuthUser {
 }
 
 export interface TokenResponse {
-  access_token: string
-  refresh_token: string
+  access_token: string | null
+  refresh_token: string | null
   token_type: string
   user: AuthUser
   requires_2fa: boolean
@@ -49,6 +49,10 @@ export interface TwoFASetup {
 export const authService = {
   async login(username: string, password: string): Promise<TokenResponse> {
     const { data } = await api.post<TokenResponse>('/auth/ad/login', { username, password })
+    return data
+  },
+  async loginWith2FA(username: string, password: string, code: string): Promise<TokenResponse> {
+    const { data } = await api.post<TokenResponse>('/auth/2fa/login', { username, password, code })
     return data
   },
   async refresh(refreshToken: string): Promise<TokenResponse> {

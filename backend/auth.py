@@ -22,6 +22,16 @@ load_dotenv()
 API_KEY_NAME = "X-Service-Token"
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
+
+def is_manual_user(account: "models.ServiceAccount") -> bool:
+    """True se o ator autenticado é um usuário AD (alteração manual via front),
+    False se for service account de automação. AD users guardam JSON em token_hash."""
+    try:
+        data = json.loads(account.token_hash)
+        return isinstance(data, dict) and data.get("ad_user") is True
+    except Exception:
+        return False
+
 # Trava secundária: autenticação só funciona com o crypto_lock desbloqueado
 def _require_unlocked() -> None:
     if not crypto_guard.is_unlocked():

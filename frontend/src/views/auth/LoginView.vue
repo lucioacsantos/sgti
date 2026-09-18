@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { Lock, User, ShieldCheck, AlertCircle, Loader2 } from 'lucide-vue-next'
+import { Lock, User, ShieldCheck, AlertCircle, Loader2, Smartphone, ArrowLeft } from 'lucide-vue-next'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -11,6 +11,10 @@ const username = ref('')
 const password = ref('')
 const isLoading = ref(false)
 const errorMessage = ref<string | null>(null)
+
+// Etapa 2FA
+const step = ref<'credentials' | 'twofa'>('credentials')
+const twoFACode = ref('')
 
 async function handleSubmit() {
   if (!username.value || !password.value) {
@@ -23,6 +27,12 @@ async function handleSubmit() {
 
   try {
     await authStore.login(username.value, password.value)
+    if (authStore.requires2FA) {
+      step.value = 'twofa'
+      twoFACode.value = ''
+      password.value = ''
+      return
+    }
     router.push({ name: 'dashboard' })
   } catch (error: any) {
     errorMessage.value = typeof error === 'string'
@@ -31,6 +41,36 @@ async function handleSubmit() {
   } finally {
     isLoading.value = false
   }
+}
+
+async function handleVerify2FA() {
+  const code = twoFACode.value.trim()
+  if (!code || code.length < 6) {
+    errorMessage.value = 'Informe o código de 6 dígitos do seu app autenticador.'
+    return
+  }
+
+  errorMessage.value = null
+  isLoading.value = true
+
+  try {
+    await authStore.verify2FALogin(code)
+    router.push({ name: 'dashboard' })
+  } catch (error: any) {
+    twoFACode.value = ''
+    errorMessage.value = typeof error === 'string'
+      ? error
+      : error?.response?.data?.detail || 'Código 2FA inválido ou expirado. Tente novamente.'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+function backToCredentials() {
+  authStore.cancel2FA()
+  step.value = 'credentials'
+  twoFACode.value = ''
+  errorMessage.value = null
 }
 </script>
 
@@ -61,8 +101,8 @@ async function handleSubmit() {
           <span>{{ errorMessage }}</span>
         </div>
 
-        <!-- Form -->
-        <form @submit.prevent="handleSubmit" class="space-y-4">
+        <!-- Form: Credenciais -->
+        <form v-if="step === 'credentials'" @submit.prevent="handleSubmit" class="space-y-4">
           <div>
             <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
               Usuário de Rede (sAMAccountName)
@@ -111,10 +151,66 @@ async function handleSubmit() {
           </button>
         </form>
 
+        <!-- Form: Verificação 2FA (TOTP) -->
+        <form v-else @submit.prevent="handleVerify2FA" class="space-y-4">
+          <div class="flex items-center gap-3 p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-lg">
+            <div class="h-9 w-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+              <Smartphone class="w-4.5 h-4.5 text-emerald-400" />
+            </div>
+            <div class="text-xs leading-relaxed text-slate-300">
+              <p class="font-semibold text-emerald-400">Verificação em duas etapas</p>
+              <p class="text-slate-400 mt-0.5">
+                Digite o código de 6 dígitos gerado no app autenticador
+                <span v-if="authStore.pending2FAUser" class="text-slate-300">
+                  da conta <span class="font-mono text-emerald-400">{{ authStore.pending2FAUser.display_name }}</span></span>.
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+              Código de Verificação (TOTP)
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                <ShieldCheck class="w-4 h-4" />
+              </div>
+              <input
+                v-model="twoFACode"
+                type="text"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                maxlength="6"
+                required
+                placeholder="000000"
+                class="w-full pl-9 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-lg tracking-[0.5em] text-center text-slate-100 placeholder-slate-700 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors font-mono"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            :disabled="isLoading || twoFACode.length < 6"
+            class="w-full mt-2 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800/50 disabled:cursor-not-allowed text-slate-950 font-semibold text-sm rounded-lg transition-colors flex items-center justify-center gap-2"
+          >
+            <Loader2 v-if="isLoading" class="w-4 h-4 animate-spin text-slate-950" />
+            <span>{{ isLoading ? 'Verificando...' : 'Verificar e Entrar' }}</span>
+          </button>
+
+          <button
+            type="button"
+            @click="backToCredentials"
+            class="w-full py-2 text-xs text-slate-400 hover:text-slate-200 transition-colors flex items-center justify-center gap-1.5"
+          >
+            <ArrowLeft class="w-3.5 h-3.5" />
+            Usar outra conta
+          </button>
+        </form>
+
         <!-- Footer Info -->
         <div class="mt-6 pt-6 border-t border-slate-800/80 text-center">
           <p class="text-[11px] text-slate-500">
-            Autenticação via Active Directory. Acessos monitorados e auditados.
+            Autenticação via Active Directory com verificação em duas etapas (2FA). Acessos monitorados e auditados.
           </p>
         </div>
 

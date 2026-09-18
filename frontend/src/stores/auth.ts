@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { authService, type AuthUser } from '@/services/auth.service'
+import { authService, type AuthUser, type TokenResponse } from '@/services/auth.service'
 import router from '@/router'
 
 export const useAuthStore = defineStore('auth', () => {
@@ -16,12 +16,58 @@ export const useAuthStore = defineStore('auth', () => {
   const roles = computed(() => user.value?.roles ?? [])
   const isAdmin = computed(() => roles.value.includes('admin'))
 
+  const requires2FA = ref(false)
+  const pending2FAUser = ref<{ username: string; display_name: string } | null>(null)
+  let pending2FAPassword: string | null = null
+
   async function login(username: string, password: string) {
     const response = await authService.login(username, password)
 
+    if (response.requires_2fa) {
+      requires2FA.value = true
+      pending2FAPassword = password
+      pending2FAUser.value = {
+        username,
+        display_name: response.user?.display_name || username
+      }
+      return
+    }
+
+    requires2FA.value = false
+    pending2FAUser.value = null
+    setSession(response, response.user.two_fa_enabled ?? false)
+  }
+
+  async function verify2FALogin(code: string) {
+    if (!pending2FAUser.value || !pending2FAPassword) {
+      throw new Error('Nenhuma autenticação pendente de 2FA.')
+    }
+    const username2FA = pending2FAUser.value.username
+    const password2FA = pending2FAPassword
+    const response = await authService.loginWith2FA(username2FA, password2FA, code)
+    if (response.requires_2fa) {
+      throw new Error('Código 2FA inválido ou expirado.')
+    }
+    requires2FA.value = false
+    pending2FAUser.value = null
+    pending2FAPassword = null
+    setSession(response, response.user.two_fa_enabled ?? true)
+  }
+
+  function cancel2FA() {
+    requires2FA.value = false
+    pending2FAUser.value = null
+    pending2FAPassword = null
+  }
+
+  function setSession(response: TokenResponse, twoFaEnabled: boolean) {
+    if (!response.access_token || !response.refresh_token) {
+      throw new Error('Resposta de autenticação sem tokens.')
+    }
+
     token.value = response.access_token
     refreshToken.value = response.refresh_token
-    user.value = { ...response.user, two_fa_enabled: false }
+    user.value = { ...response.user, two_fa_enabled: twoFaEnabled }
 
     localStorage.setItem('access_token', response.access_token)
     localStorage.setItem('refresh_token', response.refresh_token)
@@ -32,7 +78,12 @@ export const useAuthStore = defineStore('auth', () => {
     if (!refreshToken.value) {
       throw new Error('Sem refresh token')
     }
-    const response = await authService.refresh(refreshToken.value)
+    const currentRefresh = refreshToken.value
+    const response = await authService.refresh(currentRefresh)
+
+    if (!response.access_token || !response.refresh_token) {
+      throw new Error('Resposta de refresh sem tokens.')
+    }
 
     token.value = response.access_token
     refreshToken.value = response.refresh_token
@@ -78,7 +129,11 @@ export const useAuthStore = defineStore('auth', () => {
     roles,
     isAdmin,
     isAuthenticated,
+    requires2FA,
+    pending2FAUser,
     login,
+    verify2FALogin,
+    cancel2FA,
     refreshTokens,
     logout,
     syncUser

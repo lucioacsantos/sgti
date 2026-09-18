@@ -108,6 +108,8 @@ def upsert_ativo(
     ).first()
 
     dados = ativo.model_dump(exclude_unset=True)
+    manual = auth.is_manual_user(current_service)
+    acao_update = "UPDATE_MANUAL" if manual else "UPDATE"
 
     if db_ativo:
         antes = audit.model_to_dict(db_ativo)
@@ -120,7 +122,7 @@ def upsert_ativo(
             db=db,
             entidade="ativo",
             entidade_id=db_ativo.id,
-            acao="UPDATE",
+            acao=acao_update,
             antes=antes,
             depois=audit.model_to_dict(db_ativo),
             usuario=current_service.name,
@@ -167,7 +169,7 @@ def upsert_ativo(
                 db=db,
                 entidade="ativo",
                 entidade_id=db_ativo.id,
-                acao="UPDATE",
+                acao=acao_update,
                 antes=antes,
                 depois=audit.model_to_dict(db_ativo),
                 usuario=current_service.name,

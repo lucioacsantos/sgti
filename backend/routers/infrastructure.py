@@ -1,11 +1,33 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import Optional
-import models, schemas, auth
+import models, schemas, auth, audit
 from database import get_db
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+def _require_admin(current_service: models.ServiceAccount) -> None:
+    """Verifica se o ator (usuário AD) possui perfil admin."""
+    import json
+    try:
+        user_data = json.loads(current_service.token_hash)
+        roles = user_data.get("roles", [])
+    except Exception:
+        roles = []
+    if "admin" not in roles:
+        raise HTTPException(status_code=403, detail="Required role(s): ['admin']")
+
+
+def _audit_change(db: Session, entidade: str, entidade_id, acao: str,
+                  antes=None, depois=None, usuario: str = None) -> None:
+    try:
+        audit.create_audit_log(
+            db=db, entidade=entidade, entidade_id=entidade_id, acao=acao,
+            antes=antes, depois=depois, usuario=usuario)
+    except Exception:
+        logger.warning("Falha ao gravar audit log", exc_info=True)
 
 # ENDPOINTS DE CLUSTER
 cluster_router = APIRouter(prefix="/clusters", tags=["Clusters"])
@@ -143,6 +165,55 @@ def read_servico(
     return servico
 
 
+@servico_router.put("/{servico_id}", response_model=schemas.ServicoResponse)
+def update_servico(
+    servico_id: int,
+    servico: schemas.ServicoCreate,
+    db: Session = Depends(get_db),
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
+):
+    """Atualiza um serviço (correção manual — perfil admin)."""
+    _require_admin(current_service)
+    db_servico = db.query(models.Servico).filter(models.Servico.id == servico_id).first()
+    if not db_servico:
+        raise HTTPException(status_code=404, detail="Serviço não encontrado")
+
+    dados = servico.model_dump(exclude_unset=True)
+    if "ativo_id" in dados and dados["ativo_id"]:
+        if not db.query(models.Ativo).filter(models.Ativo.id == dados["ativo_id"]).first():
+            raise HTTPException(status_code=404, detail=f"Ativo id={dados['ativo_id']} não encontrado")
+
+    antes = audit.model_to_dict(db_servico)
+    for campo, valor in dados.items():
+        setattr(db_servico, campo, valor)
+    db.commit()
+    db.refresh(db_servico)
+    _audit_change(db, "servico", db_servico.id, "UPDATE", antes=antes,
+                  depois=audit.model_to_dict(db_servico), usuario=current_service.name)
+    logger.info("Updating service", extra={"service_account": current_service.name, "servico_id": servico_id})
+    return db_servico
+
+
+@servico_router.delete("/{servico_id}", status_code=204)
+def delete_servico(
+    servico_id: int,
+    db: Session = Depends(get_db),
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
+):
+    """Exclui um serviço (correção manual — perfil admin)."""
+    _require_admin(current_service)
+    db_servico = db.query(models.Servico).filter(models.Servico.id == servico_id).first()
+    if not db_servico:
+        raise HTTPException(status_code=404, detail="Serviço não encontrado")
+
+    antes = audit.model_to_dict(db_servico)
+    db.delete(db_servico)
+    db.commit()
+    _audit_change(db, "servico", servico_id, "DELETE", antes=antes, usuario=current_service.name)
+    logger.info("Deleting service", extra={"service_account": current_service.name, "servico_id": servico_id})
+    return None
+
+
 # ENDPOINTS DE SERVIÇO NEGÓCIO
 servico_negocio_router = APIRouter(prefix="/servicos-negocio", tags=["Serviços de Negócio"])
 
@@ -185,6 +256,55 @@ def read_servico_negocio(
     if not servico:
         raise HTTPException(status_code=404, detail="Serviço de negócio não encontrado")
     return servico
+
+
+@servico_negocio_router.put("/{servico_id}", response_model=schemas.ServicoNegocioResponse)
+def update_servico_negocio(
+    servico_id: int,
+    servico: schemas.ServicoNegocioCreate,
+    db: Session = Depends(get_db),
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
+):
+    """Atualiza um serviço de negócio (correção manual — perfil admin)."""
+    _require_admin(current_service)
+    db_servico = db.query(models.ServicoNegocio).filter(models.ServicoNegocio.id == servico_id).first()
+    if not db_servico:
+        raise HTTPException(status_code=404, detail="Serviço de negócio não encontrado")
+
+    dados = servico.model_dump(exclude_unset=True)
+    if "ativo_id" in dados and dados["ativo_id"]:
+        if not db.query(models.Ativo).filter(models.Ativo.id == dados["ativo_id"]).first():
+            raise HTTPException(status_code=404, detail=f"Ativo id={dados['ativo_id']} não encontrado")
+
+    antes = audit.model_to_dict(db_servico)
+    for campo, valor in dados.items():
+        setattr(db_servico, campo, valor)
+    db.commit()
+    db.refresh(db_servico)
+    _audit_change(db, "servico_negocio", db_servico.id, "UPDATE", antes=antes,
+                  depois=audit.model_to_dict(db_servico), usuario=current_service.name)
+    logger.info("Updating business service", extra={"service_account": current_service.name, "servico_id": servico_id})
+    return db_servico
+
+
+@servico_negocio_router.delete("/{servico_id}", status_code=204)
+def delete_servico_negocio(
+    servico_id: int,
+    db: Session = Depends(get_db),
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
+):
+    """Exclui um serviço de negócio (correção manual — perfil admin)."""
+    _require_admin(current_service)
+    db_servico = db.query(models.ServicoNegocio).filter(models.ServicoNegocio.id == servico_id).first()
+    if not db_servico:
+        raise HTTPException(status_code=404, detail="Serviço de negócio não encontrado")
+
+    antes = audit.model_to_dict(db_servico)
+    db.delete(db_servico)
+    db.commit()
+    _audit_change(db, "servico_negocio", servico_id, "DELETE", antes=antes, usuario=current_service.name)
+    logger.info("Deleting business service", extra={"service_account": current_service.name, "servico_id": servico_id})
+    return None
 
 
 # ENDPOINTS DE INSTÂNCIA APLICAÇÃO
@@ -236,3 +356,55 @@ def read_instancia_aplicacao(
     if not instancia:
         raise HTTPException(status_code=404, detail="Instância de aplicação não encontrada")
     return instancia
+
+
+@instancia_router.put("/{instancia_id}", response_model=schemas.InstanciaAplicacaoResponse)
+def update_instancia_aplicacao(
+    instancia_id: int,
+    instancia: schemas.InstanciaAplicacaoCreate,
+    db: Session = Depends(get_db),
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
+):
+    """Atualiza uma instância de aplicação (correção manual — perfil admin)."""
+    _require_admin(current_service)
+    db_instancia = db.query(models.InstanciaAplicacao).filter(models.InstanciaAplicacao.id == instancia_id).first()
+    if not db_instancia:
+        raise HTTPException(status_code=404, detail="Instância de aplicação não encontrada")
+
+    dados = instancia.model_dump(exclude_unset=True)
+    if "aplicacao_id" in dados:
+        if not db.query(models.Aplicacao).filter(models.Aplicacao.id == dados["aplicacao_id"]).first():
+            raise HTTPException(status_code=404, detail=f"Aplicação id={dados['aplicacao_id']} não encontrada")
+    if "ativo_id" in dados and dados["ativo_id"]:
+        if not db.query(models.Ativo).filter(models.Ativo.id == dados["ativo_id"]).first():
+            raise HTTPException(status_code=404, detail=f"Ativo id={dados['ativo_id']} não encontrado")
+
+    antes = audit.model_to_dict(db_instancia)
+    for campo, valor in dados.items():
+        setattr(db_instancia, campo, valor)
+    db.commit()
+    db.refresh(db_instancia)
+    _audit_change(db, "instancia_aplicacao", db_instancia.id, "UPDATE", antes=antes,
+                  depois=audit.model_to_dict(db_instancia), usuario=current_service.name)
+    logger.info("Updating application instance", extra={"service_account": current_service.name, "instancia_id": instancia_id})
+    return db_instancia
+
+
+@instancia_router.delete("/{instancia_id}", status_code=204)
+def delete_instancia_aplicacao(
+    instancia_id: int,
+    db: Session = Depends(get_db),
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
+):
+    """Exclui uma instância de aplicação (correção manual — perfil admin)."""
+    _require_admin(current_service)
+    db_instancia = db.query(models.InstanciaAplicacao).filter(models.InstanciaAplicacao.id == instancia_id).first()
+    if not db_instancia:
+        raise HTTPException(status_code=404, detail="Instância de aplicação não encontrada")
+
+    antes = audit.model_to_dict(db_instancia)
+    db.delete(db_instancia)
+    db.commit()
+    _audit_change(db, "instancia_aplicacao", instancia_id, "DELETE", antes=antes, usuario=current_service.name)
+    logger.info("Deleting application instance", extra={"service_account": current_service.name, "instancia_id": instancia_id})
+    return None

@@ -43,6 +43,10 @@ const isDisabling2FA = ref(false)
 // Toggle de usuário
 const togglingUser = ref<number | null>(null)
 
+// Reset de 2FA (suporte a usuário que perdeu o 2FA)
+const toReset2FA = ref<AdminUser | null>(null)
+const isResetting2FA = ref<number | null>(null)
+
 const canAdmin = computed(() => authStore.isAdmin)
 
 async function loadUsers() {
@@ -136,15 +140,20 @@ async function copyToken() {
   setTimeout(() => (copied.value = false), 2000)
 }
 
-// ===== Admin: desabilitar 2FA de usuário =====
+// ===== Admin: zerar 2FA de usuário (suporte) =====
 async function adminDisable2FA(user: AdminUser) {
+  if (!toReset2FA.value) return
+  isResetting2FA.value = user.id
   errorMessage.value = null
   try {
     await adminService.disableUser2FA(user.id)
-    successMessage.value = `2FA desabilitado para ${user.username}.`
+    successMessage.value = `2FA zerado para ${user.username}. O usuário poderá refazer o setup em 'Meu 2FA' no próximo login.`
     await loadUsers()
   } catch (err) {
     errorMessage.value = String(err)
+  } finally {
+    isResetting2FA.value = null
+    toReset2FA.value = null
   }
 }
 
@@ -324,11 +333,13 @@ onMounted(loadUsers)
               <td class="p-3 pr-4 text-right">
                 <button
                   v-if="canAdmin && user.two_fa_enabled"
-                  @click="adminDisable2FA(user)"
-                  class="p-1.5 hover:bg-rose-500/10 rounded text-slate-400 hover:text-rose-400 transition-colors"
-                  title="Desabilitar 2FA deste usuário"
+                  @click="toReset2FA = user"
+                  :disabled="isResetting2FA === user.id"
+                  class="p-1.5 hover:bg-rose-500/10 rounded text-slate-400 hover:text-rose-400 transition-colors disabled:opacity-50"
+                  title="Zerar 2FA deste usuário (suporte)"
                 >
-                  <ShieldOff class="w-3.5 h-3.5" />
+                  <Loader2 v-if="isResetting2FA === user.id" class="w-3.5 h-3.5 animate-spin" />
+                  <ShieldOff v-else class="w-3.5 h-3.5" />
                 </button>
               </td>
             </tr>
@@ -605,6 +616,17 @@ onMounted(loadUsers)
       danger
       @confirm="confirmDeleteToken"
       @cancel="toDeleteToken = null"
+    />
+
+    <!-- Confirmação: zerar 2FA de usuário -->
+    <ConfirmDialog
+      v-if="toReset2FA"
+      title="Zerar 2FA do usuário"
+      :message="`O 2FA de '${toReset2FA.username}' será removido e o segredo apagado. Use apenas para suporte (usuário perdeu o autenticador). No próximo login, o usuário deverá refazer o setup em 'Meu 2FA'. Esta ação não pode ser desfeita.`"
+      confirm-label="Zerar 2FA"
+      danger
+      @confirm="adminDisable2FA(toReset2FA)"
+      @cancel="toReset2FA = null"
     />
   </div>
 </template>
