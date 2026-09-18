@@ -131,7 +131,7 @@ def analyze_alarm(
         cmdb=contexto_cmdb or "(host não encontrado no CMDB)",
         rag=knowledge.build_context(trechos) or "(nenhum procedimento recuperado)",
     )
-    analise = ollama.chat(prompt, system=SYSTEM_ALARM_PROMPT)
+    analise = ollama.chat(prompt, system=SYSTEM_ALARM_PROMPT, num_predict=knowledge.RAG_NUM_PREDICT)
     return {
         "event_id": payload.event_id,
         "host": payload.host,

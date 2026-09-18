@@ -47,6 +47,7 @@ def chat(
     system: str | None = None,
     temperature: float = 0.2,
     num_ctx: int = 8192,
+    num_predict: int | None = None,
     images: list[str] | None = None,
 ) -> str:
     """Gera uma resposta conversacional (llama3.2) a partir de um prompt."""
@@ -55,12 +56,16 @@ def chat(
         messages.append({"role": "system", "content": system})
     messages.append({"role": "user", "content": prompt})
 
+    options: dict = {"temperature": temperature, "num_ctx": num_ctx}
+    if num_predict is not None:
+        options["num_predict"] = num_predict
+
     payload: dict = {
         "model": model or DEFAULT_CHAT_MODEL,
         "messages": messages,
         "stream": False,
         "keep_alive": OLLAMA_KEEP_ALIVE,
-        "options": {"temperature": temperature, "num_ctx": num_ctx},
+        "options": options,
     }
     if images:
         payload["messages"][-1]["images"] = images

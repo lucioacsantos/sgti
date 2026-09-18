@@ -201,6 +201,10 @@ RAG_USER_TEMPLATE = (
     "(3) quando escalar e para quem. Seja direto."
 )
 
+# Limite de tokens gerados: em GPUs pequenas, respostas longas derrubam o timeout
+# do reverse proxy (502) sem streaming. 900 tokens ~= 700 palavras.
+RAG_NUM_PREDICT = int(os.getenv("OLLAMA_NUM_PREDICT", "900"))
+
 
 def build_context(trechos: list[dict], max_chars: int = 12000) -> str:
     partes: list[str] = []
@@ -229,5 +233,11 @@ def answer_question(
     prompt = RAG_USER_TEMPLATE.format(contexto=contexto or "(nenhum trecho recuperado)", pergunta=pergunta)
     # num_ctx 4096: RAG tipico usa <2k tokens; 8192 reserva VRAM desnecessaria
     # (em GPUs pequenas causa descarte de modelos e cold-start lento)
-    resposta = ollama.chat(prompt, model=chat_model, system=RAG_SYSTEM_PROMPT, num_ctx=4096)
+    resposta = ollama.chat(
+        prompt,
+        model=chat_model,
+        system=RAG_SYSTEM_PROMPT,
+        num_ctx=4096,
+        num_predict=RAG_NUM_PREDICT,
+    )
     return {"pergunta": pergunta, "resposta": resposta, "trechos": trechos}
