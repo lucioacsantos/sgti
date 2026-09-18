@@ -22,6 +22,9 @@ const chatContainer = ref<HTMLElement | null>(null)
 const modelos = ref<OllamaModelo[]>([])
 const chatModel = ref<string>('')
 
+// Modelos de embedding não servem para chat (ex.: nomic-embed-text, mxbai-embed, bge, all-minilm, snowflake-arctic-embed)
+const EMBED_MODEL_RE = /embed|minilm|bge-|e5-|arctic-embed/i
+
 const sugestoes = [
   'Qual o procedimento para disco cheio em servidor Linux?',
   'Como escalar um incidente crítico?',
@@ -39,22 +42,38 @@ async function enviar(texto?: string) {
 
   isLoading.value = true
   errorMessage.value = null
+  const indiceIA = mensagens.value.push({
+    papel: 'ia',
+    texto: '',
+    trechos: undefined
+  }) - 1
   try {
-    const resp = await aiService.perguntar({
-      pergunta,
-      chat_model: chatModel.value || undefined
-    })
-    mensagens.value.push({
-      papel: 'ia',
-      texto: resp.resposta,
-      trechos: resp.trechos
-    })
+    await aiService.perguntarStream(
+      {
+        pergunta,
+        chat_model: chatModel.value || undefined
+      },
+      {
+        onStart: (trechos) => {
+          mensagens.value[indiceIA].trechos = trechos
+        },
+        onChunk: (texto) => {
+          mensagens.value[indiceIA].texto += texto
+          rolarParaFim()
+        },
+        onError: (detail) => {
+          mensagens.value[indiceIA].texto = detail
+          mensagens.value[indiceIA].erro = true
+        }
+      }
+    )
+    if (!mensagens.value[indiceIA].texto && !mensagens.value[indiceIA].erro) {
+      mensagens.value[indiceIA].texto = 'O assistente não retornou conteúdo.'
+      mensagens.value[indiceIA].erro = true
+    }
   } catch (err) {
-    mensagens.value.push({
-      papel: 'ia',
-      texto: typeof err === 'string' ? err : 'Falha ao consultar o assistente de IA.',
-      erro: true
-    })
+    mensagens.value[indiceIA].texto = typeof err === 'string' ? err : (err as Error)?.message || 'Falha ao consultar o assistente de IA.'
+    mensagens.value[indiceIA].erro = true
   } finally {
     isLoading.value = false
     await rolarParaFim()
@@ -81,7 +100,8 @@ function toggleTrecho(key: string) {
 
 async function loadModelos() {
   try {
-    modelos.value = await aiService.modelos()
+    const todos = await aiService.modelos()
+    modelos.value = todos.filter((m) => !EMBED_MODEL_RE.test(m.name))
     if (modelos.value.length > 0 && !chatModel.value) {
       chatModel.value = modelos.value[0].name
     }
@@ -115,6 +135,7 @@ onMounted(loadModelos)
           <option v-if="modelos.length === 0" value="">Modelo padrão</option>
           <option v-for="m in modelos" :key="m.name" :value="m.name">{{ m.name }}</option>
         </select>
+        <span v-if="modelos.length === 0" class="text-[10px] text-slate-500" title="Somente modelos de embedding disponíveis">só embeddings</span>
         <button
           @click="limpar"
           :disabled="mensagens.length === 0 || isLoading"

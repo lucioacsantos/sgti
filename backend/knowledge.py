@@ -1,11 +1,13 @@
 """Base de conhecimento RAG: indexação de Markdown + busca vetorial (nomic-embed-text)."""
 import hashlib
+import json
 import logging
 import os
 import re
 import time
 from pathlib import Path
 
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 import models
@@ -241,3 +243,41 @@ def answer_question(
         num_predict=RAG_NUM_PREDICT,
     )
     return {"pergunta": pergunta, "resposta": resposta, "trechos": trechos}
+
+
+def answer_question_stream(
+    db: Session,
+    pergunta: str,
+    top_k: int = 5,
+    chat_model: str | None = None,
+    embed_model: str | None = None,
+):
+    """RAG em streaming: recupera trechos, faz yield de tokens do chat.
+
+    Yield de eventos JSON (NDJSON):
+      {"type": "start", "trechos": [...]}
+      {"type": "chunk", "content": "..."}
+      {"type": "end"}
+      {"type": "error", "detail": "..."}
+    """
+    try:
+        trechos = search(db, pergunta, top_k)
+        contexto = build_context(trechos)
+        prompt = RAG_USER_TEMPLATE.format(contexto=contexto or "(nenhum trecho recuperado)", pergunta=pergunta)
+        yield json.dumps({"type": "start", "trechos": trechos}) + "\n"
+        yield from (
+            json.dumps({"type": "chunk", "content": chunk}) + "\n"
+            for chunk in ollama.chat_stream(
+                prompt,
+                model=chat_model,
+                system=RAG_SYSTEM_PROMPT,
+                num_ctx=4096,
+                num_predict=RAG_NUM_PREDICT,
+            )
+        )
+        yield json.dumps({"type": "end"}) + "\n"
+    except HTTPException as exc:
+        yield json.dumps({"type": "error", "detail": exc.detail}) + "\n"
+    except Exception as exc:  # noqa: BLE001 - ultimo recurso: stream ja comecou
+        logger.exception("Erro no streaming do RAG")
+        yield json.dumps({"type": "error", "detail": str(exc)}) + "\n"

@@ -1,5 +1,6 @@
 """Testes dos endpoints de integração Ollama (RAG + análise de alarmes)."""
 import datetime
+import json
 from unittest.mock import patch
 
 import pytest
@@ -25,12 +26,23 @@ def client():
 
     previous_override = main.app.dependency_overrides.get(real_get_db)
     main.app.dependency_overrides[real_get_db] = override_get_db
+    from database import get_stream_db_factory
+
+    def override_stream_factory():
+        yield TestingSessionLocal
+
+    previous_stream = main.app.dependency_overrides.get(get_stream_db_factory)
+    main.app.dependency_overrides[get_stream_db_factory] = override_stream_factory
     with TestClient(main.app) as c:
         yield c
     if previous_override is not None:
         main.app.dependency_overrides[real_get_db] = previous_override
     else:
         main.app.dependency_overrides.pop(real_get_db, None)
+    if previous_stream is not None:
+        main.app.dependency_overrides[get_stream_db_factory] = previous_stream
+    else:
+        main.app.dependency_overrides.pop(get_stream_db_factory, None)
     Base.metadata.drop_all(bind=test_engine)
 
 
@@ -173,6 +185,53 @@ class TestPerguntarKnowledge:
             resp = client.post("/ollama/knowledge/perguntar", json={"pergunta": "x"}, headers=headers)
         assert resp.status_code == 200
         assert resp.json()["trechos"] == []
+
+
+class TestPerguntarStream:
+    def test_stream_eventos(self, client, headers, tmp_path, monkeypatch):
+        doc = tmp_path / "proc-net.md"
+        doc.write_text("# Rede Lenta\n\nVerificar interface, erros de CRC e colisões.", encoding="utf-8")
+        monkeypatch.setattr("knowledge.ollama.embed", _fake_embed)
+        client.post("/ollama/knowledge/indexar", json={"diretorio": str(tmp_path)}, headers=headers)
+
+        def fake_chat_stream(*args, **kwargs):
+            yield "Diagnóstico: "
+            yield "interface saturada."
+
+        with (
+            patch("knowledge.ollama.embed_one", return_value=FAKE_EMBED),
+            patch("knowledge.ollama.chat_stream", side_effect=fake_chat_stream),
+        ):
+            resp = client.post(
+                "/ollama/knowledge/perguntar/stream",
+                json={"pergunta": "rede lenta", "top_k": 2},
+                headers=headers,
+            )
+        assert resp.status_code == 200
+        assert resp.headers["content-type"].startswith("application/x-ndjson")
+        eventos = [json.loads(l) for l in resp.text.strip().splitlines() if l.strip()]
+        tipos = [e["type"] for e in eventos]
+        assert tipos[0] == "start"
+        assert tipos[-1] == "end"
+        conteudo = "".join(e.get("content", "") for e in eventos if e["type"] == "chunk")
+        assert conteudo == "Diagnóstico: interface saturada."
+        trechos_start = eventos[0]["trechos"]
+        assert len(trechos_start) == 1
+
+    def test_stream_erro_interno(self, client, headers):
+        with (
+            patch("knowledge.ollama.embed_one", return_value=FAKE_EMBED),
+            patch("knowledge.ollama.chat_stream", side_effect=RuntimeError("boom")),
+        ):
+            resp = client.post("/ollama/knowledge/perguntar/stream", json={"pergunta": "x"}, headers=headers)
+        assert resp.status_code == 200
+        eventos = [json.loads(l) for l in resp.text.strip().splitlines() if l.strip()]
+        assert eventos[-1]["type"] == "error"
+        assert "boom" in eventos[-1]["detail"]
+
+    def test_stream_requer_autenticacao(self, client):
+        resp = client.post("/ollama/knowledge/perguntar/stream", json={"pergunta": "x"})
+        assert resp.status_code in (401, 403)
 
 
 class TestAnalisarAlarme:

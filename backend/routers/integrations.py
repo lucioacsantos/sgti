@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import StreamingResponse
 import models, schemas, auth, zabbix, knowledge, ollama
+import database
 from database import get_db
 from sqlalchemy.orm import Session
 import logging
@@ -79,6 +81,37 @@ def ask_knowledge(
         payload.embed_model,
     )
 
+
+@knowledge_router.post("/perguntar/stream")
+def ask_knowledge_stream(
+    payload: schemas.KnowledgeAskRequest,
+    db: Session = Depends(get_db),
+    session_factory = Depends(database.get_stream_db_factory),
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
+):
+    """RAG com streaming NDJSON: start (trechos) -> chunk (tokens) -> end."""
+    logger.info("RAG question (stream)", extra={"service_account": current_service.name, "pergunta": payload.pergunta})
+
+    def gerar():
+        # Sessão criada dentro do generator: o stream consome o Ollama depois
+        # do fim da request, quando a sessão de Depends(get_db) já foi fechada.
+        stream_db = session_factory()
+        try:
+            yield from knowledge.answer_question_stream(
+                stream_db,
+                payload.pergunta,
+                payload.top_k,
+                payload.chat_model,
+                payload.embed_model,
+            )
+        finally:
+            stream_db.close()
+
+    return StreamingResponse(
+        gerar(),
+        media_type="application/x-ndjson",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 # ---- Análise de alarmes Zabbix (RAG + CMDB) ----
 

@@ -9,6 +9,8 @@ export const api = axios.create({
   }
 })
 
+export const apiBaseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '')
+
 let refreshPromise: Promise<void> | null = null
 
 api.interceptors.request.use((config) => {

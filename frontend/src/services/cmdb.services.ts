@@ -1,10 +1,11 @@
-import { api } from './api'
+import { api, apiBaseUrl } from './api'
+import { useAuthStore } from '@/stores/auth'
 import type {
   Ativo, EnderecoIp, TipoAtivo, Ambiente, StatusAtivo, Criticidade,
   SistemaOperacional, Area, TipoRelacionamento, Aplicacao, Cluster,
   Namespace, Servico, ServicoNegocio, InstanciaAplicacao, Relacionamento,
   AuditLog, HealthStatus, ApiInfo,
-  KnowledgeAskRequest, KnowledgeAskResponse, OllamaModelo
+  KnowledgeAskRequest, KnowledgeAskResponse, OllamaModelo, TrechoCitado
 } from './cmdb'
 
 // ===== Health =====
@@ -272,5 +273,53 @@ export const aiService = {
   async perguntar(payload: KnowledgeAskRequest): Promise<KnowledgeAskResponse> {
     const { data } = await api.post<KnowledgeAskResponse>('/ollama/knowledge/perguntar', payload, { timeout: 300000 })
     return data
+  },
+  async perguntarStream(
+    payload: KnowledgeAskRequest,
+    callbacks: {
+      onStart?: (trechos: TrechoCitado[]) => void
+      onChunk?: (texto: string) => void
+      onError?: (detail: string) => void
+    }
+  ): Promise<void> {
+    const authStore = useAuthStore()
+    const response = await fetch(`${apiBaseUrl}/ollama/knowledge/perguntar/stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {})
+      },
+      body: JSON.stringify(payload)
+    })
+    if (!response.ok || !response.body) {
+      let detail = 'Falha ao consultar o assistente de IA.'
+      try {
+        const data = await response.json()
+        detail = data?.detail || detail
+      } catch { /* corpo não-JSON */ }
+      throw new Error(detail)
+    }
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder()
+    let buffer = ''
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      buffer += decoder.decode(value, { stream: true })
+      const linhas = buffer.split('\n')
+      buffer = linhas.pop() ?? ''
+      for (const linha of linhas) {
+        if (!linha.trim()) continue
+        let evento: { type?: string; content?: string; detail?: string; trechos?: TrechoCitado[] }
+        try {
+          evento = JSON.parse(linha)
+        } catch {
+          continue
+        }
+        if (evento.type === 'start') callbacks.onStart?.(evento.trechos ?? [])
+        else if (evento.type === 'chunk') callbacks.onChunk?.(evento.content ?? '')
+        else if (evento.type === 'error') callbacks.onError?.(evento.detail ?? 'Erro desconhecido.')
+      }
+    }
   }
 }

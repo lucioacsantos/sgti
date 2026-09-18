@@ -1,5 +1,6 @@
 from fastapi import HTTPException, status
 from urllib import error, request
+from typing import Iterator
 import json
 import os
 import time
@@ -39,6 +40,68 @@ def _post(path: str, payload: dict, timeout: int = 300) -> dict:
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"Falha ao consultar a API do Ollama: {exc}",
         )
+
+
+def _stream(path: str, payload: dict, timeout: int = 300) -> Iterator[dict]:
+    """Chamada à API do Ollama com streaming (NDJSON), yield de cada evento."""
+    url = f"{OLLAMA_BASE_URL}{path}"
+    req = request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with request.urlopen(req, timeout=timeout) as response:
+            for linha in response:
+                linha = linha.strip()
+                if not linha:
+                    continue
+                try:
+                    yield json.loads(linha.decode("utf-8"))
+                except json.JSONDecodeError:
+                    logger.warning("Evento inválido ignorado no stream do Ollama")
+    except error.HTTPError as exc:
+        detail = exc.read().decode("utf-8") or "Erro ao consultar a API do Ollama."
+        raise HTTPException(status_code=exc.code, detail=detail)
+    except (error.URLError, TimeoutError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Falha ao consultar a API do Ollama: {exc}",
+        )
+
+
+def chat_stream(
+    prompt: str,
+    model: str | None = None,
+    system: str | None = None,
+    temperature: float = 0.2,
+    num_ctx: int = 8192,
+    num_predict: int | None = None,
+) -> Iterator[str]:
+    """Gera resposta conversacional em streaming, yield por token/chunk."""
+    messages = []
+    if system:
+        messages.append({"role": "system", "content": system})
+    messages.append({"role": "user", "content": prompt})
+
+    options: dict = {"temperature": temperature, "num_ctx": num_ctx}
+    if num_predict is not None:
+        options["num_predict"] = num_predict
+
+    payload: dict = {
+        "model": model or DEFAULT_CHAT_MODEL,
+        "messages": messages,
+        "stream": True,
+        "keep_alive": OLLAMA_KEEP_ALIVE,
+        "options": options,
+    }
+    for evento in _stream("/api/chat", payload):
+        content = evento.get("message", {}).get("content")
+        if content:
+            yield content
+        if evento.get("done"):
+            break
 
 
 def chat(
