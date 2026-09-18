@@ -21,6 +21,10 @@ class EncryptedText(TypeDecorator):
     impl = SAString
     cache_ok = True
 
+    def __init__(self, length=255, **kwargs):
+        # Valor cifrado (v1.<nonce>.<ct>) ocupa ~84+ chars; 255 evita truncamento
+        super().__init__(length, **kwargs)
+
     def process_bind_param(self, value, dialect):
         if value is None:
             return None
@@ -141,7 +145,7 @@ class ServiceAccount(Base):
     created_at = Column(DateTime, server_default=func.now())
     expires_at = Column(DateTime, nullable=False)
     is_active = Column(Boolean, default=True)
-    totp_secret = Column(EncryptedText, nullable=True)
+    totp_secret = Column(EncryptedText(255), nullable=True)
     totp_enabled = Column(Boolean, default=False, nullable=False, server_default="false")
 
     def set_token(self, token: str) -> None:
@@ -291,7 +295,7 @@ class AuditLog(Base):
     acao = Column(String(50))
     antes = Column(JSONB)
     depois = Column(JSONB)
-    usuario = Column(EncryptedText)
+    usuario = Column(EncryptedText(255))
     created_at = Column(DateTime, server_default=func.now(), index=True)
 
     __table_args__ = (
