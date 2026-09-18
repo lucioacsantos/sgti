@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 from logging.config import fileConfig
@@ -13,6 +14,10 @@ sys.path.append(str(Path(__file__).parent.parent / "backend"))
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+# Allow DATABASE_URL env var to override the URL in alembic.ini
+if os.getenv("DATABASE_URL"):
+    config.set_main_option("sqlalchemy.url", os.environ["DATABASE_URL"].replace("%", "%%"))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
