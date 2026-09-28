@@ -46,6 +46,7 @@ const ambientes = ref<Map<number, string>>(new Map())
 const statuses = ref<Map<number, string>>(new Map())
 const criticidades = ref<Map<number, string>>(new Map())
 const areas = ref<Map<number, string>>(new Map())
+const sistemasOperacionais = ref<Map<number, string>>(new Map())
 const tipoOptions = ref<TipoAtivo[]>([])
 const ambienteOptions = ref<Ambiente[]>([])
 const areaOptions = ref<Area[]>([])
@@ -145,6 +146,7 @@ async function exportToXlsx() {
       'Ambiente': a.ambiente_id ? (ambientes.value.get(a.ambiente_id) || '') : '',
       'Status': a.status_id ? (statuses.value.get(a.status_id) || '') : '',
       'Criticidade': a.criticidade_id ? (criticidades.value.get(a.criticidade_id) || '') : '',
+      'SO': a.sor_id ? (sistemasOperacionais.value.get(a.sor_id) || '') : '',
       'Área': a.areas_id ? (areas.value.get(a.areas_id) || '') : '',
       'Criado em': a.created_at ? new Date(a.created_at).toLocaleString('pt-BR') : ''
     }))
@@ -152,7 +154,7 @@ async function exportToXlsx() {
     const ws = XLSX.utils.json_to_sheet(rows)
     ws['!cols'] = [
       { wch: 8 }, { wch: 30 }, { wch: 50 }, { wch: 18 },
-      { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 20 }, { wch: 20 }
+      { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 10 }, { wch: 20 }, { wch: 20 }
     ]
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Ativos')
@@ -212,12 +214,13 @@ watch([search, tipoFilter, ambienteFilter, areaFilter], () => {
 })
 
 async function loadReferences() {
-  const [t, a, s, c, ar] = await Promise.allSettled([
+  const [t, a, s, c, ar, so] = await Promise.allSettled([
     referenceService.tiposAtivos(),
     referenceService.ambientes(),
     referenceService.statusAtivos(),
     referenceService.criticidades(),
-    referenceService.areas()
+    referenceService.areas(),
+    referenceService.sistemasOperacionais()
   ])
   if (t.status === 'fulfilled') {
     tipos.value = new Map(t.value.map(x => [x.id, x.nome]))
@@ -232,6 +235,9 @@ async function loadReferences() {
   if (ar.status === 'fulfilled') {
     areas.value = new Map(ar.value.map(x => [x.id, x.sigla]))
     areaOptions.value = ar.value
+  }
+  if (so.status === 'fulfilled') {
+    sistemasOperacionais.value = new Map(so.value.map(x => [x.id, x.abreviacao]))
   }
 }
 
@@ -394,13 +400,14 @@ onMounted(async () => {
               <th class="p-3">Ambiente</th>
               <th class="p-3">Status</th>
               <th class="p-3">Criticidade</th>
+              <th class="p-3">SO</th>
               <th class="p-3">Área</th>
               <th class="p-3 pr-4 text-right">Ações</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-800/60 text-slate-300">
             <tr v-if="ativos.length === 0">
-              <td colspan="8" class="p-8 text-center text-slate-500">
+              <td colspan="9" class="p-8 text-center text-slate-500">
                 {{ hasActiveFilter ? 'Nenhum ativo corresponde aos filtros aplicados.' : 'Nenhum ativo cadastrado.' }}
               </td>
             </tr>
@@ -425,6 +432,7 @@ onMounted(async () => {
                   {{ ativo.criticidade_id ? criticidades.get(ativo.criticidade_id) || '—' : 'não classificado' }}
                 </span>
               </td>
+              <td class="p-3 font-mono text-slate-400">{{ ativo.sor_id ? sistemasOperacionais.get(ativo.sor_id) || '—' : '—' }}</td>
               <td class="p-3 font-mono text-slate-400">{{ ativo.areas_id ? areas.get(ativo.areas_id) || '—' : '—' }}</td>
               <td class="p-3 pr-4 text-right">
                 <div class="inline-flex items-center gap-1">
