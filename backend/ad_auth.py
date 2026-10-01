@@ -298,10 +298,15 @@ def create_test_user(db: Session, username: str = "testuser", roles: List[str] =
         models.ServiceAccount.name == username
     ).first()
     
+    # token_hash tem UNIQUE no schema: dois test users com o mesmo JSON de roles
+    # colidiriam — inclui o username no payload para garantir unicidade.
+    payload_hash = json.dumps({"roles": roles, "ad_user": False,
+                               "test_user": True, "username": username})
+    
     if not local_user:
         local_user = models.ServiceAccount(
             name=username,
-            token_hash=json.dumps({"roles": roles, "ad_user": False, "test_user": True}),
+            token_hash=payload_hash,
             expires_at=datetime.utcnow() + timedelta(days=365),
             is_active=True,
         )
@@ -309,7 +314,7 @@ def create_test_user(db: Session, username: str = "testuser", roles: List[str] =
         db.commit()
         db.refresh(local_user)
     else:
-        local_user.token_hash = json.dumps({"roles": roles, "ad_user": False, "test_user": True})
+        local_user.token_hash = payload_hash
         local_user.is_active = True
         local_user.expires_at = datetime.utcnow() + timedelta(days=365)
         db.commit()

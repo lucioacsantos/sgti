@@ -113,9 +113,14 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             "correlation_id": getattr(request.state, "correlation_id", ""),
         }
     )
+    # exc.errors() carrega ValueError cru em ctx.error (não serializável em JSON)
+    erros = [
+        {k: (str(v) if k == "ctx" else v) for k, v in e.items() if k != "url"}
+        for e in exc.errors()
+    ]
     return JSONResponse(
         status_code=422,
-        content={"detail": "Validation error", "errors": exc.errors()},
+        content={"detail": "Validation error", "errors": erros},
     )
 
 
@@ -166,7 +171,7 @@ async def health(request: Request, db: Session = Depends(get_db)):
 
 
 # Include routers
-from routers import assets, ip_addresses, reference_data, applications, relationships, infrastructure, audit, integrations, auth
+from routers import assets, ip_addresses, reference_data, applications, relationships, infrastructure, audit, integrations, auth, reconciliacoes
 
 app.include_router(assets.router)
 app.include_router(ip_addresses.router)
@@ -185,3 +190,4 @@ app.include_router(integrations.knowledge_router)
 app.include_router(integrations.alarm_router)
 app.include_router(integrations.zabbix_router)
 app.include_router(auth.router)
+app.include_router(reconciliacoes.router)

@@ -5,7 +5,8 @@ import type {
   SistemaOperacional, Area, TipoRelacionamento, Aplicacao, Cluster,
   Namespace, Servico, ServicoNegocio, InstanciaAplicacao, Relacionamento,
   AuditLog, HealthStatus, ApiInfo,
-  KnowledgeAskRequest, KnowledgeAskResponse, OllamaModelo, TrechoCitado
+  KnowledgeAskRequest, KnowledgeAskResponse, OllamaModelo, TrechoCitado,
+  Reconciliacao, ItemReconciliacao, ParecerTipo, ItemDecisao, ReconciliacaoFonte
 } from './cmdb'
 
 // ===== Health =====
@@ -321,5 +322,50 @@ export const aiService = {
         else if (evento.type === 'error') callbacks.onError?.(evento.detail ?? 'Erro desconhecido.')
       }
     }
+  }
+}
+// ===== Reconciliações (workflow de quatro olhos) =====
+export const reconciliacaoService = {
+  async list(status?: string): Promise<Reconciliacao[]> {
+    const { data } = await api.get<Reconciliacao[]>('/reconciliacoes/', {
+      params: status ? { status_filter: status } : undefined
+    })
+    return data
+  },
+  async get(id: number): Promise<Reconciliacao> {
+    const { data } = await api.get<Reconciliacao>(`/reconciliacoes/${id}`)
+    return data
+  },
+  async create(payload: { nome: string; fonte: ReconciliacaoFonte }, autoDeteccao = true): Promise<Reconciliacao> {
+    const { data } = await api.post<Reconciliacao>('/reconciliacoes/', payload, {
+      params: { auto_deteccao: autoDeteccao }
+    })
+    return data
+  },
+  async itens(reconciliacaoId: number, status?: string): Promise<ItemReconciliacao[]> {
+    const { data } = await api.get<ItemReconciliacao[]>(
+      `/reconciliacoes/${reconciliacaoId}/itens`,
+      { params: status ? { status_filter: status } : undefined }
+    )
+    return data
+  },
+  async registrarParecer(reconciliacaoId: number, itemId: number, parecer: ParecerTipo, comentario?: string): Promise<ItemReconciliacao> {
+    const { data } = await api.post<ItemReconciliacao>(
+      `/reconciliacoes/${reconciliacaoId}/itens/${itemId}/parecer`,
+      { parecer, comentario })
+    return data
+  },
+  async decidirItem(reconciliacaoId: number, itemId: number, decisao: ItemDecisao): Promise<ItemReconciliacao> {
+    const { data } = await api.post<ItemReconciliacao>(
+      `/reconciliacoes/${reconciliacaoId}/itens/${itemId}/decisao`,
+      { decisao })
+    return data
+  },
+  async concluir(reconciliacaoId: number): Promise<Reconciliacao> {
+    const { data } = await api.post<Reconciliacao>(`/reconciliacoes/${reconciliacaoId}/concluir`)
+    return data
+  },
+  async cancelar(reconciliacaoId: number): Promise<void> {
+    await api.delete(`/reconciliacoes/${reconciliacaoId}`)
   }
 }

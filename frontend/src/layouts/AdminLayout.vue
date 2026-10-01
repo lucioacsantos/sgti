@@ -12,7 +12,8 @@ import {
   Bot,
   ShieldCheck,
   LogOut,
-  KeyRound
+  KeyRound,
+  GitCompareArrows
 } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
@@ -23,6 +24,7 @@ const menuItems = computed(() => {
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Ativos', path: '/assets', icon: Server },
     { name: 'Infraestrutura', path: '/infrastructure', icon: Network },
+    { name: 'Reconciliações', path: '/reconciliacoes', icon: GitCompareArrows },
     { name: 'Dados Mestres', path: '/reference-data', icon: Database },
     { name: 'Integrações', path: '/integrations', icon: Layers },
     { name: 'Assistente IA', path: '/assistant', icon: Bot },
@@ -39,6 +41,7 @@ const pageTitle = computed(() => {
     dashboard: 'Dashboard',
     assets: 'Inventário de Ativos',
     infrastructure: 'Infraestrutura & Mapa de TI',
+    reconciliacoes: 'Painel de Reconciliações',
     'reference-data': 'Tabelas Auxiliares',
     audit: 'Trilha de Auditoria',
     integrations: 'Integrações & Automações',

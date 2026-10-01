@@ -151,3 +151,50 @@ export async function fetchPage<T>(
     hasMore: items.length >= pageSize
   }
 }
+// ===== Reconciliações =====
+
+export type ParecerTipo = 'retificar' | 'ratificar' | 'ignorar' | 'inconcluso'
+export type ItemDecisao = 'retificado' | 'ratificado' | 'ignorado'
+export type ReconciliacaoStatus = 'aberta' | 'em_verificacao' | 'concluida' | 'cancelada'
+export type ItemReconciliacaoStatus = 'pendente' | 'em_verificacao' | 'retificado' | 'ratificado' | 'ignorado'
+export type ReconciliacaoFonte = 'dump_pgadmin' | 'zabbix' | 'manual' | 'ia'
+
+export interface ParecerReconciliacao {
+  id: number
+  analista: string
+  parecer: ParecerTipo
+  comentario?: string | null
+  criado_em: string
+}
+
+export interface ItemReconciliacao {
+  id: number
+  reconciliacao_id: number
+  entidade: string
+  entidade_id?: number | null
+  campo?: string | null
+  valor_cmdb?: string | null
+  valor_fonte?: string | null
+  detalhe?: string | null
+  confianca?: number | null
+  status: ItemReconciliacaoStatus
+  resolvido_por?: string | null
+  resolvido_em?: string | null
+  pareceres: ParecerReconciliacao[]
+  analistas: string[]
+}
+
+export interface Reconciliacao {
+  id: number
+  nome: string
+  fonte: ReconciliacaoFonte
+  status: ReconciliacaoStatus
+  criado_por?: string | null
+  criado_em: string
+  concluida_em?: string | null
+  total_itens: number
+  pendentes: number
+  retificados: number
+  ratificados: number
+  ignorados: number
+}

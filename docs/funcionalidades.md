@@ -71,5 +71,6 @@ Isso permite o modelo operacional central: **automação grava, painel lê/corri
 | `backend/seed.py` | Popula dados mestre + ativos de exemplo + service account |
 | `backend/import_test_data.py` | Importa dump pgAdmin de ativos/aplicações (idempotente) |
 | `backend/infer_infra_map.py` | Gera serviços, instâncias e relacionamentos por inferência, via API |
+| `backend/infer_infra_map_ia.py` | Variante com LLM (Ollama): reporta confiabilidade de cada ação e abre reconciliação automática para ações com confiabilidade < 90% |
 
 Ver [inferencias.md](inferencias.md) para o funcionamento detalhado.

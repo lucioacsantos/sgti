@@ -100,6 +100,49 @@ Padrões explícitos no `objetivo`/`descricao` das aplicações ("envio de dados
 
 ---
 
+## 3. infer_infra_map_ia.py — gerar o mapa por inferência com IA (Ollama)
+
+Variante do script anterior que troca o dicionário lexical e os padrões regex por um
+LLM local (llama3.2 + nomic-embed-text), mantendo o mesmo contrato com a API
+(service token, idempotente, `--dry-run`).
+
+```bash
+cd backend && ../venv/bin/python infer_infra_map_ia.py \
+    --api http://localhost:8000 \
+    --token <service-token> \
+    [--dry-run] [--verbose] [--sem-ia]
+    [--limiar-confianca 0.9]
+```
+
+### Confiabilidade da inferência
+
+Em todas as etapas assistidas por IA o modelo reporta uma **confiabilidade (0..1)**
+junto à resposta JSON (serviços por ativo, match ativo ↔ aplicação, nome de grupos
+de negócio e dependências citadas em texto). O helper `_confianca` normaliza o valor
+(aceita escala 0..1 ou percentual).
+
+### Reconciliação automática de ações de baixa confiabilidade
+
+Ao final do pipeline, cada ação efetivamente executada (serviço criado, instância
+criada, relacionamento criado, dependência potencial) é reportada ao endpoint
+`POST /reconciliacoes/inferencia`:
+
+- **confiança < `--limiar-confianca` (padrão 0.9)** → abre item `pendente` na
+  execução de reconciliação (fonte `ia`) que exige o workflow de quatro olhos
+  (2+ analistas com parecer) antes de retificar/ratificar;
+- **confiança ≥ limiar** → item registrado já `ratificado` (resolvido por
+  `inferencia_ia`), preservando a trilha de auditoria sem gerar trabalho manual.
+
+O painel de Reconciliações exibe a confiabilidade de cada item (badge colorido:
+vermelho < 70%, âmbar < 90%, verde ≥ 90%). A coluna `confianca` foi adicionada a
+`item_reconciliacao` (migration `a1f2c3d4e5f6`).
+
+Regras mantidas do script lexical: 1 serviço por ativo (`UNIQUE(ativo_id)`),
+não instancia a mesma app duas vezes exceto multi-host, tipos de relacionamento
+resolvidos/criados via API, tudo idempotente.
+
+---
+
 ## Segurança e determinismo
 
 - **Somente criação idempotente** — nunca muta nem apaga registros existentes; automações reais (Zabbix etc.) refinam/substituem depois pelos mesmos endpoints

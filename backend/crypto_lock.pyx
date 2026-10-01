@@ -102,11 +102,29 @@ def decrypt(token: str, key: bytes) -> str:
         _, nonce_b64, ct_b64 = token.split(".", 2)
         pad = lambda s: s + "=" * (-len(s) % 4)
         nonce = base64.urlsafe_b64decode(nonce_b64)
+        # valida que nenhum bit não-utilizado do último char b64 foi setado:
+        # bits de padding implícito são descartados pelo decodificador e um
+        # tamper neles passaria despercebido na verificação GCM.
+        _check_canonical_b64(nonce_b64)
+        _check_canonical_b64(ct_b64)
         ct = base64.urlsafe_b64decode(pad(ct_b64))
         pt = _aesgcm(key).decrypt(nonce, ct, None)
+    except ValueError as exc:
+        raise ValueError(str(exc)) from exc
     except Exception as exc:
         raise ValueError("falha ao decifrar (chave incorreta ou dado adulterado)") from exc
     return pt.decode("utf-8")
+
+
+def _check_canonical_b64(s: str) -> None:
+    """Recodifica e compara: rejeita encoding não-canônico (bits de padding
+    implícito setados, ex.: '...A' decodificando igual a '...B')."""
+    import base64
+    pad = s + "=" * (-len(s) % 4)
+    raw = base64.urlsafe_b64decode(pad)
+    canonical = base64.urlsafe_b64encode(raw).decode().rstrip("=")
+    if canonical != s:
+        raise ValueError("ciphertext não-canônico (bits de padding adulterados)")
 
 
 def seal_data(plaintext: str, nome: str, parte_cpf: str) -> str:

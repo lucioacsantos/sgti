@@ -18,6 +18,7 @@ export default defineConfig({
     allowedHosts: [
       'sgti-cmdb.energia.org.br',
       'localhost',
+      '127.0.0.1',
     ],
   },
 })

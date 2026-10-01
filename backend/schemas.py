@@ -1,5 +1,5 @@
 from pydantic import BaseModel, field_validator, ConfigDict
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 import ipaddress
 
@@ -383,3 +383,137 @@ class AuditLogResponse(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# ===== RECONCILIAÇÃO =====
+
+class ParecerReconciliacaoCreate(BaseModel):
+    parecer: str  # retificar | ratificar | ignorar | inconcluso
+    comentario: Optional[str] = None
+
+    @field_validator("parecer")
+    @classmethod
+    def validar_parecer(cls, v: str) -> str:
+        permitidos = {"retificar", "ratificar", "ignorar", "inconcluso"}
+        if v not in permitidos:
+            raise ValueError(f"parecer deve ser um de: {', '.join(sorted(permitidos))}")
+        return v
+
+
+class ParecerReconciliacaoResponse(BaseModel):
+    id: int
+    analista: str
+    parecer: str
+    comentario: Optional[str] = None
+    criado_em: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ItemReconciliacaoResponse(BaseModel):
+    id: int
+    reconciliacao_id: int
+    entidade: str
+    entidade_id: Optional[int] = None
+    campo: Optional[str] = None
+    valor_cmdb: Optional[str] = None
+    valor_fonte: Optional[str] = None
+    detalhe: Optional[str] = None
+    confianca: Optional[float] = None
+    status: str
+    resolvido_por: Optional[str] = None
+    resolvido_em: Optional[datetime] = None
+    pareceres: List[ParecerReconciliacaoResponse] = []
+    analistas: List[str] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ReconciliacaoCreate(BaseModel):
+    nome: str
+    fonte: str
+
+    @field_validator("fonte")
+    @classmethod
+    def validar_fonte(cls, v: str) -> str:
+        permitidos = {"dump_pgadmin", "zabbix", "manual", "ia"}
+        if v not in permitidos:
+            raise ValueError(f"fonte deve ser uma de: {', '.join(sorted(permitidos))}")
+        return v
+
+
+class ReconciliacaoResponse(BaseModel):
+    id: int
+    nome: str
+    fonte: str
+    status: str
+    criado_por: Optional[str] = None
+    criado_em: datetime
+    concluida_em: Optional[datetime] = None
+    total_itens: int = 0
+    pendentes: int = 0
+    retificados: int = 0
+    ratificados: int = 0
+    ignorados: int = 0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ItemDecisaoRequest(BaseModel):
+    """Decisão final sobre o item após verificação manual (2+ analistas)."""
+    decisao: str  # retificado | ratificado | ignorado
+
+    @field_validator("decisao")
+    @classmethod
+    def validar_decisao(cls, v: str) -> str:
+        permitidos = {"retificado", "ratificado", "ignorado"}
+        if v not in permitidos:
+            raise ValueError(f"decisao deve ser uma de: {', '.join(sorted(permitidos))}")
+        return v
+
+
+# ===== INFERÊNCIA IA → RECONCILIAÇÃO =====
+
+class ItemInferenciaIA(BaseModel):
+    """Ação proposta pela inferência por IA (serviço, instância,
+    relacionamento etc.) com a confiabilidade reportada pelo modelo."""
+    acao: str  # criar_servico | criar_instancia | criar_relacionamento | ...
+    entidade: str  # ativo|aplicacao|servico|instancias_aplicacao|relacionamento|...
+    entidade_id: Optional[int] = None
+    campo: Optional[str] = None
+    valor_proposto: Optional[str] = None
+    valor_cmdb: Optional[str] = None
+    confianca: float
+
+    @field_validator("confianca")
+    @classmethod
+    def validar_confianca(cls, v: float) -> float:
+        if not 0.0 <= v <= 1.0:
+            raise ValueError("confianca deve estar entre 0.0 e 1.0")
+        return v
+
+
+class ReconciliacaoInferenciaIA(BaseModel):
+    """Payload do script de inferência IA: lote de ações inferidas para
+    auditoria. Ações com confianca < limiar (padrão 0.9) geram itens
+    pendentes de verificação manual (4-olhos); as demais apenas ficam
+    registradas como ratificadas automaticamente."""
+    nome: Optional[str] = None
+    itens: List[ItemInferenciaIA]
+    limiar: float = 0.9
+
+    @field_validator("limiar")
+    @classmethod
+    def validar_limiar(cls, v: float) -> float:
+        if not 0.0 < v <= 1.0:
+            raise ValueError("limiar deve estar entre 0.0 (exclusivo) e 1.0")
+        return v
+
+
+class ReconciliacaoInferenciaIAResponse(BaseModel):
+    """Resultado da abertura de reconciliação a partir de inferência IA."""
+    reconciliacao: ReconciliacaoResponse
+    limiar: float
+    recebidos: int
+    pendentes_abertos: int
+    auto_ratificados: int

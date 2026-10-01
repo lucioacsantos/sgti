@@ -34,6 +34,11 @@ const router = createRouter({
           component: () => import('@/views/infrastructure/InfraView.vue')
         },
         {
+          path: 'reconciliacoes',
+          name: 'reconciliacoes',
+          component: () => import('@/views/reconciliation/ReconciliacoesView.vue')
+        },
+        {
           path: 'reference-data',
           name: 'reference-data',
           component: () => import('@/views/reference/ReferenceDataView.vue')
