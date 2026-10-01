@@ -25,3 +25,5 @@ frontend/.vite/
 .codex/
 .agents/
 logs/
+cmdb_banco_teste/
+
