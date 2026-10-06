@@ -181,20 +181,24 @@ class AreasCreate(BaseModel):
 class OllamaRequest(BaseModel):
     question: str
     model: Optional[str] = None
+    provider: Optional[str] = None
 
 class OllamaResponse(BaseModel):
     response: str
+    provider: Optional[str] = None
 
 class ZabbixOllamaObservationRequest(BaseModel):
     event_id: str
     question: str
     model: Optional[str] = None
+    provider: Optional[str] = None
 
 class ZabbixOllamaObservationResponse(BaseModel):
     event_id: str
     problem_name: Optional[str] = None
     ollama_response: str
     zabbix_result: dict
+    provider: Optional[str] = None
 
 
 # ---- Base de conhecimento (RAG: nomic-embed-text + llama3.2) ----
@@ -203,6 +207,8 @@ class KnowledgeIndexRequest(BaseModel):
     """Solicita (re)indexação de um diretório de Markdown."""
     diretorio: Optional[str] = None
     recriar: bool = False
+    provider: Optional[str] = None
+    """Engine de IA: "ollama" (padrão/env AI_PROVIDER) ou "local" (sentence-transformers)."""
 
 class TrechoCitado(BaseModel):
     documento: str
@@ -216,14 +222,17 @@ class KnowledgeIndexResponse(BaseModel):
     documentos_indexados: int
     trechos_indexados: int
     documentos_removidos: int
+    provider: Optional[str] = None
     duracao_segundos: float
 
 class KnowledgeSearchRequest(BaseModel):
     query: str
     top_k: int = 5
+    provider: Optional[str] = None
 
 class KnowledgeSearchResponse(BaseModel):
     query: str
+    provider: Optional[str] = None
     resultados: list[TrechoCitado]
 
 class KnowledgeAskRequest(BaseModel):
@@ -231,11 +240,13 @@ class KnowledgeAskRequest(BaseModel):
     top_k: int = 5
     chat_model: Optional[str] = None
     embed_model: Optional[str] = None
+    provider: Optional[str] = None
 
 class KnowledgeAskResponse(BaseModel):
     pergunta: str
     resposta: str
     trechos: list[TrechoCitado]
+    provider: Optional[str] = None
 
 class AlarmAnalysisRequest(BaseModel):
     """Payload do webhook do Zabbix para análise de alarme via RAG + CMDB."""
@@ -245,6 +256,7 @@ class AlarmAnalysisRequest(BaseModel):
     severidade: Optional[str] = None
     mensagem: Optional[str] = None
     top_k: int = 5
+    provider: Optional[str] = None
 
 class AlarmAnalysisResponse(BaseModel):
     event_id: str
@@ -253,6 +265,7 @@ class AlarmAnalysisResponse(BaseModel):
     analise: str
     trechos: list[TrechoCitado]
     contexto_cmdb: dict
+    provider: Optional[str] = None
 
 
 class TipoRelacionamentoBase(BaseModel):

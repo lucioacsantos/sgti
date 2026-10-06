@@ -52,8 +52,13 @@ Tabelas de apoio mantidas por admin via tela de Dados de Referência: tipos de a
 
 ### 7. Integrações
 
-- **Zabbix**: webhook de alarmes (`/integrations/zabbix/alarm`) com enriquecimento via Ollama
-- **Ollama (IA)**: perguntas à base de conhecimento com RAG (`/ollama/knowledge/perguntar`) — responde com trechos citados de manuais indexados
+- **Zabbix**: webhook de alarmes (`/integrations/zabbix/alarm`) com enriquecimento via IA
+- **IA (engine híbrida)**: dois providers selecionáveis por request (`provider` no payload) ou env `AI_PROVIDER`:
+  - **ollama** — LLM llama3.2 + nomic-embed-text locais; RAG com respostas abstrativas (`/ollama/knowledge/perguntar`)
+  - **local** — sentence-transformers em CPU + geração determinística (taxonomia de alarmes + extração literal dos manuais), **sem serviço externo nem LLM**
+- Base de conhecimento indexada por documento com a assinatura do provider (`documento.embed_provider`); busca compara apenas embeddings do mesmo provider
+
+Detalhes em [ia-hibrida.md](ia-hibrida.md).
 
 ## Modelo de autenticação da API
 

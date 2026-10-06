@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
+import ai_engine
 import models, schemas, auth, zabbix, knowledge, ollama
 import database
 from database import get_db
@@ -16,9 +17,13 @@ def ask_ollama(
     question: schemas.OllamaRequest,
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
-    logger.info("Querying Ollama", extra={"service_account": current_service.name, "model": question.model})
-    response = ollama.generate(question.question, question.model)
-    return {"response": response}
+    logger.info("Querying AI engine", extra={"service_account": current_service.name, "model": question.model})
+    provider = ai_engine.resolve_provider(question.provider)
+    if provider == "local":
+        response = ai_engine.local_generate(question.question)
+    else:
+        response = ollama.generate(question.question, question.model)
+    return {"response": response, "provider": provider}
 
 
 @router.get("/modelos/")
@@ -26,7 +31,20 @@ def list_ollama_models(
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Listing Ollama models", extra={"service_account": current_service.name})
-    return {"modelos": ollama.list_models()}
+    try:
+        modelos_ollama = ollama.list_models()
+    except HTTPException as exc:
+        # Ollama pode não estar disponível; o provider local continua utilizável
+        logger.warning("Ollama indisponível ao listar modelos: %s", exc.detail)
+        modelos_ollama = []
+    return {
+        "modelos": modelos_ollama,
+        "local": {
+            "embed_model": ai_engine.LOCAL_EMBED_MODEL,
+            "disponivel": ai_engine._get_local_model is not None,
+        },
+        "default_provider": ai_engine.DEFAULT_PROVIDER,
+    }
 
 
 # ---- Base de conhecimento (RAG) ----
@@ -49,7 +67,7 @@ def index_knowledge(
         },
     )
     try:
-        resultado = knowledge.index_directory(db, payload.diretorio, payload.recriar)
+        resultado = knowledge.index_directory(db, payload.diretorio, payload.recriar, payload.provider)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
     return resultado
@@ -61,9 +79,13 @@ def search_knowledge(
     db: Session = Depends(get_db),
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
-    logger.info("Searching knowledge base", extra={"service_account": current_service.name, "query": payload.query})
-    resultados = knowledge.search(db, payload.query, payload.top_k)
-    return {"query": payload.query, "resultados": resultados}
+    logger.info(
+        "Searching knowledge base",
+        extra={"query": payload.query, "provider": payload.provider},
+    )
+    provider = ai_engine.resolve_provider(payload.provider)
+    resultados = knowledge.search(db, payload.query, payload.top_k, provider=provider)
+    return {"query": payload.query, "provider": provider, "resultados": resultados}
 
 
 @knowledge_router.post("/perguntar", response_model=schemas.KnowledgeAskResponse)
@@ -72,13 +94,18 @@ def ask_knowledge(
     db: Session = Depends(get_db),
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
-    logger.info("RAG question", extra={"service_account": current_service.name, "pergunta": payload.pergunta})
+    logger.info(
+        "RAG question",
+        extra={"service_account": current_service.name, "pergunta": payload.pergunta,
+               "provider": payload.provider},
+    )
     return knowledge.answer_question(
         db,
         payload.pergunta,
         payload.top_k,
         payload.chat_model,
         payload.embed_model,
+        payload.provider,
     )
 
 
@@ -90,10 +117,14 @@ def ask_knowledge_stream(
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     """RAG com streaming NDJSON: start (trechos) -> chunk (tokens) -> end."""
-    logger.info("RAG question (stream)", extra={"service_account": current_service.name, "pergunta": payload.pergunta})
+    logger.info(
+        "RAG question (stream)",
+        extra={"service_account": current_service.name, "pergunta": payload.pergunta,
+               "provider": payload.provider},
+    )
 
     def gerar():
-        # Sessão criada dentro do generator: o stream consome o Ollama depois
+        # Sessão criada dentro do generator: o stream consome o provider depois
         # do fim da request, quando a sessão de Depends(get_db) já foi fechada.
         stream_db = session_factory()
         try:
@@ -103,6 +134,7 @@ def ask_knowledge_stream(
                 payload.top_k,
                 payload.chat_model,
                 payload.embed_model,
+                payload.provider,
             )
         finally:
             stream_db.close()
@@ -151,20 +183,41 @@ def analyze_alarm(
             "service_account": current_service.name,
             "event_id": payload.event_id,
             "host": payload.host,
+            "provider": payload.provider,
         },
     )
+    provider = ai_engine.resolve_provider(payload.provider)
     contexto_cmdb = knowledge_cmdb_context(db, payload.host)
-    trechos = knowledge.search(db, f"{payload.problema} host {payload.host} {payload.mensagem or ''}", payload.top_k)
-    prompt = ALARM_USER_TEMPLATE.format(
-        event_id=payload.event_id,
-        host=payload.host,
-        problema=payload.problema,
-        severidade=payload.severidade or "não informada",
-        mensagem=payload.mensagem or "—",
-        cmdb=contexto_cmdb or "(host não encontrado no CMDB)",
-        rag=knowledge.build_context(trechos) or "(nenhum procedimento recuperado)",
+    trechos = knowledge.search(
+        db,
+        f"{payload.problema} host {payload.host} {payload.mensagem or ''}",
+        payload.top_k,
+        provider=provider,
     )
-    analise = ollama.chat(prompt, system=SYSTEM_ALARM_PROMPT, num_predict=knowledge.RAG_NUM_PREDICT)
+    if provider == "local":
+        # Engine local determinística: taxonomia + CMDB + extração do RAG
+        analise = ai_engine.local_alarm_analysis(
+            {
+                "event_id": payload.event_id,
+                "host": payload.host,
+                "problema": payload.problema,
+                "severidade": payload.severidade,
+                "mensagem": payload.mensagem,
+            },
+            contexto_cmdb,
+            trechos,
+        )
+    else:
+        prompt = ALARM_USER_TEMPLATE.format(
+            event_id=payload.event_id,
+            host=payload.host,
+            problema=payload.problema,
+            severidade=payload.severidade or "não informada",
+            mensagem=payload.mensagem or "—",
+            cmdb=contexto_cmdb or "(host não encontrado no CMDB)",
+            rag=knowledge.build_context(trechos) or "(nenhum procedimento recuperado)",
+        )
+        analise = ollama.chat(prompt, system=SYSTEM_ALARM_PROMPT, num_predict=knowledge.RAG_NUM_PREDICT)
     return {
         "event_id": payload.event_id,
         "host": payload.host,
@@ -172,6 +225,7 @@ def analyze_alarm(
         "analise": analise,
         "trechos": trechos,
         "contexto_cmdb": contexto_cmdb,
+        "provider": provider,
     }
 
 
@@ -248,24 +302,39 @@ def add_ollama_response_to_zabbix_alarm(
     payload: schemas.ZabbixOllamaObservationRequest,
     current_service: models.ServiceAccount = Depends(auth.get_service_account)
 ):
-    logger.info("Adding Ollama observation to Zabbix alarm", extra={"service_account": current_service.name, "event_id": payload.event_id})
+    logger.info("Adding AI observation to Zabbix alarm", extra={"service_account": current_service.name, "event_id": payload.event_id})
+    provider = ai_engine.resolve_provider(payload.provider)
     zabbix_client = zabbix.ZabbixClient()
     problem = zabbix_client.get_open_problem(payload.event_id)
-    ollama_prompt = (
-        "Analise o alarme aberto do Zabbix abaixo e gere uma observação objetiva "
-        "para registrar no próprio alarme.\n\n"
-        f"Event ID: {payload.event_id}\n"
-        f"Nome do problema: {problem.get('name')}\n"
-        f"Severidade: {problem.get('severity')}\n"
-        f"Object ID: {problem.get('objectid')}\n\n"
-        f"Solicitação: {payload.question}"
-    )
-    ollama_response = ollama.generate(ollama_prompt, payload.model)
-    zabbix_result = zabbix_client.add_event_observation(payload.event_id, ollama_response)
+    if provider == "local":
+        analise_alarme = ai_engine.local_alarm_analysis(
+            {
+                "event_id": payload.event_id,
+                "host": None,
+                "problema": problem.get("name") or "",
+                "severidade": str(problem.get("severity") or ""),
+                "mensagem": problem.get("objectid") or "",
+            },
+            {},
+            [],
+        )
+    else:
+        ollama_prompt = (
+            "Analise o alarme aberto do Zabbix abaixo e gere uma observação objetiva "
+            "para registrar no próprio alarme.\n\n"
+            f"Event ID: {payload.event_id}\n"
+            f"Nome do problema: {problem.get('name')}\n"
+            f"Severidade: {problem.get('severity')}\n"
+            f"Object ID: {problem.get('objectid')}\n\n"
+            f"Solicitação: {payload.question}"
+        )
+        analise_alarme = ollama.generate(ollama_prompt, payload.model)
+    zabbix_result = zabbix_client.add_event_observation(payload.event_id, analise_alarme)
 
     return {
         "event_id": payload.event_id,
         "problem_name": problem.get("name"),
-        "ollama_response": ollama_response,
+        "ollama_response": analise_alarme,
         "zabbix_result": zabbix_result,
+        "provider": provider,
     }

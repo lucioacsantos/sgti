@@ -1,4 +1,9 @@
-"""Base de conhecimento RAG: indexação de Markdown + busca vetorial (nomic-embed-text)."""
+"""Base de conhecimento RAG: indexação de Markdown + busca vetorial.
+
+Engine híbrida: provider "ollama" (LLM local llama3.2 + nomic-embed-text) ou
+provider "local" (sentence-transformers em CPU + resposta extrativa, sem LLM).
+Cada documento é indexado com UM provider; a busca só compara embeddings do
+mesmo provider (espaços vetoriais distintos não são comparáveis)."""
 import hashlib
 import json
 import logging
@@ -10,6 +15,7 @@ from pathlib import Path
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
+import ai_engine
 import models
 import ollama
 
@@ -82,8 +88,13 @@ def _hash_arquivo(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def index_directory(db: Session, diretorio: str | None = None, recriar: bool = False) -> dict:
-    """Varre o diretório de Markdown, gera embeddings e persiste documentos/trechos."""
+def index_directory(db: Session, diretorio: str | None = None, recriar: bool = False,
+                    provider: str | None = None) -> dict:
+    """Varre o diretório de Markdown, gera embeddings e persiste documentos/trechos.
+
+    provider: "ollama" ou "local" — gravado em documento.embed_provider para
+    isolar os espaços vetoriais de cada engine."""
+    provider = ai_engine.resolve_provider(provider)
     inicio = time.time()
     base = Path(diretorio).expanduser() if diretorio else knowledge_dir()
     if not base.is_dir():
@@ -96,6 +107,7 @@ def index_directory(db: Session, diretorio: str | None = None, recriar: bool = F
     else:
         removidos = 0
 
+    assinatura_provider = ai_engine.provider_signature(provider)
     indexados = 0
     total_trechos = 0
     for arquivo in arquivos:
@@ -106,7 +118,9 @@ def index_directory(db: Session, diretorio: str | None = None, recriar: bool = F
 
         existente = db.query(models.Documento).filter(models.Documento.nome == nome).one_or_none()
         if existente:
-            if existente.conteudo_hash == conteudo_hash:
+            # Reindexa se o conteúdo mudou OU se o provider de embeddings mudou
+            if (existente.conteudo_hash == conteudo_hash
+                    and (existente.embed_provider or "") == assinatura_provider):
                 total_trechos += db.query(models.TrechoDocumento).filter(
                     models.TrechoDocumento.documento_id == existente.id
                 ).count()
@@ -118,8 +132,9 @@ def index_directory(db: Session, diretorio: str | None = None, recriar: bool = F
         if not trechos_texto:
             continue
 
-        embeddings = ollama.embed(
+        embeddings = ai_engine.embed(
             [t["conteudo"] for t in trechos_texto],
+            provider=provider,
         )
 
         doc = models.Documento(
@@ -127,6 +142,7 @@ def index_directory(db: Session, diretorio: str | None = None, recriar: bool = F
             arquivo=caminho,
             titulo=nome.replace("-", " ").replace("_", " ").title(),
             conteudo_hash=conteudo_hash,
+            embed_provider=assinatura_provider,
         )
         db.add(doc)
         db.flush()
@@ -146,7 +162,8 @@ def index_directory(db: Session, diretorio: str | None = None, recriar: bool = F
         total_trechos += len(trechos_texto)
         logger.info(
             "Documento indexado",
-            extra={"documento": nome, "trechos": len(trechos_texto), "arquivo": caminho},
+            extra={"documento": nome, "trechos": len(trechos_texto), "arquivo": caminho,
+                   "provider": assinatura_provider},
         )
 
     return {
@@ -154,24 +171,30 @@ def index_directory(db: Session, diretorio: str | None = None, recriar: bool = F
         "documentos_indexados": indexados,
         "trechos_indexados": total_trechos,
         "documentos_removidos": removidos,
+        "provider": assinatura_provider,
         "duracao_segundos": round(time.time() - inicio, 2),
     }
 
 
-def search(db: Session, query: str, top_k: int = 5) -> list[dict]:
-    """Busca semântica: embedding da query vs. embeddings dos trechos (cosseno)."""
+def search(db: Session, query: str, top_k: int = 5, provider: str | None = None) -> list[dict]:
+    """Busca semântica: embedding da query vs. embeddings dos trechos (cosseno).
+
+    Compara apenas trechos indexados no MESMO provider da consulta."""
+    provider = ai_engine.resolve_provider(provider)
+    assinatura = ai_engine.provider_signature(provider)
     trechos = (
         db.query(models.TrechoDocumento)
         .join(models.Documento)
+        .filter(models.Documento.embed_provider == assinatura)
         .all()
     )
     if not trechos:
         return []
 
-    vetor_query = ollama.embed_one(query)
+    vetor_query = ai_engine.embed_one(query, provider=provider)
     resultados: list[tuple[float, models.TrechoDocumento]] = []
     for trecho in trechos:
-        score = ollama.cosine_similarity(vetor_query, trecho.embedding)
+        score = ai_engine.cosine_similarity(vetor_query, trecho.embedding)
         resultados.append((score, trecho))
     resultados.sort(key=lambda par: par[0], reverse=True)
 
@@ -229,8 +252,14 @@ def answer_question(
     top_k: int = 5,
     chat_model: str | None = None,
     embed_model: str | None = None,
+    provider: str | None = None,
 ) -> dict:
-    trechos = search(db, pergunta, top_k)
+    provider = ai_engine.resolve_provider(provider)
+    trechos = search(db, pergunta, top_k, provider=provider)
+    if provider == "local":
+        # Engine local determinística: resposta extrativa dos trechos (sem LLM)
+        resposta = ai_engine.local_rag_answer(pergunta, trechos)
+        return {"pergunta": pergunta, "resposta": resposta, "trechos": trechos, "provider": provider}
     contexto = build_context(trechos)
     prompt = RAG_USER_TEMPLATE.format(contexto=contexto or "(nenhum trecho recuperado)", pergunta=pergunta)
     # num_ctx 4096: RAG tipico usa <2k tokens; 8192 reserva VRAM desnecessaria
@@ -242,7 +271,7 @@ def answer_question(
         num_ctx=4096,
         num_predict=RAG_NUM_PREDICT,
     )
-    return {"pergunta": pergunta, "resposta": resposta, "trechos": trechos}
+    return {"pergunta": pergunta, "resposta": resposta, "trechos": trechos, "provider": provider}
 
 
 def answer_question_stream(
@@ -251,6 +280,7 @@ def answer_question_stream(
     top_k: int = 5,
     chat_model: str | None = None,
     embed_model: str | None = None,
+    provider: str | None = None,
 ):
     """RAG em streaming: recupera trechos, faz yield de tokens do chat.
 
@@ -261,20 +291,28 @@ def answer_question_stream(
       {"type": "error", "detail": "..."}
     """
     try:
-        trechos = search(db, pergunta, top_k)
-        contexto = build_context(trechos)
-        prompt = RAG_USER_TEMPLATE.format(contexto=contexto or "(nenhum trecho recuperado)", pergunta=pergunta)
+        provider = ai_engine.resolve_provider(provider)
+        trechos = search(db, pergunta, top_k, provider=provider)
         yield json.dumps({"type": "start", "trechos": trechos}) + "\n"
-        yield from (
-            json.dumps({"type": "chunk", "content": chunk}) + "\n"
-            for chunk in ollama.chat_stream(
-                prompt,
-                model=chat_model,
-                system=RAG_SYSTEM_PROMPT,
-                num_ctx=4096,
-                num_predict=RAG_NUM_PREDICT,
+        if provider == "local":
+            resposta = ai_engine.local_rag_answer(pergunta, trechos)
+            yield from (
+                json.dumps({"type": "chunk", "content": chunk}) + "\n"
+                for chunk in ai_engine.local_chunk_stream(resposta)
             )
-        )
+        else:
+            contexto = build_context(trechos)
+            prompt = RAG_USER_TEMPLATE.format(contexto=contexto or "(nenhum trecho recuperado)", pergunta=pergunta)
+            yield from (
+                json.dumps({"type": "chunk", "content": chunk}) + "\n"
+                for chunk in ollama.chat_stream(
+                    prompt,
+                    model=chat_model,
+                    system=RAG_SYSTEM_PROMPT,
+                    num_ctx=4096,
+                    num_predict=RAG_NUM_PREDICT,
+                )
+            )
         yield json.dumps({"type": "end"}) + "\n"
     except HTTPException as exc:
         yield json.dumps({"type": "error", "detail": exc.detail}) + "\n"

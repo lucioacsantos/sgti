@@ -91,7 +91,7 @@ class TestListarModelos:
         with patch("routers.integrations.ollama.list_models", return_value=[{"name": "llama3.2"}]):
             resp = client.get("/ollama/modelos/", headers=headers)
         assert resp.status_code == 200
-        assert resp.json() == {"modelos": [{"name": "llama3.2"}]}
+        assert resp.json()["modelos"] == [{"name": "llama3.2"}]
 
     def test_requer_autenticacao(self, client):
         resp = client.get("/ollama/modelos/")
@@ -109,15 +109,19 @@ class TestIndexarKnowledge:
         doc = tmp_path / "procedimento-teste.md"
         doc.write_text("# Titulo\n\nConteudo do procedimento de teste para embedding.", encoding="utf-8")
 
-        monkeypatch.setattr("knowledge.ollama.embed", _fake_embed)
-        resp = client.post("/ollama/knowledge/indexar", json={"diretorio": str(tmp_path)}, headers=headers)
+        monkeypatch.setattr("ai_engine.ollama.embed", _fake_embed)
+        resp = client.post(
+            "/ollama/knowledge/indexar",
+            json={"diretorio": str(tmp_path)},
+            headers=headers,
+        )
         assert resp.status_code == 200
         body = resp.json()
         assert body["documentos_indexados"] == 1
         assert body["trechos_indexados"] == 1
 
     def test_recriar(self, client, headers, tmp_path, monkeypatch):
-        monkeypatch.setattr("knowledge.ollama.embed", _fake_embed)
+        monkeypatch.setattr("ai_engine.ollama.embed", _fake_embed)
         client.post("/ollama/knowledge/indexar", json={"diretorio": str(tmp_path)}, headers=headers)
         resp = client.post(
             "/ollama/knowledge/indexar",
@@ -132,7 +136,7 @@ class TestIndexarKnowledge:
 
 class TestBuscarKnowledge:
     def test_buscar_sem_base(self, client, headers):
-        with patch("knowledge.ollama.embed_one", return_value=FAKE_EMBED):
+        with patch("ai_engine.embed_one", return_value=FAKE_EMBED):
             resp = client.post("/ollama/knowledge/buscar", json={"query": "disco cheio"}, headers=headers)
         assert resp.status_code == 200
         assert resp.json()["resultados"] == []
@@ -140,10 +144,10 @@ class TestBuscarKnowledge:
     def test_buscar_com_documento(self, client, headers, tmp_path, monkeypatch):
         doc = tmp_path / "proc-disco.md"
         doc.write_text("# Disco Cheio\n\nProcedimento de limpeza de disco em servidor Linux.", encoding="utf-8")
-        monkeypatch.setattr("knowledge.ollama.embed", _fake_embed)
+        monkeypatch.setattr("ai_engine.ollama.embed", _fake_embed)
         client.post("/ollama/knowledge/indexar", json={"diretorio": str(tmp_path)}, headers=headers)
 
-        with patch("knowledge.ollama.embed_one", return_value=FAKE_EMBED):
+        with patch("ai_engine.embed_one", return_value=FAKE_EMBED):
             resp = client.post("/ollama/knowledge/buscar", json={"query": "disco cheio", "top_k": 2}, headers=headers)
         assert resp.status_code == 200
         body = resp.json()
@@ -160,12 +164,12 @@ class TestPerguntarKnowledge:
     def test_perguntar(self, client, headers, tmp_path, monkeypatch):
         doc = tmp_path / "proc-cpu.md"
         doc.write_text("# Alta CPU\n\nVerificar processos com top e pidstat.", encoding="utf-8")
-        monkeypatch.setattr("knowledge.ollama.embed", _fake_embed)
+        monkeypatch.setattr("ai_engine.ollama.embed", _fake_embed)
         client.post("/ollama/knowledge/indexar", json={"diretorio": str(tmp_path)}, headers=headers)
 
         with (
-            patch("knowledge.ollama.embed_one", return_value=FAKE_EMBED),
-            patch("knowledge.ollama.chat", return_value="Diagnóstico: processo com alta CPU."),
+            patch("ai_engine.embed_one", return_value=FAKE_EMBED),
+            patch("ai_engine.ollama.chat", return_value="Diagnóstico: processo com alta CPU."),
         ):
             resp = client.post(
                 "/ollama/knowledge/perguntar",
@@ -179,8 +183,8 @@ class TestPerguntarKnowledge:
 
     def test_perguntar_sem_base(self, client, headers):
         with (
-            patch("knowledge.ollama.embed_one", return_value=FAKE_EMBED),
-            patch("knowledge.ollama.chat", return_value="Sem procedimento documentado."),
+            patch("ai_engine.embed_one", return_value=FAKE_EMBED),
+            patch("ai_engine.ollama.chat", return_value="Sem procedimento documentado."),
         ):
             resp = client.post("/ollama/knowledge/perguntar", json={"pergunta": "x"}, headers=headers)
         assert resp.status_code == 200
@@ -191,7 +195,7 @@ class TestPerguntarStream:
     def test_stream_eventos(self, client, headers, tmp_path, monkeypatch):
         doc = tmp_path / "proc-net.md"
         doc.write_text("# Rede Lenta\n\nVerificar interface, erros de CRC e colisões.", encoding="utf-8")
-        monkeypatch.setattr("knowledge.ollama.embed", _fake_embed)
+        monkeypatch.setattr("ai_engine.ollama.embed", _fake_embed)
         client.post("/ollama/knowledge/indexar", json={"diretorio": str(tmp_path)}, headers=headers)
 
         def fake_chat_stream(*args, **kwargs):
@@ -199,8 +203,8 @@ class TestPerguntarStream:
             yield "interface saturada."
 
         with (
-            patch("knowledge.ollama.embed_one", return_value=FAKE_EMBED),
-            patch("knowledge.ollama.chat_stream", side_effect=fake_chat_stream),
+            patch("ai_engine.embed_one", return_value=FAKE_EMBED),
+            patch("ai_engine.ollama.chat_stream", side_effect=fake_chat_stream),
         ):
             resp = client.post(
                 "/ollama/knowledge/perguntar/stream",
@@ -220,8 +224,8 @@ class TestPerguntarStream:
 
     def test_stream_erro_interno(self, client, headers):
         with (
-            patch("knowledge.ollama.embed_one", return_value=FAKE_EMBED),
-            patch("knowledge.ollama.chat_stream", side_effect=RuntimeError("boom")),
+            patch("ai_engine.embed_one", return_value=FAKE_EMBED),
+            patch("ai_engine.ollama.chat_stream", side_effect=RuntimeError("boom")),
         ):
             resp = client.post("/ollama/knowledge/perguntar/stream", json={"pergunta": "x"}, headers=headers)
         assert resp.status_code == 200
@@ -238,12 +242,12 @@ class TestAnalisarAlarme:
     def test_analisar_com_cmdb(self, client, headers, ativo, db_session, tmp_path, monkeypatch):
         doc = tmp_path / "proc-down.md"
         doc.write_text("# Serviço Down\n\nVerificar serviço com systemctl e escalar GOSD.", encoding="utf-8")
-        monkeypatch.setattr("knowledge.ollama.embed", _fake_embed)
+        monkeypatch.setattr("ai_engine.ollama.embed", _fake_embed)
         client.post("/ollama/knowledge/indexar", json={"diretorio": str(tmp_path)}, headers=headers)
 
         with (
-            patch("knowledge.ollama.embed_one", return_value=FAKE_EMBED),
-            patch("knowledge.ollama.chat", return_value="Diagnóstico: serviço indisponível. Escalar GOSD."),
+            patch("ai_engine.embed_one", return_value=FAKE_EMBED),
+            patch("ai_engine.ollama.chat", return_value="Diagnóstico: serviço indisponível. Escalar GOSD."),
         ):
             resp = client.post(
                 "/ollama/alarmes/analisar",
@@ -266,8 +270,8 @@ class TestAnalisarAlarme:
 
     def test_analisar_host_fqdn(self, client, headers, ativo):
         with (
-            patch("knowledge.ollama.embed_one", return_value=FAKE_EMBED),
-            patch("knowledge.ollama.chat", return_value="ok"),
+            patch("ai_engine.embed_one", return_value=FAKE_EMBED),
+            patch("ai_engine.ollama.chat", return_value="ok"),
         ):
             resp = client.post(
                 "/ollama/alarmes/analisar",
@@ -279,8 +283,8 @@ class TestAnalisarAlarme:
 
     def test_analisar_host_desconhecido(self, client, headers):
         with (
-            patch("knowledge.ollama.embed_one", return_value=FAKE_EMBED),
-            patch("knowledge.ollama.chat", return_value="host não encontrado"),
+            patch("ai_engine.embed_one", return_value=FAKE_EMBED),
+            patch("ai_engine.ollama.chat", return_value="host não encontrado"),
         ):
             resp = client.post(
                 "/ollama/alarmes/analisar",

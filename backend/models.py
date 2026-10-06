@@ -261,6 +261,10 @@ class Documento(Base):
     arquivo = Column(String(512), nullable=False)
     titulo = Column(String(255))
     conteudo_hash = Column(String(64), nullable=False)
+    # Provider/modelo de embeddings usado na indexação ("ollama:nomic-embed-text",
+    # "local:paraphrase-multilingual-MiniLM-L12-v2"). Embeddings de modelos
+    # distintos não são comparáveis: a busca casa provider → provider.
+    embed_provider = Column(String(255), nullable=False, server_default="ollama:nomic-embed-text")
     indexado_em = Column(DateTime, server_default=func.now())
     atualizado_em = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
