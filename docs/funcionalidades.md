@@ -54,7 +54,7 @@ Tabelas de apoio mantidas por admin via tela de Dados de Referência: tipos de a
 
 - **Zabbix**: webhook de alarmes (`/integrations/zabbix/alarm`) com enriquecimento via IA
 - **IA (engine híbrida)**: dois providers selecionáveis por request (`provider` no payload) ou env `AI_PROVIDER`:
-  - **ollama** — LLM llama3.2 + nomic-embed-text locais; RAG com respostas abstrativas (`/ollama/knowledge/perguntar`)
+  - **llm** — LLM local (ex. llama3.2 + nomic-embed-text via Ollama); RAG com respostas abstrativas (`/ia/knowledge/perguntar`)
   - **local** — sentence-transformers em CPU + geração determinística (taxonomia de alarmes + extração literal dos manuais), **sem serviço externo nem LLM**
 - Base de conhecimento indexada por documento com a assinatura do provider (`documento.embed_provider`); busca compara apenas embeddings do mesmo provider
 
@@ -76,6 +76,6 @@ Isso permite o modelo operacional central: **automação grava, painel lê/corri
 | `backend/seed.py` | Popula dados mestre + ativos de exemplo + service account |
 | `backend/import_test_data.py` | Importa dump pgAdmin de ativos/aplicações (idempotente) |
 | `backend/infer_infra_map.py` | Gera serviços, instâncias e relacionamentos por inferência, via API |
-| `backend/infer_infra_map_ia.py` | Variante com LLM (Ollama): reporta confiabilidade de cada ação e abre reconciliação automática para ações com confiabilidade < 90% |
+| `backend/infer_infra_map_ia.py` | Variante com LLM: reporta confiabilidade de cada ação e abre reconciliação automática para ações com confiabilidade < 90% |
 
 Ver [inferencias.md](inferencias.md) para o funcionamento detalhado.

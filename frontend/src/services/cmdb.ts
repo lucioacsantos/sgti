@@ -86,7 +86,7 @@ export interface HealthStatus {
   database: string
 }
 
-// ===== Ollama / RAG =====
+// ===== IA / RAG =====
 export interface TrechoCitado {
   documento: string
   arquivo: string
@@ -107,7 +107,7 @@ export interface KnowledgeAskResponse {
   trechos: TrechoCitado[]
 }
 
-export interface OllamaModelo {
+export interface AIModelo {
   name: string
   size?: number
   details?: { parameter_size?: string; quantization_level?: string }

@@ -5,7 +5,7 @@ import type {
   SistemaOperacional, Area, TipoRelacionamento, Aplicacao, Cluster,
   Namespace, Servico, ServicoNegocio, InstanciaAplicacao, Relacionamento,
   AuditLog, HealthStatus, ApiInfo,
-  KnowledgeAskRequest, KnowledgeAskResponse, OllamaModelo, TrechoCitado,
+  KnowledgeAskRequest, KnowledgeAskResponse, AIModelo, TrechoCitado,
   Reconciliacao, ItemReconciliacao, ParecerTipo, ItemDecisao, ReconciliacaoFonte
 } from './cmdb'
 
@@ -265,14 +265,14 @@ export const auditService = {
   }
 }
 
-// ===== IA (Ollama RAG) =====
+// ===== IA (RAG) =====
 export const aiService = {
-  async modelos(): Promise<OllamaModelo[]> {
-    const { data } = await api.get<{ modelos: OllamaModelo[] }>('/ollama/modelos/')
+  async modelos(): Promise<AIModelo[]> {
+    const { data } = await api.get<{ modelos: AIModelo[] }>('/ia/modelos/')
     return data.modelos
   },
   async perguntar(payload: KnowledgeAskRequest): Promise<KnowledgeAskResponse> {
-    const { data } = await api.post<KnowledgeAskResponse>('/ollama/knowledge/perguntar', payload, { timeout: 300000 })
+    const { data } = await api.post<KnowledgeAskResponse>('/ia/knowledge/perguntar', payload, { timeout: 300000 })
     return data
   },
   async perguntarStream(
@@ -284,7 +284,7 @@ export const aiService = {
     }
   ): Promise<void> {
     const authStore = useAuthStore()
-    const response = await fetch(`${apiBaseUrl}/ollama/knowledge/perguntar/stream`, {
+    const response = await fetch(`${apiBaseUrl}/ia/knowledge/perguntar/stream`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

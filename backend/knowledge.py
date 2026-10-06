@@ -1,6 +1,6 @@
 """Base de conhecimento RAG: indexação de Markdown + busca vetorial.
 
-Engine híbrida: provider "ollama" (LLM local llama3.2 + nomic-embed-text) ou
+Engine híbrida: provider "llm" (LLM local via API compatível com Ollama) ou
 provider "local" (sentence-transformers em CPU + resposta extrativa, sem LLM).
 Cada documento é indexado com UM provider; a busca só compara embeddings do
 mesmo provider (espaços vetoriais distintos não são comparáveis)."""
@@ -16,8 +16,8 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 import ai_engine
+import llm_client
 import models
-import ollama
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +92,7 @@ def index_directory(db: Session, diretorio: str | None = None, recriar: bool = F
                     provider: str | None = None) -> dict:
     """Varre o diretório de Markdown, gera embeddings e persiste documentos/trechos.
 
-    provider: "ollama" ou "local" — gravado em documento.embed_provider para
+    provider: "llm" ou "local" — gravado em documento.embed_provider para
     isolar os espaços vetoriais de cada engine."""
     provider = ai_engine.resolve_provider(provider)
     inicio = time.time()
@@ -228,7 +228,7 @@ RAG_USER_TEMPLATE = (
 
 # Limite de tokens gerados: em GPUs pequenas, respostas longas derrubam o timeout
 # do reverse proxy (502) sem streaming. 900 tokens ~= 700 palavras.
-RAG_NUM_PREDICT = int(os.getenv("OLLAMA_NUM_PREDICT", "900"))
+RAG_NUM_PREDICT = int(os.getenv("LLM_NUM_PREDICT", os.getenv("OLLAMA_NUM_PREDICT", "900")))
 
 
 def build_context(trechos: list[dict], max_chars: int = 12000) -> str:
@@ -264,7 +264,7 @@ def answer_question(
     prompt = RAG_USER_TEMPLATE.format(contexto=contexto or "(nenhum trecho recuperado)", pergunta=pergunta)
     # num_ctx 4096: RAG tipico usa <2k tokens; 8192 reserva VRAM desnecessaria
     # (em GPUs pequenas causa descarte de modelos e cold-start lento)
-    resposta = ollama.chat(
+    resposta = llm_client.chat(
         prompt,
         model=chat_model,
         system=RAG_SYSTEM_PROMPT,
@@ -305,7 +305,7 @@ def answer_question_stream(
             prompt = RAG_USER_TEMPLATE.format(contexto=contexto or "(nenhum trecho recuperado)", pergunta=pergunta)
             yield from (
                 json.dumps({"type": "chunk", "content": chunk}) + "\n"
-                for chunk in ollama.chat_stream(
+                for chunk in llm_client.chat_stream(
                     prompt,
                     model=chat_model,
                     system=RAG_SYSTEM_PROMPT,

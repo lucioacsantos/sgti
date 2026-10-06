@@ -26,7 +26,7 @@ O mapa vivo da nossa tecnologia: descoberto por IA, validado por especialistas, 
 
 ## Slide 5 — Funcionalidades entregues (2/2)
 - **Segurança**: login AD + 2FA, criptografia AES-256-GCM com crypto-lock, rate limiting
-- **IA local (Ollama)**: assistente com respostas **citadas dos manuais** (RAG), integração Zabbix
+- **IA local (LLM on-premise)**: assistente com respostas **citadas dos manuais** (RAG), integração Zabbix
 - **Frontend moderno**: dashboard, 8 abas de infraestrutura, exportação XLSX, permissões por perfil
 
 ## Slide 6 — ⭐ Novidade: módulo de Reconciliação (em homologação)

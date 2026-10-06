@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, nextTick, onMounted } from 'vue'
 import { aiService } from '@/services/cmdb.services'
-import type { TrechoCitado, OllamaModelo } from '@/services/cmdb'
+import type { TrechoCitado, AIModelo } from '@/services/cmdb'
 import ErrorAlert from '@/components/ErrorAlert.vue'
 import {
   Bot, Send, Trash2, FileText, ChevronDown, ChevronUp, Sparkles, User
@@ -19,7 +19,7 @@ const perguntaInput = ref('')
 const isLoading = ref(false)
 const errorMessage = ref<string | null>(null)
 const chatContainer = ref<HTMLElement | null>(null)
-const modelos = ref<OllamaModelo[]>([])
+const modelos = ref<AIModelo[]>([])
 const chatModel = ref<string>('')
 
 // Modelos de embedding não servem para chat (ex.: nomic-embed-text, mxbai-embed, bge, all-minilm, snowflake-arctic-embed)
@@ -120,7 +120,7 @@ onMounted(loadModelos)
       <div>
         <h2 class="text-lg font-bold text-slate-100 flex items-center gap-2">
           <Bot class="w-5 h-5 text-sky-400" />
-          Assistente IA (Ollama)
+          Assistente IA
         </h2>
         <p class="text-xs text-slate-400 mt-0.5">
           Pergunte em linguagem natural — as respostas são baseadas nos procedimentos da base de conhecimento indexada.
@@ -130,7 +130,7 @@ onMounted(loadModelos)
         <select
           v-model="chatModel"
           class="px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-sky-500 transition-colors"
-          title="Modelo de chat do Ollama"
+          title="Modelo de chat do LLM"
         >
           <option v-if="modelos.length === 0" value="">Modelo padrão</option>
           <option v-for="m in modelos" :key="m.name" :value="m.name">{{ m.name }}</option>

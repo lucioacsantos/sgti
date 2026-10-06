@@ -41,7 +41,7 @@ def get_db():
 def get_stream_db_factory():
     """Fornece a fábrica de sessões para generators de streaming.
 
-    A sessão precisa ser criada dentro do generator (que consome o Ollama
+    A sessão precisa ser criada dentro do generator (que consome o LLM
     depois do fim da request), então injetamos a fábrica em vez da sessão.
     """
     yield SessionLocal

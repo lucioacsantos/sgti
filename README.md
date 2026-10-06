@@ -19,7 +19,7 @@ Sistema de Gerenciamento de TI — Configuration Management Database com backend
 - Node.js 18+
 - PostgreSQL 14+
 - (Opcional) Active Directory / OpenLDAP para autenticação de usuários
-- (Opcional) IA: Ollama **ou** engine local em Python — ver [docs/ia-hibrida.md](docs/ia-hibrida.md)
+- (Opcional) IA: servidor LLM (compatível com API do Ollama) **ou** engine local em Python — ver [docs/ia-hibrida.md](docs/ia-hibrida.md)
 - (Opcional) Zabbix para integração de alarmes
 
 ### Backend
@@ -91,11 +91,11 @@ ROLE_READ=G_GESIN
 SGTI_OWNER_NAME=<nome>
 SGTI_OWNER_CPF=<cpf>
 
-# IA — provider "ollama" (opcional; provider "local" não precisa destes)
-OLLAMA_API_URL=http://localhost:11434/api/generate
+# IA — provider "llm" (opcional; provider "local" não precisa destes)
+LLM_API_URL=http://localhost:11434
 
 # IA — provider "local" (sentence-transformers em CPU, sem serviço externo)
-AI_PROVIDER=ollama            # ollama | local
+AI_PROVIDER=llm            # llm | local
 LOCAL_EMBED_MODEL=paraphrase-multilingual-MiniLM-L12-v2
 # Instalação: pip install torch --index-url https://download.pytorch.org/whl/cpu
 #             pip install sentence-transformers
@@ -173,8 +173,8 @@ sgti/
 │   ├── models.py               # models SQLAlchemy
 │   ├── schemas.py              # schemas Pydantic
 │   ├── database.py             # conexão/Session
-│   ├── ai_engine.py            # engine de IA híbrida (providers ollama/local)
-│   ├── ollama.py               # cliente Ollama (provider "ollama")
+│   ├── ai_engine.py            # engine de IA híbrida (providers llm/local)
+│   ├── llm_client.py           # cliente LLM compatível com API do Ollama (provider "llm")
 │   ├── crypto_guard.py         # cifra de colunas (crypto_lock)
 │   ├── ldap_backend.py         # seletor AD/OpenLDAP
 │   ├── routers/                # routers da API

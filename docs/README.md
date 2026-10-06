@@ -8,7 +8,7 @@
 | [frontend.md](frontend.md) | Guia de usabilidade de cada tela do painel |
 | [autenticacao-2fa.md](autenticacao-2fa.md) | Login AD, 2FA TOTP, habilitação e suporte (zerar 2FA) |
 | [inferencias.md](inferencias.md) | Como funcionam a importação e a inferência do mapa de TI |
-| [ia-hibrida.md](ia-hibrida.md) | Engine de IA híbrida: providers ollama ↔ local (sem LLM), seleção, config e taxonomia |
+| [ia-hibrida.md](ia-hibrida.md) | Engine de IA híbrida: providers llm ↔ local (sem LLM), seleção, config e taxonomia |
 
 ## Visão geral em 1 minuto
 

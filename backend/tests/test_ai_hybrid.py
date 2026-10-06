@@ -1,4 +1,4 @@
-"""Testes da engine de IA híbrida (providers ollama/local) e da análise de
+"""Testes da engine de IA híbrida (providers llm/local) e da análise de
 alarmes com engine local determinística."""
 import datetime
 import json
@@ -23,7 +23,8 @@ class TestResolveProvider:
         assert ai_engine.resolve_provider(None) == ai_engine.DEFAULT_PROVIDER
 
     def test_validos(self):
-        assert ai_engine.resolve_provider("ollama") == "ollama"
+        assert ai_engine.resolve_provider("ollama") == "llm"  # alias legado
+        assert ai_engine.resolve_provider("llm") == "llm"
         assert ai_engine.resolve_provider("local") == "local"
 
     def test_invalido(self):
@@ -36,8 +37,8 @@ class TestResolveProvider:
 
 
 class TestProviderSignature:
-    def test_ollama(self):
-        assert ai_engine.provider_signature("ollama") == "ollama:nomic-embed-text"
+    def test_llm(self):
+        assert ai_engine.provider_signature("llm") == "llm:nomic-embed-text"
 
     def test_local(self):
         sig = ai_engine.provider_signature("local")
@@ -236,7 +237,7 @@ class TestIndexarComLocal:
 
         with patch("ai_engine.local_embed", side_effect=_fake_local_embed):
             resp = client.post(
-                "/ollama/knowledge/indexar",
+                "/ia/knowledge/indexar",
                 json={"diretorio": str(tmp_path), "provider": "local"},
                 headers=headers,
             )
@@ -247,7 +248,7 @@ class TestIndexarComLocal:
 
     def test_provider_invalido(self, client, headers, tmp_path):
         resp = client.post(
-            "/ollama/knowledge/indexar",
+            "/ia/knowledge/indexar",
             json={"diretorio": str(tmp_path), "provider": "gpt"},
             headers=headers,
         )
@@ -261,14 +262,14 @@ class TestBuscarComLocal:
 
         with patch("ai_engine.local_embed", side_effect=_fake_local_embed):
             client.post(
-                "/ollama/knowledge/indexar",
+                "/ia/knowledge/indexar",
                 json={"diretorio": str(tmp_path), "provider": "local"},
                 headers=headers,
             )
 
         with patch("ai_engine.embed_one", return_value=LOCAL_FAKE_EMBED):
             resp = client.post(
-                "/ollama/knowledge/buscar",
+                "/ia/knowledge/buscar",
                 json={"query": "disco cheio", "provider": "local"},
                 headers=headers,
             )
@@ -279,21 +280,21 @@ class TestBuscarComLocal:
         assert body["resultados"][0]["score"] == pytest.approx(1.0)
 
     def test_isolamento_entre_providers(self, client, headers, tmp_path):
-        """Busca 'local' NÃO vê documento indexado com ollama (e vice-versa)."""
+        """Busca 'local' NÃO vê documento indexado com llm (e vice-versa)."""
         doc = tmp_path / "proc-disco.md"
         doc.write_text("# Disco Cheio\n\nProcedimento de disco.", encoding="utf-8")
 
         with patch("ai_engine.local_embed", side_effect=_fake_local_embed):
             client.post(
-                "/ollama/knowledge/indexar",
+                "/ia/knowledge/indexar",
                 json={"diretorio": str(tmp_path), "provider": "local"},
                 headers=headers,
             )
-        # busca com provider ollama não encontra (assinatura diferente)
+        # busca com provider llm não encontra (assinatura diferente)
         with patch("ai_engine.embed_one", return_value=[0.1] * 768):
             resp = client.post(
-                "/ollama/knowledge/buscar",
-                json={"query": "disco", "provider": "ollama"},
+                "/ia/knowledge/buscar",
+                json={"query": "disco", "provider": "llm"},
                 headers=headers,
             )
         assert resp.status_code == 200
@@ -307,14 +308,14 @@ class TestRagLocal:
 
         with patch("ai_engine.local_embed", side_effect=_fake_local_embed):
             client.post(
-                "/ollama/knowledge/indexar",
+                "/ia/knowledge/indexar",
                 json={"diretorio": str(tmp_path), "provider": "local"},
                 headers=headers,
             )
 
         with patch("ai_engine.embed_one", return_value=LOCAL_FAKE_EMBED):
             resp = client.post(
-                "/ollama/knowledge/perguntar",
+                "/ia/knowledge/perguntar",
                 json={"pergunta": "o que fazer com alta de CPU?", "provider": "local"},
                 headers=headers,
             )
@@ -330,14 +331,14 @@ class TestRagLocal:
 
         with patch("ai_engine.local_embed", side_effect=_fake_local_embed):
             client.post(
-                "/ollama/knowledge/indexar",
+                "/ia/knowledge/indexar",
                 json={"diretorio": str(tmp_path), "provider": "local"},
                 headers=headers,
             )
 
         with patch("ai_engine.embed_one", return_value=LOCAL_FAKE_EMBED):
             resp = client.post(
-                "/ollama/knowledge/perguntar/stream",
+                "/ia/knowledge/perguntar/stream",
                 json={"pergunta": "rede lenta", "provider": "local"},
                 headers=headers,
             )
@@ -356,7 +357,7 @@ class TestAnalisarAlarmeLocal:
 
         with patch("ai_engine.local_embed", side_effect=_fake_local_embed):
             client.post(
-                "/ollama/knowledge/indexar",
+                "/ia/knowledge/indexar",
                 json={"diretorio": str(tmp_path), "provider": "local"},
                 headers=headers,
             )
@@ -369,7 +370,7 @@ class TestAnalisarAlarmeLocal:
             "provider": "local",
         }
         with patch("ai_engine.embed_one", return_value=LOCAL_FAKE_EMBED):
-            resp = client.post("/ollama/alarmes/analisar", json=alarme_payload, headers=headers)
+            resp = client.post("/ia/alarmes/analisar", json=alarme_payload, headers=headers)
         assert resp.status_code == 200
         body = resp.json()
         assert body["provider"] == "local"
@@ -380,7 +381,7 @@ class TestAnalisarAlarmeLocal:
 
     def test_analisar_provider_invalido(self, client, headers):
         resp = client.post(
-            "/ollama/alarmes/analisar",
+            "/ia/alarmes/analisar",
             json={"event_id": "1", "host": "x", "problema": "down", "provider": "gpt"},
             headers=headers,
         )
@@ -400,21 +401,21 @@ class TestObservacaoZabbixLocal:
 
         with patch("zabbix.ZabbixClient", return_value=FakeZabbix()):
             resp = client.post(
-                "/zabbix/alarmes/observacao-ollama/",
+                "/zabbix/alarmes/observacao-ia/",
                 json={"event_id": "777", "question": "analisar", "provider": "local"},
                 headers=headers,
             )
         assert resp.status_code == 200
         body = resp.json()
         assert body["provider"] == "local"
-        assert "engine local determinística" in body["ollama_response"]
+        assert "engine local determinística" in body["resposta"]
         assert body["zabbix_result"]["ok"] is True
 
 
-class TestAskOllamaLocal:
+class TestAskAILocal:
     def test_ask_provider_local(self, client, headers):
         resp = client.post(
-            "/ollama/",
+            "/ia/",
             json={"question": "disco cheio no /var", "provider": "local"},
             headers=headers,
         )
@@ -425,12 +426,12 @@ class TestAskOllamaLocal:
 
     def test_listar_modelos_com_local(self, client, headers):
         with patch(
-            "routers.integrations.ollama.list_models",
+            "routers.integrations.llm_client.list_models",
             return_value=[{"name": "llama3.2"}],
         ):
-            resp = client.get("/ollama/modelos/", headers=headers)
+            resp = client.get("/ia/modelos/", headers=headers)
         assert resp.status_code == 200
         body = resp.json()
         assert body["modelos"] == [{"name": "llama3.2"}]
-        assert body["default_provider"] in ("ollama", "local")
+        assert body["default_provider"] in ("llm", "local")
         assert "embed_model" in body["local"]

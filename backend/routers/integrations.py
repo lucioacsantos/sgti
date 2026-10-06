@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 import ai_engine
-import models, schemas, auth, zabbix, knowledge, ollama
+import models, schemas, auth, zabbix, knowledge, llm_client
 import database
 from database import get_db
 from sqlalchemy.orm import Session
@@ -9,12 +9,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/ollama", tags=["Integração Ollama"])
+# Prefixos novos (/ia) e legados (/ollama, deprecated, mantidos por
+# compatibilidade com webhooks e integrações existentes).
+AI_PREFIX = "/ia"
+LEGACY_AI_PREFIX = "/ollama"
+
+router = APIRouter(prefix=AI_PREFIX, tags=["Integração IA"])
 
 
-@router.post("/", response_model=schemas.OllamaResponse)
-def ask_ollama(
-    question: schemas.OllamaRequest,
+@router.post("/", response_model=schemas.AIResponse)
+def ask_ai(
+    question: schemas.AIRequest,
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
     logger.info("Querying AI engine", extra={"service_account": current_service.name, "model": question.model})
@@ -22,23 +27,23 @@ def ask_ollama(
     if provider == "local":
         response = ai_engine.local_generate(question.question)
     else:
-        response = ollama.generate(question.question, question.model)
+        response = llm_client.generate(question.question, question.model)
     return {"response": response, "provider": provider}
 
 
 @router.get("/modelos/")
-def list_ollama_models(
+def list_ai_models(
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
-    logger.info("Listing Ollama models", extra={"service_account": current_service.name})
+    logger.info("Listing LLM models", extra={"service_account": current_service.name})
     try:
-        modelos_ollama = ollama.list_models()
+        modelos_llm = llm_client.list_models()
     except HTTPException as exc:
-        # Ollama pode não estar disponível; o provider local continua utilizável
-        logger.warning("Ollama indisponível ao listar modelos: %s", exc.detail)
-        modelos_ollama = []
+        # O servidor LLM pode não estar disponível; o provider local continua utilizável
+        logger.warning("Servidor LLM indisponível ao listar modelos: %s", exc.detail)
+        modelos_llm = []
     return {
-        "modelos": modelos_ollama,
+        "modelos": modelos_llm,
         "local": {
             "embed_model": ai_engine.LOCAL_EMBED_MODEL,
             "disponivel": ai_engine._get_local_model is not None,
@@ -49,7 +54,7 @@ def list_ollama_models(
 
 # ---- Base de conhecimento (RAG) ----
 
-knowledge_router = APIRouter(prefix="/ollama/knowledge", tags=["Ollama - Base de Conhecimento"])
+knowledge_router = APIRouter(prefix=f"{AI_PREFIX}/knowledge", tags=["IA - Base de Conhecimento"])
 
 
 @knowledge_router.post("/indexar", response_model=schemas.KnowledgeIndexResponse)
@@ -147,7 +152,7 @@ def ask_knowledge_stream(
 
 # ---- Análise de alarmes Zabbix (RAG + CMDB) ----
 
-alarm_router = APIRouter(prefix="/ollama/alarmes", tags=["Ollama - Análise de Alarmes"])
+alarm_router = APIRouter(prefix=f"{AI_PREFIX}/alarmes", tags=["IA - Análise de Alarmes"])
 
 SYSTEM_ALARM_PROMPT = (
     "Você é um analista sênior de monitoramento (NOC) do SGTI. Responda em português do Brasil. "
@@ -217,7 +222,7 @@ def analyze_alarm(
             cmdb=contexto_cmdb or "(host não encontrado no CMDB)",
             rag=knowledge.build_context(trechos) or "(nenhum procedimento recuperado)",
         )
-        analise = ollama.chat(prompt, system=SYSTEM_ALARM_PROMPT, num_predict=knowledge.RAG_NUM_PREDICT)
+        analise = llm_client.chat(prompt, system=SYSTEM_ALARM_PROMPT, num_predict=knowledge.RAG_NUM_PREDICT)
     return {
         "event_id": payload.event_id,
         "host": payload.host,
@@ -297,9 +302,9 @@ def knowledge_cmdb_context(db: Session, host: str) -> dict:
 zabbix_router = APIRouter(prefix="/zabbix", tags=["Integração Zabbix"])
 
 
-@zabbix_router.post("/alarmes/observacao-ollama/", response_model=schemas.ZabbixOllamaObservationResponse)
-def add_ollama_response_to_zabbix_alarm(
-    payload: schemas.ZabbixOllamaObservationRequest,
+@zabbix_router.post("/alarmes/observacao-ia/", response_model=schemas.ZabbixAIObservationResponse)
+def add_ai_response_to_zabbix_alarm(
+    payload: schemas.ZabbixAIObservationRequest,
     current_service: models.ServiceAccount = Depends(auth.get_service_account)
 ):
     logger.info("Adding AI observation to Zabbix alarm", extra={"service_account": current_service.name, "event_id": payload.event_id})
@@ -319,7 +324,7 @@ def add_ollama_response_to_zabbix_alarm(
             [],
         )
     else:
-        ollama_prompt = (
+        ia_prompt = (
             "Analise o alarme aberto do Zabbix abaixo e gere uma observação objetiva "
             "para registrar no próprio alarme.\n\n"
             f"Event ID: {payload.event_id}\n"
@@ -328,13 +333,62 @@ def add_ollama_response_to_zabbix_alarm(
             f"Object ID: {problem.get('objectid')}\n\n"
             f"Solicitação: {payload.question}"
         )
-        analise_alarme = ollama.generate(ollama_prompt, payload.model)
+        analise_alarme = llm_client.generate(ia_prompt, payload.model)
     zabbix_result = zabbix_client.add_event_observation(payload.event_id, analise_alarme)
 
     return {
         "event_id": payload.event_id,
         "problem_name": problem.get("name"),
-        "ollama_response": analise_alarme,
+        "resposta": analise_alarme,
         "zabbix_result": zabbix_result,
         "provider": provider,
     }
+
+
+# ===== Aliases legados (/ollama/*) — deprecated, mantidos por compatibilidade =====
+
+legacy_router = APIRouter(prefix=LEGACY_AI_PREFIX, tags=["Integração IA (legado)"], deprecated=True)
+
+# Reaproveita os mesmos handlers; o provider legado "ollama" no payload
+# continua aceito e normalizado para "llm" em ai_engine.resolve_provider.
+legacy_router.add_api_route(
+    "/", ask_ai, methods=["POST"], response_model=schemas.AIResponse, deprecated=True
+)
+legacy_router.add_api_route(
+    "/modelos/", list_ai_models, methods=["GET"], deprecated=True
+)
+
+legacy_knowledge_router = APIRouter(
+    prefix=f"{LEGACY_AI_PREFIX}/knowledge",
+    tags=["IA - Base de Conhecimento (legado)"],
+    deprecated=True,
+)
+legacy_knowledge_router.add_api_route(
+    "/indexar", index_knowledge, methods=["POST"], response_model=schemas.KnowledgeIndexResponse, deprecated=True
+)
+legacy_knowledge_router.add_api_route(
+    "/buscar", search_knowledge, methods=["POST"], response_model=schemas.KnowledgeSearchResponse, deprecated=True
+)
+legacy_knowledge_router.add_api_route(
+    "/perguntar", ask_knowledge, methods=["POST"], response_model=schemas.KnowledgeAskResponse, deprecated=True
+)
+legacy_knowledge_router.add_api_route("/perguntar/stream", ask_knowledge_stream, methods=["POST"], deprecated=True)
+
+legacy_alarm_router = APIRouter(
+    prefix=f"{LEGACY_AI_PREFIX}/alarmes",
+    tags=["IA - Análise de Alarmes (legado)"],
+    deprecated=True,
+)
+legacy_alarm_router.add_api_route(
+    "/analisar", analyze_alarm, methods=["POST"], response_model=schemas.AlarmAnalysisResponse, deprecated=True
+)
+
+# Alias legado do endpoint de observação no Zabbix
+zabbix_legacy_router = APIRouter(prefix="/zabbix", tags=["Integração Zabbix (legado)"], deprecated=True)
+zabbix_legacy_router.add_api_route(
+    "/alarmes/observacao-ollama/",
+    add_ai_response_to_zabbix_alarm,
+    methods=["POST"],
+    response_model=schemas.ZabbixAIObservationResponse,
+    deprecated=True,
+)

@@ -36,7 +36,7 @@ O ciclo operacional central já entregue: **automação grava, painel lê e corr
 
 ### 2.5 Integrações e IA
 - **Zabbix**: webhook de alarmes com enriquecimento por IA.
-- **Ollama (IA local)**: perguntas em linguagem natural à base de conhecimento (manuais indexados) com **respostas citando trechos** (RAG) — tela de Assistente IA.
+- **IA local (LLM on-premise)**: perguntas em linguagem natural à base de conhecimento (manuais indexados) com **respostas citando trechos** (RAG) — tela de Assistente IA.
 - Base de conhecimento inicial: procedimentos de alta de CPU, disco cheio, memória e serviço down.
 
 ### 2.6 Frontend (Vue 3)
@@ -63,7 +63,7 @@ O ciclo operacional central já entregue: **automação grava, painel lê e corr
 - Tudo com audit log (CREATE, PARECER, DECISAO, CONCLUIR, CANCELAR).
 - **Painel web completo** (`ReconciliacoesView.vue`, 704 linhas): listagem com contagens (pendentes/retificados/ratificados/ignorados), filtro por status, registro de parecer e decisão.
 
-### 3.2 Inferência por IA (Ollama — llama3.2 + embeddings) integrada à reconciliação
+### 3.2 Inferência por IA (LLM local — llama3.2 + embeddings) integrada à reconciliação
 - `infer_infra_map_ia.py` (738 linhas): substitui dicionários regex por **LLM local**, mantendo o contrato idempotente via API (`--dry-run`, `--sem-ia`, `--limiar-confianca`).
 - Cada ação inferida reporta **confiabilidade (0..1)**; endpoint `POST /reconciliacoes/inferencia`:
   - confiança **< 0,9** → abre item pendente exigindo quatro olhos;
@@ -89,7 +89,7 @@ O ciclo operacional central já entregue: **automação grava, painel lê e corr
 | Dual auth (JWT + service token) | Modelo "automação grava, painel lê/corrige" sem compartilhar credenciais humanas |
 | Inferência via API (nunca direto no banco) | Todo post passa por autenticação + audit log; nada escapa da trilha |
 | `--dry-run` em todo pipeline | Revisão antes de gravar; zero risco na primeira carga |
-| IA **local** (Ollama) | Sem envio de dados sensíveis para nuvem; custo zero de token; operável offline |
+| IA **local** (LLM on-premise) | Sem envio de dados sensíveis para nuvem; custo zero de token; operável offline |
 | Confiabilidade calibrada + limiar | Balanceia automação e risco: alta confiança flui, baixa confiança vira tarefa humana |
 | Four-eyes no schema (não só na UI) | A regra de negócio vive no backend — impossível burlar pela interface |
 | SQLAlchemy + Alembic | Evolução de schema versionada e reversível |

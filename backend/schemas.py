@@ -178,37 +178,44 @@ class AreasCreate(BaseModel):
     nome: str
     sigla: str
 
-class OllamaRequest(BaseModel):
+class AIRequest(BaseModel):
     question: str
     model: Optional[str] = None
     provider: Optional[str] = None
 
-class OllamaResponse(BaseModel):
+class AIResponse(BaseModel):
     response: str
     provider: Optional[str] = None
 
-class ZabbixOllamaObservationRequest(BaseModel):
+class ZabbixAIObservationRequest(BaseModel):
     event_id: str
     question: str
     model: Optional[str] = None
     provider: Optional[str] = None
 
-class ZabbixOllamaObservationResponse(BaseModel):
+class ZabbixAIObservationResponse(BaseModel):
     event_id: str
     problem_name: Optional[str] = None
-    ollama_response: str
+    resposta: str
     zabbix_result: dict
     provider: Optional[str] = None
 
 
-# ---- Base de conhecimento (RAG: nomic-embed-text + llama3.2) ----
+# Mantidos por compatibilidade (deprecated)
+OllamaRequest = AIRequest
+OllamaResponse = AIResponse
+ZabbixOllamaObservationRequest = ZabbixAIObservationRequest
+ZabbixOllamaObservationResponse = ZabbixAIObservationResponse
+
+
+# ---- Base de conhecimento (RAG) ----
 
 class KnowledgeIndexRequest(BaseModel):
     """Solicita (re)indexação de um diretório de Markdown."""
     diretorio: Optional[str] = None
     recriar: bool = False
     provider: Optional[str] = None
-    """Engine de IA: "ollama" (padrão/env AI_PROVIDER) ou "local" (sentence-transformers)."""
+    """Engine de IA: "llm" (padrão/env AI_PROVIDER) ou "local" (sentence-transformers)."""
 
 class TrechoCitado(BaseModel):
     documento: str

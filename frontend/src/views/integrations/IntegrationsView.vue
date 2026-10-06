@@ -97,12 +97,12 @@ onMounted(loadStatus)
         </dl>
       </div>
 
-      <!-- Ollama -->
+      <!-- IA (LLM local) -->
       <div class="bg-slate-950 border border-slate-800 rounded-xl p-6">
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-sm font-semibold text-slate-100 flex items-center gap-2">
             <Bot class="w-4 h-4 text-sky-400" />
-            Ollama (IA Generativa)
+            IA Generativa (LLM local)
           </h3>
           <span class="inline-flex items-center gap-1 text-[11px] text-slate-500">
             <KeyRound class="w-3 h-3" /> X-Service-Token
@@ -110,7 +110,7 @@ onMounted(loadStatus)
         </div>
 
         <p class="text-xs text-slate-400 leading-relaxed">
-          Consultas de análise via <code class="text-[10px] bg-slate-900 px-1.5 py-0.5 rounded font-mono">POST /ollama/</code>
+          Consultas de análise via <code class="text-[10px] bg-slate-900 px-1.5 py-0.5 rounded font-mono">POST /ia/</code>
           — usado por automações para enriquecer diagnósticos.
         </p>
 
@@ -136,13 +136,13 @@ onMounted(loadStatus)
 
         <p class="text-xs text-slate-400 leading-relaxed">
           Registro de observações geradas por IA em alarmes abertos via
-          <code class="text-[10px] bg-slate-900 px-1.5 py-0.5 rounded font-mono">POST /zabbix/alarmes/observacao-ollama/</code>.
+          <code class="text-[10px] bg-slate-900 px-1.5 py-0.5 rounded font-mono">POST /zabbix/alarmes/observacao-ia/</code>.
         </p>
 
         <div class="mt-4 p-3 bg-slate-900/40 rounded border border-slate-800/50">
           <p class="text-[10px] text-slate-500 font-mono leading-relaxed">
             { "event_id": "...", "question": "..." }<br />
-            → { event_id, problem_name, ollama_response, zabbix_result }
+            → { event_id, problem_name, resposta, zabbix_result }
           </p>
         </div>
       </div>

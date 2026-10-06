@@ -1,4 +1,4 @@
-"""Testes dos endpoints de integração Ollama (RAG + análise de alarmes)."""
+"""Testes dos endpoints de integração IA (RAG + análise de alarmes) (RAG + análise de alarmes)."""
 import datetime
 import json
 from unittest.mock import patch
@@ -88,19 +88,19 @@ def _fake_embed(texts, model=None):
 
 class TestListarModelos:
     def test_listar_modelos(self, client, headers):
-        with patch("routers.integrations.ollama.list_models", return_value=[{"name": "llama3.2"}]):
-            resp = client.get("/ollama/modelos/", headers=headers)
+        with patch("routers.integrations.llm_client.list_models", return_value=[{"name": "llama3.2"}]):
+            resp = client.get("/ia/modelos/", headers=headers)
         assert resp.status_code == 200
         assert resp.json()["modelos"] == [{"name": "llama3.2"}]
 
     def test_requer_autenticacao(self, client):
-        resp = client.get("/ollama/modelos/")
+        resp = client.get("/ia/modelos/")
         assert resp.status_code in (401, 403)
 
 
 class TestIndexarKnowledge:
     def test_diretorio_inexistente(self, client, headers):
-        resp = client.post("/ollama/knowledge/indexar", json={"diretorio": "/tmp/não-existe-xyz"}, headers=headers)
+        resp = client.post("/ia/knowledge/indexar", json={"diretorio": "/tmp/não-existe-xyz"}, headers=headers)
         assert resp.status_code == 404
 
     def test_indexar_com_mock(self, client, headers, tmp_path, monkeypatch):
@@ -109,9 +109,9 @@ class TestIndexarKnowledge:
         doc = tmp_path / "procedimento-teste.md"
         doc.write_text("# Titulo\n\nConteudo do procedimento de teste para embedding.", encoding="utf-8")
 
-        monkeypatch.setattr("ai_engine.ollama.embed", _fake_embed)
+        monkeypatch.setattr("ai_engine.llm_client.embed", _fake_embed)
         resp = client.post(
-            "/ollama/knowledge/indexar",
+            "/ia/knowledge/indexar",
             json={"diretorio": str(tmp_path)},
             headers=headers,
         )
@@ -121,10 +121,10 @@ class TestIndexarKnowledge:
         assert body["trechos_indexados"] == 1
 
     def test_recriar(self, client, headers, tmp_path, monkeypatch):
-        monkeypatch.setattr("ai_engine.ollama.embed", _fake_embed)
-        client.post("/ollama/knowledge/indexar", json={"diretorio": str(tmp_path)}, headers=headers)
+        monkeypatch.setattr("ai_engine.llm_client.embed", _fake_embed)
+        client.post("/ia/knowledge/indexar", json={"diretorio": str(tmp_path)}, headers=headers)
         resp = client.post(
-            "/ollama/knowledge/indexar",
+            "/ia/knowledge/indexar",
             json={"diretorio": str(tmp_path), "recriar": True},
             headers=headers,
         )
@@ -137,18 +137,18 @@ class TestIndexarKnowledge:
 class TestBuscarKnowledge:
     def test_buscar_sem_base(self, client, headers):
         with patch("ai_engine.embed_one", return_value=FAKE_EMBED):
-            resp = client.post("/ollama/knowledge/buscar", json={"query": "disco cheio"}, headers=headers)
+            resp = client.post("/ia/knowledge/buscar", json={"query": "disco cheio"}, headers=headers)
         assert resp.status_code == 200
         assert resp.json()["resultados"] == []
 
     def test_buscar_com_documento(self, client, headers, tmp_path, monkeypatch):
         doc = tmp_path / "proc-disco.md"
         doc.write_text("# Disco Cheio\n\nProcedimento de limpeza de disco em servidor Linux.", encoding="utf-8")
-        monkeypatch.setattr("ai_engine.ollama.embed", _fake_embed)
-        client.post("/ollama/knowledge/indexar", json={"diretorio": str(tmp_path)}, headers=headers)
+        monkeypatch.setattr("ai_engine.llm_client.embed", _fake_embed)
+        client.post("/ia/knowledge/indexar", json={"diretorio": str(tmp_path)}, headers=headers)
 
         with patch("ai_engine.embed_one", return_value=FAKE_EMBED):
-            resp = client.post("/ollama/knowledge/buscar", json={"query": "disco cheio", "top_k": 2}, headers=headers)
+            resp = client.post("/ia/knowledge/buscar", json={"query": "disco cheio", "top_k": 2}, headers=headers)
         assert resp.status_code == 200
         body = resp.json()
         assert len(body["resultados"]) == 1
@@ -156,7 +156,7 @@ class TestBuscarKnowledge:
         assert body["resultados"][0]["score"] == pytest.approx(1.0)
 
     def test_buscar_requer_query(self, client, headers):
-        resp = client.post("/ollama/knowledge/buscar", json={}, headers=headers)
+        resp = client.post("/ia/knowledge/buscar", json={}, headers=headers)
         assert resp.status_code == 422
 
 
@@ -164,15 +164,15 @@ class TestPerguntarKnowledge:
     def test_perguntar(self, client, headers, tmp_path, monkeypatch):
         doc = tmp_path / "proc-cpu.md"
         doc.write_text("# Alta CPU\n\nVerificar processos com top e pidstat.", encoding="utf-8")
-        monkeypatch.setattr("ai_engine.ollama.embed", _fake_embed)
-        client.post("/ollama/knowledge/indexar", json={"diretorio": str(tmp_path)}, headers=headers)
+        monkeypatch.setattr("ai_engine.llm_client.embed", _fake_embed)
+        client.post("/ia/knowledge/indexar", json={"diretorio": str(tmp_path)}, headers=headers)
 
         with (
             patch("ai_engine.embed_one", return_value=FAKE_EMBED),
-            patch("ai_engine.ollama.chat", return_value="Diagnóstico: processo com alta CPU."),
+            patch("ai_engine.llm_client.chat", return_value="Diagnóstico: processo com alta CPU."),
         ):
             resp = client.post(
-                "/ollama/knowledge/perguntar",
+                "/ia/knowledge/perguntar",
                 json={"pergunta": "o que fazer com alta de CPU?", "top_k": 2},
                 headers=headers,
             )
@@ -184,9 +184,9 @@ class TestPerguntarKnowledge:
     def test_perguntar_sem_base(self, client, headers):
         with (
             patch("ai_engine.embed_one", return_value=FAKE_EMBED),
-            patch("ai_engine.ollama.chat", return_value="Sem procedimento documentado."),
+            patch("ai_engine.llm_client.chat", return_value="Sem procedimento documentado."),
         ):
-            resp = client.post("/ollama/knowledge/perguntar", json={"pergunta": "x"}, headers=headers)
+            resp = client.post("/ia/knowledge/perguntar", json={"pergunta": "x"}, headers=headers)
         assert resp.status_code == 200
         assert resp.json()["trechos"] == []
 
@@ -195,8 +195,8 @@ class TestPerguntarStream:
     def test_stream_eventos(self, client, headers, tmp_path, monkeypatch):
         doc = tmp_path / "proc-net.md"
         doc.write_text("# Rede Lenta\n\nVerificar interface, erros de CRC e colisões.", encoding="utf-8")
-        monkeypatch.setattr("ai_engine.ollama.embed", _fake_embed)
-        client.post("/ollama/knowledge/indexar", json={"diretorio": str(tmp_path)}, headers=headers)
+        monkeypatch.setattr("ai_engine.llm_client.embed", _fake_embed)
+        client.post("/ia/knowledge/indexar", json={"diretorio": str(tmp_path)}, headers=headers)
 
         def fake_chat_stream(*args, **kwargs):
             yield "Diagnóstico: "
@@ -204,10 +204,10 @@ class TestPerguntarStream:
 
         with (
             patch("ai_engine.embed_one", return_value=FAKE_EMBED),
-            patch("ai_engine.ollama.chat_stream", side_effect=fake_chat_stream),
+            patch("ai_engine.llm_client.chat_stream", side_effect=fake_chat_stream),
         ):
             resp = client.post(
-                "/ollama/knowledge/perguntar/stream",
+                "/ia/knowledge/perguntar/stream",
                 json={"pergunta": "rede lenta", "top_k": 2},
                 headers=headers,
             )
@@ -225,16 +225,16 @@ class TestPerguntarStream:
     def test_stream_erro_interno(self, client, headers):
         with (
             patch("ai_engine.embed_one", return_value=FAKE_EMBED),
-            patch("ai_engine.ollama.chat_stream", side_effect=RuntimeError("boom")),
+            patch("ai_engine.llm_client.chat_stream", side_effect=RuntimeError("boom")),
         ):
-            resp = client.post("/ollama/knowledge/perguntar/stream", json={"pergunta": "x"}, headers=headers)
+            resp = client.post("/ia/knowledge/perguntar/stream", json={"pergunta": "x"}, headers=headers)
         assert resp.status_code == 200
         eventos = [json.loads(l) for l in resp.text.strip().splitlines() if l.strip()]
         assert eventos[-1]["type"] == "error"
         assert "boom" in eventos[-1]["detail"]
 
     def test_stream_requer_autenticacao(self, client):
-        resp = client.post("/ollama/knowledge/perguntar/stream", json={"pergunta": "x"})
+        resp = client.post("/ia/knowledge/perguntar/stream", json={"pergunta": "x"})
         assert resp.status_code in (401, 403)
 
 
@@ -242,15 +242,15 @@ class TestAnalisarAlarme:
     def test_analisar_com_cmdb(self, client, headers, ativo, db_session, tmp_path, monkeypatch):
         doc = tmp_path / "proc-down.md"
         doc.write_text("# Serviço Down\n\nVerificar serviço com systemctl e escalar GOSD.", encoding="utf-8")
-        monkeypatch.setattr("ai_engine.ollama.embed", _fake_embed)
-        client.post("/ollama/knowledge/indexar", json={"diretorio": str(tmp_path)}, headers=headers)
+        monkeypatch.setattr("ai_engine.llm_client.embed", _fake_embed)
+        client.post("/ia/knowledge/indexar", json={"diretorio": str(tmp_path)}, headers=headers)
 
         with (
             patch("ai_engine.embed_one", return_value=FAKE_EMBED),
-            patch("ai_engine.ollama.chat", return_value="Diagnóstico: serviço indisponível. Escalar GOSD."),
+            patch("ai_engine.llm_client.chat", return_value="Diagnóstico: serviço indisponível. Escalar GOSD."),
         ):
             resp = client.post(
-                "/ollama/alarmes/analisar",
+                "/ia/alarmes/analisar",
                 json={
                     "event_id": "12345",
                     "host": "zbx-server01",
@@ -271,10 +271,10 @@ class TestAnalisarAlarme:
     def test_analisar_host_fqdn(self, client, headers, ativo):
         with (
             patch("ai_engine.embed_one", return_value=FAKE_EMBED),
-            patch("ai_engine.ollama.chat", return_value="ok"),
+            patch("ai_engine.llm_client.chat", return_value="ok"),
         ):
             resp = client.post(
-                "/ollama/alarmes/analisar",
+                "/ia/alarmes/analisar",
                 json={"event_id": "1", "host": "zbx-server01.example.com", "problema": "down"},
                 headers=headers,
             )
@@ -284,10 +284,10 @@ class TestAnalisarAlarme:
     def test_analisar_host_desconhecido(self, client, headers):
         with (
             patch("ai_engine.embed_one", return_value=FAKE_EMBED),
-            patch("ai_engine.ollama.chat", return_value="host não encontrado"),
+            patch("ai_engine.llm_client.chat", return_value="host não encontrado"),
         ):
             resp = client.post(
-                "/ollama/alarmes/analisar",
+                "/ia/alarmes/analisar",
                 json={"event_id": "1", "host": "host-inexistente", "problema": "down"},
                 headers=headers,
             )
@@ -297,15 +297,34 @@ class TestAnalisarAlarme:
 
     def test_analisar_requer_autenticacao(self, client):
         resp = client.post(
-            "/ollama/alarmes/analisar",
+            "/ia/alarmes/analisar",
             json={"event_id": "1", "host": "x", "problema": "down"},
         )
         assert resp.status_code in (401, 403)
 
 
-class TestOllamaLegado:
-    def test_ask_ollama(self, client, headers):
-        with patch("routers.integrations.ollama.generate", return_value="resposta"):
+class TestPerguntaIA:
+    def test_ask_ia(self, client, headers):
+        with patch("routers.integrations.llm_client.generate", return_value="resposta"):
+            resp = client.post("/ia/", json={"question": "oi"}, headers=headers)
+        assert resp.status_code == 200
+        assert resp.json()["response"] == "resposta"
+
+    def test_alias_legado_ollama(self, client, headers):
+        # Alias deprecated mantido por compatibilidade com webhooks existentes
+        with patch("routers.integrations.llm_client.generate", return_value="resposta"):
             resp = client.post("/ollama/", json={"question": "oi"}, headers=headers)
         assert resp.status_code == 200
         assert resp.json()["response"] == "resposta"
+
+    def test_alias_legado_knowledge(self, client, headers, tmp_path, monkeypatch):
+        doc = tmp_path / "proc-alias.md"
+        doc.write_text("# Alias Legado\n\nConteudo via prefixo /ollama.", encoding="utf-8")
+        monkeypatch.setattr("ai_engine.llm_client.embed", _fake_embed)
+        resp = client.post(
+            "/ollama/knowledge/indexar",
+            json={"diretorio": str(tmp_path)},
+            headers=headers,
+        )
+        assert resp.status_code == 200
+        assert resp.json()["documentos_indexados"] == 1

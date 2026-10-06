@@ -1,11 +1,11 @@
-"""Inferência de mapa de TI assistida por IA (Ollama llama3.2).
+"""Inferência de mapa de TI assistida por IA (LLM local, ex. llama3.2 via Ollama).
 
 Variante de infer_infra_map.py que troca o dicionário lexical e os padrões
 regex por um LLM local, mantendo o mesmo contrato com a API do backend
 (service token, idempotente, --dry-run).
 
 Pipeline:
-  0. Coleta ativos e aplicações via API + checagem dos modelos no Ollama
+  0. Coleta ativos e aplicações via API + checagem dos modelos no LLM
   1. Serviços por ativo      → LLM em lote (JSON estruturado, com confiabilidade)
   2. Match ativo ↔ aplicação → pré-filtro por embeddings (nomic-embed-text,
      similaridade cosseno) + LLM só nos K melhores candidatos de cada ativo
@@ -21,13 +21,13 @@ Pipeline:
      manual por 2+ analistas no painel de Reconciliações (fonte 'ia').
 
 Todos os POSTs passam pela API oficial (audit log). Reexecução não duplica.
-Erros do Ollama não abortam o pipeline: a etapa que falha é pulada com aviso
+Erros do LLM não abortam o pipeline: a etapa que falha é pulada com aviso
 e as demais etapas determinísticas continuam.
 
 Uso:
   cd backend && ../venv/bin/python infer_infra_map_ia.py --api http://localhost:8000 \
       --token <service-token> [--dry-run] [--verbose]
-      [--ollama http://localhost:11434] [--chat-model llama3.2]
+      [--llm http://localhost:11434] [--chat-model llama3.2]
       [--embed-model nomic-embed-text] [--top-k 5] [--limiar 0.35]
       [--lote-servicos 40] [--limiar-confianca 0.9] [--sem-ia]
 """
@@ -41,7 +41,7 @@ from collections import defaultdict
 from urllib import error, parse, request
 
 # ============================================================
-# Cliente Ollama (mesmo estilo do backend/ollama.py, sem HTTPException)
+# Cliente LLM (mesmo estilo do backend/llm_client.py, sem HTTPException)
 # ============================================================
 
 CHAT_MODES_VALIDOS = ('database', 'appserver', 'erp', 'integration', 'gateway',
@@ -49,11 +49,11 @@ CHAT_MODES_VALIDOS = ('database', 'appserver', 'erp', 'integration', 'gateway',
                       'security', 'web', 'cache', 'fila', 'outro')
 
 
-class OllamaError(Exception):
+class LLMError(Exception):
     pass
 
 
-class Ollama:
+class LLMClient:
     def __init__(self, base: str, chat_model: str, embed_model: str, keep_alive: str = '30m'):
         self.base = base.rstrip('/')
         self.chat_model = chat_model
@@ -67,9 +67,9 @@ class Ollama:
             with request.urlopen(req, timeout=timeout) as resp:
                 return json.loads(resp.read().decode('utf-8'))
         except error.HTTPError as e:
-            raise OllamaError(f'HTTP {e.code} do Ollama: {e.read().decode(errors="replace")[:200]}') from e
+            raise LLMError(f'HTTP {e.code} do LLM: {e.read().decode(errors="replace")[:200]}') from e
         except (error.URLError, TimeoutError, ConnectionError) as e:
-            raise OllamaError(f'Falha ao conectar ao Ollama: {e}') from e
+            raise LLMError(f'Falha ao conectar ao LLM: {e}') from e
 
     def _get(self, path: str, timeout: int = 15):
         req = request.Request(f'{self.base}{path}', method='GET')
@@ -77,7 +77,7 @@ class Ollama:
             with request.urlopen(req, timeout=timeout) as resp:
                 return json.loads(resp.read().decode('utf-8'))
         except (error.URLError, error.HTTPError, TimeoutError, ConnectionError) as e:
-            raise OllamaError(f'Falha ao consultar {path} no Ollama: {e}') from e
+            raise LLMError(f'Falha ao consultar {path} no LLM: {e}') from e
 
     def modelos(self) -> list[str]:
         return [m.get('name', '') for m in self._get('/api/tags').get('models', [])]
@@ -86,14 +86,14 @@ class Ollama:
         """Confirma que chat e embed estão instalados (nome base ou com :tag)."""
         try:
             nomes = self.modelos()
-        except OllamaError as e:
+        except LLMError as e:
             return False, str(e)
         faltando = []
         for alvo in (self.chat_model, self.embed_model):
             if not any(n == alvo or n.split(':')[0] == alvo for n in nomes):
                 faltando.append(alvo)
         if faltando:
-            return False, 'modelos ausentes no Ollama: ' + ', '.join(faltando)
+            return False, 'modelos ausentes no LLM: ' + ', '.join(faltando)
         return True, ''
 
     def chat_json(self, system: str, user: str, temperatura: float = 0.1,
@@ -118,10 +118,10 @@ class Ollama:
                 except json.JSONDecodeError:
                     m = re.search(r'\{.*\}', content, re.S)
                     return json.loads(m.group(0)) if m else {}
-            except OllamaError as e:
+            except LLMError as e:
                 ultimo = e
                 time.sleep(2)
-        raise OllamaError(f'chat_json falhou após {tentativas} tentativas: {ultimo}')
+        raise LLMError(f'chat_json falhou após {tentativas} tentativas: {ultimo}')
 
     def embed(self, texts: list[str]) -> list[list[float]]:
         out = []
@@ -131,7 +131,7 @@ class Ollama:
                                              'keep_alive': self.keep_alive})
             embs = data.get('embeddings')
             if not embs or len(embs) != len(lote):
-                raise OllamaError('resposta /api/embed inválida ou incompleta')
+                raise LLMError('resposta /api/embed inválida ou incompleta')
             out.extend(embs)
         return out
 
@@ -222,7 +222,7 @@ na existência daquele serviço naquele ativo (1.0 = certeza). Se nada estiver c
 omita o ativo. Não invente serviços que não têm evidência no texto."""
 
 
-def infer_servicos_ia(ativos: list[dict], ol: Ollama, lote: int = 40,
+def infer_servicos_ia(ativos: list[dict], ol: LLMClient, lote: int = 40,
                       verbose: bool = False) -> dict[int, list[tuple[str, str, float]]]:
     """LLM em lotes de ativos; schema impõe UNIQUE(ativo_id) → 1 serviço/ativo.
 
@@ -277,7 +277,7 @@ naquele servidor. Palavras genéricas ("sistema", "servidor", "portal") não con
 
 
 def infer_instancias_ia(ativos: list[dict], apps: list[dict], servicos_por_ativo: dict,
-                        ol: Ollama, top_k: int, limiar: float, verbose: bool) -> list[tuple[dict, dict, str, float]]:
+                        ol: LLMClient, top_k: int, limiar: float, verbose: bool) -> list[tuple[dict, dict, str, float]]:
     # pré-filtro vetorial: candidatos por similaridade cosseno
     corpus_ativo = {a['id']: _texto_ativo(a, servicos_por_ativo.get(a['id'], [])) for a in ativos}
     corpus_app = {app['id']: _texto_app(app) for app in apps}
@@ -325,7 +325,7 @@ Exemplo: apps de medição → "Mapa de Medição". confianca é sua confiabilid
 o nome representa bem o grupo. Não use nomes de pessoas."""
 
 
-def infer_servicos_negocio_ia(apps: list[dict], ol: Ollama | None, min_apps: int = 3) -> list[tuple[str, str, int, list[dict], float]]:
+def infer_servicos_negocio_ia(apps: list[dict], ol: LLMClient | None, min_apps: int = 3) -> list[tuple[str, str, int, list[dict], float]]:
     """Grupos por area_negocio (≥min_apps); o LLM só nomeia o grupo.
 
     Filtro anti-dado-sujo: descarta valores que parecem nomes de pessoas.
@@ -354,7 +354,7 @@ def infer_servicos_negocio_ia(apps: list[dict], ol: Ollama | None, min_apps: int
                 nome = (resp.get('nome') or nome).strip()[:80]
                 desc = (resp.get('descricao') or desc).strip()[:300]
                 conf = _confianca(resp.get('confianca'), padrao=conf)
-            except OllamaError as e:
+            except LLMError as e:
                 print(f'  aviso: nome IA falhou para área {area!r}: {e}; usando "Mapa de {area}"')
         saida.append((nome, desc, len(membros), membros, conf))
     return saida
@@ -435,7 +435,7 @@ clara, retorne lista vazia. Suspeita leve não conta."""
 
 
 def infer_relacionamentos_ia(apps: list[dict], pares_instancia: list[tuple],
-                             ol: Ollama) -> tuple[list, list]:
+                             ol: LLMClient) -> tuple[list, list]:
     """Avalia o texto de cada app contra a lista de outras; devolve
     (criáveis [origem_ativo, destino_ativo, evidência, confiança],
     potenciais sem ativo [origem, destino, evidência, confiança])."""
@@ -457,7 +457,7 @@ def infer_relacionamentos_ia(apps: list[dict], pares_instancia: list[tuple],
                   f'Texto: {texto[:600]}\n\nOutras aplicações:\n{lista}')
         try:
             resp = ol.chat_json(SISTEMA_DEP, prompt)
-        except OllamaError as e:
+        except LLMError as e:
             print(f'  aviso: dependências de {app["sistema"]!r} falharam: {e}')
             continue
         for dep in resp.get('dependencias', []) or []:
@@ -542,7 +542,7 @@ def reportar_reconciliacao(api: Api,
 # Pipeline
 # ============================================================
 
-def run(api: Api, ol: Ollama | None, dry: bool, verbose: bool, top_k: int, limiar: float,
+def run(api: Api, ol: LLMClient | None, dry: bool, verbose: bool, top_k: int, limiar: float,
         lote_servicos: int, limiar_confianca: float) -> None:
     log = print
     t0 = time.time()
@@ -567,7 +567,7 @@ def run(api: Api, ol: Ollama | None, dry: bool, verbose: bool, top_k: int, limia
     if ol:
         try:
             servicos_por_ativo = infer_servicos_ia(ativos, ol, lote_servicos, verbose)
-        except OllamaError as e:
+        except LLMError as e:
             log(f'aviso: etapa de serviços via IA falhou ({e}); etapa pulada')
     total_serv = sum(len(v) for v in servicos_por_ativo.values())
     log(f'\n[1] Serviços inferidos por IA: {total_serv} em {len(servicos_por_ativo)} ativos '
@@ -594,7 +594,7 @@ def run(api: Api, ol: Ollama | None, dry: bool, verbose: bool, top_k: int, limia
         t1 = time.time()
         try:
             pares = infer_instancias_ia(ativos, apps, servicos_por_ativo, ol, top_k, limiar, verbose)
-        except OllamaError as e:
+        except LLMError as e:
             log(f'aviso: etapa de instâncias via IA falhou ({e}); etapa pulada')
         log(f'\n[2] Instâncias validadas por IA: {len(pares)} ({time.time() - t1:.0f}s)')
     else:
@@ -711,7 +711,7 @@ def main():
     ap.add_argument('--token', required=True)
     ap.add_argument('--dry-run', action='store_true')
     ap.add_argument('--verbose', action='store_true')
-    ap.add_argument('--ollama', default='http://localhost:11434')
+    ap.add_argument('--llm', '--ollama', dest='llm', default='http://localhost:11434')
     ap.add_argument('--chat-model', default='llama3.2')
     ap.add_argument('--embed-model', default='nomic-embed-text')
     ap.add_argument('--top-k', type=int, default=5)
@@ -725,7 +725,7 @@ def main():
     args = ap.parse_args()
 
     api = Api(args.api, args.token)
-    ol = None if args.sem_ia else Ollama(args.ollama, args.chat_model, args.embed_model)
+    ol = None if args.sem_ia else LLMClient(args.llm, args.chat_model, args.embed_model)
     try:
         run(api, ol, args.dry_run, args.verbose, args.top_k, args.limiar,
             args.lote_servicos, args.limiar_confianca)

@@ -77,7 +77,7 @@ Log paginado e filtrável (entidade, id). Útil para conferir correções manuai
 
 ## Assistente IA
 
-Chat com a base de conhecimento (RAG/Ollama): pergunta → resposta + trechos citados dos documentos indexados. Requer Ollama configurado.
+Chat com a base de conhecimento (RAG): pergunta → resposta + trechos citados dos documentos indexados. Requer provider `llm` configurado (API compatível com Ollama).
 
 ---
 

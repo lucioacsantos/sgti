@@ -18,7 +18,7 @@
 | **Aplicações + Dados de referência** | CRUD admin completo |
 | **Segurança** | AD/LDAP (duplo) → JWT access+refresh, 2FA TOTP opcional cifrado (AES-256-GCM), service tokens (bcrypt, expiração), `crypto_lock` em Cython, rate limit, correlation IDs |
 | **Auditoria** | Log de todas as mutações (antes/depois), filtrável |
-| **Integrações/IA** | Webhook Zabbix com enriquecimento Ollama, RAG sobre base de conhecimento (`/ollama/knowledge/`), análise de alarmes |
+| **Integrações/IA** | Webhook Zabbix com enriquecimento por IA, RAG sobre base de conhecimento (`/ia/knowledge/`), análise de alarmes |
 | **Frontend Vue 3** | Dashboard, Ativos, Infra (8 abas), Auditoria, Integrações, Assistente IA, Admin; exportação XLSX |
 | **Pipeline** | `seed.py`, `import_test_data.py` (dump pgAdmin), `infer_infra_map.py` (lexical/regex) |
 
@@ -44,7 +44,7 @@
 | **Grafo de relacionamentos** | ✅ tipado, CRUD | — | ✅ Insight graph + Compass dependencies | **Compass é mais rico em visualização** (service graph, scorecards, health); SGTI não tem viewer gráfico nem análise de impacto/transitiva (`what-if` do LUMEN.md ainda não existe em código) |
 | **Descoberta (discovery)** | ⚠️ via scripts de import | ✅ IA local | ✅ Atlassian Discovery (agents, nuvem) | SGTI descobre por inferência lexical+LLM sobre dados existentes; sem varredura de rede/agentes |
 | **Reconciliação** | — | ✅ D1–D7 + four-eyes + confiança IA | ⚠️ Insight reconcilia atributos por regra simples | **Forte diferencial**: Atlassian reconcilia campo a campo sem workflow; SGTI impõe **4-olhos no backend** com separação de responsabilidades — o equivalente Atlassian seria Jira approvals, que existe mas fora do CMDB |
-| **IA** | ⚠️ RAG (Ollama) + análise de alarmes | ✅ inferência com self-reported confidence | ✅ Rovo (nuvem, assistente, agentes) | **SGTI roda 100% on-premise (Ollama)** — dado sensível não sai; Rovo é SaaS. Calibração por limiar (0,9 → humano) não tem análogo direto |
+| **IA** | ⚠️ RAG (LLM local) + análise de alarmes | ✅ inferência com self-reported confidence | ✅ Rovo (nuvem, assistente, agentes) | **SGTI roda 100% on-premise (LLM local)** — dado sensível não sai; Rovo é SaaS. Calibração por limiar (0,9 → humano) não tem análogo direto |
 | **Auditoria** | ✅ antes/depois, filtrável | ✅ inclui decisões de IA | ✅ Assets audit log | Paridade; SGTI adiciona rastreabilidade de decisão de máquina (`ratificado por inferencia_ia`) |
 | **Autenticação** | ✅ AD/LDAP + 2FA TOTP próprio | — | ✅ Guard (SSO/2FA centralizado) | Atlassian terceiriza 2FA ao Guard; SGTI embute (mais controle, mais manutenção) |
 | **Criptografia de colunas / lock** | ✅ AES-256-GCM, crypto_lock | ✅ anti-malleability | ⚠️ CSEK no cloud, nada "lock out" | **Inexistente na Atlassian**: bloqueio de boot por credencial do proprietário (nome+CPF) é modelo próprio |

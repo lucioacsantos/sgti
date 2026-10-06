@@ -100,7 +100,7 @@ Padrões explícitos no `objetivo`/`descricao` das aplicações ("envio de dados
 
 ---
 
-## 3. infer_infra_map_ia.py — gerar o mapa por inferência com IA (Ollama)
+## 3. infer_infra_map_ia.py — gerar o mapa por inferência com IA (LLM local)
 
 Variante do script anterior que troca o dicionário lexical e os padrões regex por um
 LLM local (llama3.2 + nomic-embed-text), mantendo o mesmo contrato com a API

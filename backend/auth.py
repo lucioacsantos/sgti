@@ -115,11 +115,11 @@ def get_service_account(
 
     return account
 
-def ask_ollama(question: str, model: str | None = None) -> str:
-    ollama_url = os.getenv("OLLAMA_API_URL", "http://localhost:11434/api/generate")
-    ollama_model = model or os.getenv("OLLAMA_MODEL", "llama3")
+def ask_llm(question: str, model: str | None = None) -> str:
+    llm_url = os.getenv("LLM_API_URL", os.getenv("OLLAMA_API_URL", "http://localhost:11434/api/generate"))
+    llm_model = model or os.getenv("LLM_MODEL", os.getenv("OLLAMA_MODEL", "llama3"))
     payload = {
-        "model": ollama_model,
+        "model": llm_model,
         "prompt": question,
         "stream": False
     }
@@ -127,7 +127,7 @@ def ask_ollama(question: str, model: str | None = None) -> str:
     try:
         data = json.dumps(payload).encode("utf-8")
         req = request.Request(
-            ollama_url,
+            llm_url,
             data=data,
             headers={"Content-Type": "application/json"},
             method="POST"
@@ -136,19 +136,19 @@ def ask_ollama(question: str, model: str | None = None) -> str:
         with request.urlopen(req, timeout=120) as response:
             response_data = json.loads(response.read().decode("utf-8"))
     except error.HTTPError as exc:
-        detail = exc.read().decode("utf-8") or "Erro ao consultar a API do Ollama."
+        detail = exc.read().decode("utf-8") or "Erro ao consultar a API do LLM."
         raise HTTPException(status_code=exc.code, detail=detail)
     except (error.URLError, TimeoutError, json.JSONDecodeError) as exc:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Falha ao consultar a API do Ollama: {exc}"
+            detail=f"Falha ao consultar a API do LLM: {exc}"
         )
 
     answer = response_data.get("response")
     if answer is None:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Resposta inválida recebida da API do Ollama."
+            detail="Resposta inválida recebida da API do LLM."
         )
 
     return answer

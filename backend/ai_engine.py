@@ -1,8 +1,9 @@
 """Engine de IA híbrida do SGTI.
 
 Dois providers de inferência selecionáveis:
-  - "ollama": LLM local externo (llama3.2 + nomic-embed-text) via API HTTP —
-    comportamento original do projeto.
+  - "llm": LLM local externo (via API HTTP compatível com Ollama; ex. llama3.2
+    + nomic-embed-text) — comportamento original do projeto. Alias legado
+    "ollama" continua aceito e é normalizado para "llm".
   - "local": engine 100% Python, sem LLM externo — embeddings via
     sentence-transformers (torch CPU; aproveita AVX-512 dos servidores) e
     geração determinística por extração dos trechos do RAG + taxonomia de
@@ -23,12 +24,14 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 
-import ollama
+import llm_client
 
 load_dotenv(Path(__file__).parent.parent / ".env")
 
-VALID_PROVIDERS = ("ollama", "local")
-DEFAULT_PROVIDER = os.getenv("AI_PROVIDER", "ollama").strip().lower()
+VALID_PROVIDERS = ("llm", "local")
+# "ollama" é alias legado, normalizado para "llm"
+_LEGACY_PROVIDER_ALIASES = {"ollama": "llm"}
+DEFAULT_PROVIDER = os.getenv("AI_PROVIDER", "llm").strip().lower()
 
 # Modelo sentence-transformers recomendado para PT-BR em CPU:
 # paraphrase-multilingual-MiniLM-L12-v2 (384 dims, ~120MB, rápido com AVX-512).
@@ -39,6 +42,7 @@ LOCAL_EMBED_MODEL = os.getenv("LOCAL_EMBED_MODEL", "paraphrase-multilingual-Mini
 def resolve_provider(provider: str | None) -> str:
     """Valida e resolve o provider efetivo (request → env AI_PROVIDER)."""
     p = (provider or DEFAULT_PROVIDER).strip().lower()
+    p = _LEGACY_PROVIDER_ALIASES.get(p, p)
     if p not in VALID_PROVIDERS:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -52,7 +56,7 @@ def provider_signature(provider: str | None) -> str:
     documento.embed_provider — embeddings só são comparados entre assinaturas
     iguais."""
     p = resolve_provider(provider)
-    return f"{p}:nomic-embed-text" if p == "ollama" else f"{p}:{LOCAL_EMBED_MODEL}"
+    return f"{p}:nomic-embed-text" if p == "llm" else f"{p}:{LOCAL_EMBED_MODEL}"
 
 
 # ============================================================
@@ -104,13 +108,13 @@ def local_embed_one(text: str) -> list[float]:
 def embed_one(text: str, provider: str | None = None) -> list[float]:
     if resolve_provider(provider) == "local":
         return local_embed_one(text)
-    return ollama.embed_one(text)
+    return llm_client.embed_one(text)
 
 
 def embed(texts: list[str], provider: str | None = None) -> list[list[float]]:
     if resolve_provider(provider) == "local":
         return local_embed(texts)
-    return ollama.embed(texts)
+    return llm_client.embed(texts)
 
 
 def cosine_similarity(a: list[float], b: list[float]) -> float:
@@ -258,7 +262,7 @@ def local_alarm_analysis(
     contexto_cmdb: dict,
     trechos: list[dict],
 ) -> str:
-    """Análise determinística de alarme Zabbix (mesma estrutura do prompt do Ollama).
+    """Análise determinística de alarme Zabbix (mesma estrutura do prompt do LLM).
 
     alarme: {event_id, host, problema, severidade, mensagem}
     """
@@ -380,7 +384,7 @@ def local_generate(question: str) -> str:
         )
     return (
         "[Engine local, sem LLM] Não foi possível classificar a consulta na taxonomia "
-        "local de alarmes. O RAG (`/ollama/knowledge/*`) responde com extração literal "
+        "local de alarmes. O RAG (`/ia/knowledge/*`) responde com extração literal "
         "dos manuais indexados — consulte-o ou reformule a consulta com termos técnicos."
     )
 

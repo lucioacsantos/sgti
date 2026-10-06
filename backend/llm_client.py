@@ -1,3 +1,9 @@
+"""Cliente da API de LLM local compatível com a API do Ollama.
+
+Mantém o nome genérico de propósito: a ferramenta servidora (Ollama,
+qualquer outra com interface /api/*) é um detalhe de infraestrutura —
+o resto do código só conhece este módulo.
+"""
 from fastapi import HTTPException, status
 from urllib import error, request
 from typing import Iterator
@@ -12,16 +18,18 @@ load_dotenv(Path(__file__).parent.parent / ".env")
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_CHAT_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2")
-DEFAULT_EMBED_MODEL = os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text")
-OLLAMA_BASE_URL = os.getenv("OLLAMA_API_URL", "http://localhost:11434").rstrip("/")
+DEFAULT_CHAT_MODEL = os.getenv("LLM_MODEL", os.getenv("OLLAMA_MODEL", "llama3.2"))
+DEFAULT_EMBED_MODEL = os.getenv("LLM_EMBED_MODEL", os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text"))
+LLM_BASE_URL = os.getenv(
+    "LLM_API_URL", os.getenv("OLLAMA_API_URL", "http://localhost:11434")
+).rstrip("/")
 # Mantem modelos residentes na GPU/RAM entre chamadas (evita cold-start de
 # segundos a cada troca embed<->chat em GPUs pequenas). "-1" = nunca descarrega.
-OLLAMA_KEEP_ALIVE = os.getenv("OLLAMA_KEEP_ALIVE", "30m")
+LLM_KEEP_ALIVE = os.getenv("LLM_KEEP_ALIVE", os.getenv("OLLAMA_KEEP_ALIVE", "30m"))
 
 
 def _post(path: str, payload: dict, timeout: int = 300) -> dict:
-    url = f"{OLLAMA_BASE_URL}{path}"
+    url = f"{LLM_BASE_URL}{path}"
     try:
         data = json.dumps(payload).encode("utf-8")
         req = request.Request(
@@ -33,18 +41,18 @@ def _post(path: str, payload: dict, timeout: int = 300) -> dict:
         with request.urlopen(req, timeout=timeout) as response:
             return json.loads(response.read().decode("utf-8"))
     except error.HTTPError as exc:
-        detail = exc.read().decode("utf-8") or "Erro ao consultar a API do Ollama."
+        detail = exc.read().decode("utf-8") or "Erro ao consultar a API do LLM."
         raise HTTPException(status_code=exc.code, detail=detail)
     except (error.URLError, TimeoutError, json.JSONDecodeError) as exc:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Falha ao consultar a API do Ollama: {exc}",
+            detail=f"Falha ao consultar a API do LLM: {exc}",
         )
 
 
 def _stream(path: str, payload: dict, timeout: int = 300) -> Iterator[dict]:
-    """Chamada à API do Ollama com streaming (NDJSON), yield de cada evento."""
-    url = f"{OLLAMA_BASE_URL}{path}"
+    """Chamada à API do LLM com streaming (NDJSON), yield de cada evento."""
+    url = f"{LLM_BASE_URL}{path}"
     req = request.Request(
         url,
         data=json.dumps(payload).encode("utf-8"),
@@ -60,14 +68,14 @@ def _stream(path: str, payload: dict, timeout: int = 300) -> Iterator[dict]:
                 try:
                     yield json.loads(linha.decode("utf-8"))
                 except json.JSONDecodeError:
-                    logger.warning("Evento inválido ignorado no stream do Ollama")
+                    logger.warning("Evento inválido ignorado no stream do LLM")
     except error.HTTPError as exc:
-        detail = exc.read().decode("utf-8") or "Erro ao consultar a API do Ollama."
+        detail = exc.read().decode("utf-8") or "Erro ao consultar a API do LLM."
         raise HTTPException(status_code=exc.code, detail=detail)
     except (error.URLError, TimeoutError) as exc:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Falha ao consultar a API do Ollama: {exc}",
+            detail=f"Falha ao consultar a API do LLM: {exc}",
         )
 
 
@@ -93,7 +101,7 @@ def chat_stream(
         "model": model or DEFAULT_CHAT_MODEL,
         "messages": messages,
         "stream": True,
-        "keep_alive": OLLAMA_KEEP_ALIVE,
+        "keep_alive": LLM_KEEP_ALIVE,
         "options": options,
     }
     for evento in _stream("/api/chat", payload):
@@ -113,7 +121,7 @@ def chat(
     num_predict: int | None = None,
     images: list[str] | None = None,
 ) -> str:
-    """Gera uma resposta conversacional (llama3.2) a partir de um prompt."""
+    """Gera uma resposta conversacional a partir de um prompt."""
     messages = []
     if system:
         messages.append({"role": "system", "content": system})
@@ -127,7 +135,7 @@ def chat(
         "model": model or DEFAULT_CHAT_MODEL,
         "messages": messages,
         "stream": False,
-        "keep_alive": OLLAMA_KEEP_ALIVE,
+        "keep_alive": LLM_KEEP_ALIVE,
         "options": options,
     }
     if images:
@@ -138,24 +146,24 @@ def chat(
     if content is None:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Resposta inválida recebida da API do Ollama (/api/chat).",
+            detail="Resposta inválida recebida da API do LLM (/api/chat).",
         )
     return content
 
 
 def embed(texts: list[str], model: str | None = None) -> list[list[float]]:
-    """Gera embeddings (nomic-embed-text) para uma lista de textos."""
+    """Gera embeddings para uma lista de textos."""
     if not texts:
         return []
     response_data = _post(
         "/api/embed",
-        {"model": model or DEFAULT_EMBED_MODEL, "input": texts, "keep_alive": OLLAMA_KEEP_ALIVE},
+        {"model": model or DEFAULT_EMBED_MODEL, "input": texts, "keep_alive": LLM_KEEP_ALIVE},
     )
     embeddings = response_data.get("embeddings")
     if embeddings is None:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Resposta inválida recebida da API do Ollama (/api/embed).",
+            detail="Resposta inválida recebida da API do LLM (/api/embed).",
         )
     if len(embeddings) != len(texts):
         raise HTTPException(
@@ -177,31 +185,31 @@ def generate(question: str, model: str | None = None) -> str:
             "model": model or DEFAULT_CHAT_MODEL,
             "prompt": question,
             "stream": False,
-            "keep_alive": OLLAMA_KEEP_ALIVE,
+            "keep_alive": LLM_KEEP_ALIVE,
         },
     )
     answer = response_data.get("response")
     if answer is None:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Resposta inválida recebida da API do Ollama.",
+            detail="Resposta inválida recebida da API do LLM.",
         )
     return answer
 
 
 def list_models() -> list[dict]:
     try:
-        url = f"{OLLAMA_BASE_URL}/api/tags"
+        url = f"{LLM_BASE_URL}/api/tags"
         req = request.Request(url, method="GET")
         with request.urlopen(req, timeout=30) as response:
             response_data = json.loads(response.read().decode("utf-8"))
     except error.HTTPError as exc:
-        detail = exc.read().decode("utf-8") or "Erro ao listar modelos do Ollama."
+        detail = exc.read().decode("utf-8") or "Erro ao listar modelos do LLM."
         raise HTTPException(status_code=exc.code, detail=detail)
     except (error.URLError, TimeoutError, json.JSONDecodeError) as exc:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Falha ao listar modelos do Ollama: {exc}",
+            detail=f"Falha ao listar modelos do LLM: {exc}",
         )
     return response_data.get("models", [])
 
@@ -220,8 +228,8 @@ def cosine_similarity(a: list[float], b: list[float]) -> float:
     return dot / ((norm_a ** 0.5) * (norm_b ** 0.5))
 
 
-def wait_for_ollama(retries: int = 30, delay: float = 2.0) -> bool:
-    """Aguarda o Ollama responder (usado em scripts de seed/setup)."""
+def wait_for_llm(retries: int = 30, delay: float = 2.0) -> bool:
+    """Aguarda a API do LLM responder (usado em scripts de seed/setup)."""
     for _ in range(retries):
         try:
             list_models()
