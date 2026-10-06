@@ -26,4 +26,4 @@ frontend/.vite/
 .agents/
 logs/
 cmdb_banco_teste/
-
+.seal/
