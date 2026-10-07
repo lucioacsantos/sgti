@@ -11,6 +11,12 @@ load_dotenv(Path(__file__).parent.parent / ".env")
 # Formato: postgresql://usuario:senha@host:porta/nome_do_banco
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://cmdb:cmdb@localhost/cmdb")
 
+# Fixa o driver psycopg2 (o default psycopg3 em versões novas do SQLAlchemy geraria ModuleNotFoundError)
+if SQLALCHEMY_DATABASE_URL.startswith("postgresql://"):
+    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace(
+        "postgresql://", "postgresql+psycopg2://", 1
+    )
+
 # 2. Criação do Engine
 # O 'engine' é o ponto de entrada para o banco de dados.
 engine = create_engine(
