@@ -19,6 +19,12 @@ config = context.config
 if os.getenv("DATABASE_URL"):
     config.set_main_option("sqlalchemy.url", os.environ["DATABASE_URL"].replace("%", "%%"))
 
+# Fixa o driver psycopg2 (mesmo tratamento de backend/database.py; SQLAlchemy
+# novo resolve postgresql:// para psycopg3 e geraria ModuleNotFoundError)
+url = config.get_main_option("sqlalchemy.url")
+if url and url.startswith("postgresql://"):
+    config.set_main_option("sqlalchemy.url", url.replace("postgresql://", "postgresql+psycopg2://", 1))
+
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:

@@ -9,6 +9,7 @@ requests
 python-dotenv
 alembic
 bcrypt
+cryptography
 slowapi
 ldap3
 pyjwt
