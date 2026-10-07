@@ -66,7 +66,20 @@ class ZabbixClient:
 
     def _call(self, method: str, params: dict) -> dict | list:
         auth_token = self._get_auth_token()
-        return self._json_rpc(method, params, auth_token)
+        try:
+            return self._json_rpc(method, params, auth_token)
+        except HTTPException as exc:
+            # Zabbix >= 7.0 não aceita mais o campo "auth" no payload e exige
+            # o header "Authorization: Bearer". Ao detectar o erro de parâmetro
+            # inválido, marca o cliente para usar Bearer e retenta uma vez.
+            if (
+                self.api_token
+                and not self.use_bearer_token
+                and "unexpected parameter \"auth\"" in str(getattr(exc, "detail", ""))
+            ):
+                self.use_bearer_token = True
+                return self._json_rpc(method, params, None)
+            raise
 
     def _get_auth_token(self) -> str | None:
         if self.api_token:
@@ -133,6 +146,15 @@ class ZabbixClient:
 
         if "error" in response_data:
             zabbix_error = response_data["error"]
+            # Zabbix >= 7.0: campo "auth" no payload não é mais aceito.
+            if (
+                include_auth
+                and auth_token
+                and "unexpected parameter \"auth\"" in str(zabbix_error.get("data", ""))
+            ):
+                self.use_bearer_token = True
+                self._request_id -= 1
+                return self._json_rpc(method, params, None)
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
                 detail=f"Erro da API do Zabbix em {method}: {zabbix_error}",
