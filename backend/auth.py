@@ -137,7 +137,10 @@ def ask_llm(question: str, model: str | None = None) -> str:
             response_data = json.loads(response.read().decode("utf-8"))
     except error.HTTPError as exc:
         detail = exc.read().decode("utf-8") or "Erro ao consultar a API do LLM."
-        raise HTTPException(status_code=exc.code, detail=detail)
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Servidor LLM rejeitou a chamada (HTTP {exc.code}): {detail}",
+        ) from exc
     except (error.URLError, TimeoutError, json.JSONDecodeError) as exc:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,

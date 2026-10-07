@@ -1,9 +1,12 @@
 from fastapi import HTTPException, status
 from urllib import error, request
 import json
+import logging
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+
+logger = logging.getLogger(__name__)
 
 load_dotenv(Path(__file__).parent.parent / ".env")
 
@@ -136,8 +139,14 @@ class ZabbixClient:
             with request.urlopen(req, timeout=120) as response:
                 response_data = json.loads(response.read().decode("utf-8"))
         except error.HTTPError as exc:
-            detail = exc.read().decode("utf-8") or "Erro HTTP ao consultar a API do Zabbix."
-            raise HTTPException(status_code=exc.code, detail=detail)
+            detail = exc.read().decode("utf-8")
+            logger = logging.getLogger(__name__)
+            logger.error("Erro HTTP %s na API do Zabbix (%s): %s",
+                         exc.code, method, detail)
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail=f"Erro HTTP {exc.code} na API do Zabbix: {detail or 'sem detalhes'}",
+            ) from exc
         except (error.URLError, TimeoutError, json.JSONDecodeError) as exc:
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,

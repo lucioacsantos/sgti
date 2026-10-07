@@ -28,6 +28,11 @@ LLM_BASE_URL = os.getenv(
 LLM_KEEP_ALIVE = os.getenv("LLM_KEEP_ALIVE", os.getenv("OLLAMA_KEEP_ALIVE", "30m"))
 
 
+def _upstream_detail(body: str, acao: str) -> str:
+    """Mensagem amigável com o texto do upstream (ex.: modelo não baixado)."""
+    return f"Servidor LLM rejeitou a chamada ({acao}): {body}"
+
+
 def _post(path: str, payload: dict, timeout: int = 300) -> dict:
     url = f"{LLM_BASE_URL}{path}"
     try:
@@ -41,12 +46,18 @@ def _post(path: str, payload: dict, timeout: int = 300) -> dict:
         with request.urlopen(req, timeout=timeout) as response:
             return json.loads(response.read().decode("utf-8"))
     except error.HTTPError as exc:
-        detail = exc.read().decode("utf-8") or "Erro ao consultar a API do LLM."
-        raise HTTPException(status_code=exc.code, detail=detail)
+        detail = exc.read().decode("utf-8")
+        logger.error("Erro na API do LLM %s (HTTP %s): %s", path, exc.code, detail)
+        # 404 do LLM = modelo não baixado no servidor; NUNCA propaga o código
+        # do upstream (viraria 404 mentiroso na API do SGTI) — vira 502.
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=_upstream_detail(detail or "Erro ao consultar a API do LLM.", path),
+        ) from exc
     except (error.URLError, TimeoutError, json.JSONDecodeError) as exc:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Falha ao consultar a API do LLM: {exc}",
+            detail=f"Falha ao consultar a API do LLM ({path}): {exc}",
         )
 
 
@@ -70,12 +81,16 @@ def _stream(path: str, payload: dict, timeout: int = 300) -> Iterator[dict]:
                 except json.JSONDecodeError:
                     logger.warning("Evento inválido ignorado no stream do LLM")
     except error.HTTPError as exc:
-        detail = exc.read().decode("utf-8") or "Erro ao consultar a API do LLM."
-        raise HTTPException(status_code=exc.code, detail=detail)
+        detail = exc.read().decode("utf-8")
+        logger.error("Erro na API do LLM %s (HTTP %s): %s", path, exc.code, detail)
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=_upstream_detail(detail or "Erro ao consultar a API do LLM.", path),
+        ) from exc
     except (error.URLError, TimeoutError) as exc:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Falha ao consultar a API do LLM: {exc}",
+            detail=f"Falha ao consultar a API do LLM ({path}): {exc}",
         )
 
 
@@ -204,8 +219,12 @@ def list_models() -> list[dict]:
         with request.urlopen(req, timeout=30) as response:
             response_data = json.loads(response.read().decode("utf-8"))
     except error.HTTPError as exc:
-        detail = exc.read().decode("utf-8") or "Erro ao listar modelos do LLM."
-        raise HTTPException(status_code=exc.code, detail=detail)
+        detail = exc.read().decode("utf-8")
+        logger.error("Erro ao listar modelos do LLM (HTTP %s): %s", exc.code, detail)
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Falha ao listar modelos do LLM: {detail or exc}",
+        ) from exc
     except (error.URLError, TimeoutError, json.JSONDecodeError) as exc:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
