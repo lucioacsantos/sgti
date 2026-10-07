@@ -1,0 +1,41 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+psycopg2-binary
+pandas
+openpyxl
+requests
+python-dotenv
+alembic
+bcrypt
+slowapi
+ldap3
+pyjwt
+pyotp
+qrcode[pil]
+cython
+numpy
+
+# ==========================================================================
+# Provider "local" da engine de IA — VARIANTE CPU (sem GPU NVIDIA)
+# Servidores Intel com AVX-512: o wheel oficial do PyTorch CPU já é
+# compilado com vetoriação AVX-512 + oneDNN (mkldnn) e acelera
+# automaticamente, sem código adicional.
+#
+# Diferenças para a variante com GPU:
+#   - aqui NÃO se instala o wheel padrão do PyPI (puxaria CUDA ~2 GB+);
+#     força-se o índice oficial de wheels CPU da PyTorch
+#   - embeddings: sentence-transformers em CPU (384 dims)
+#   - geração: continua sendo feita pelo LLM (provider "llm" via Ollama
+#     CPU) ou engine local determinística — sem dependência de GPU
+#
+# Instalação no RHEL 10 (venv):
+#   pip install --ignore-installed --no-deps setuptools && pip install setuptools
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+#   pip install -U sentence-transformers
+# O pip do requirements.txt padrão puxaria o wheel CUDA; use o comando acima
+# antes de "pip install -r .": o torch já instalado satisfaz a referência.
+# ==========================================================================
+torch>=2.2.0
+sentence-transformers>=3.0.0
