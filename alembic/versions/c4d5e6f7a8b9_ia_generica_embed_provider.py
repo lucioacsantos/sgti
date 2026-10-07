@@ -29,14 +29,17 @@ def upgrade() -> None:
         "SET embed_provider = 'llm:' || split_part(embed_provider, ':', 2) "
         "WHERE embed_provider LIKE 'ollama:%'"
     )
-    op.alter_column(
-        'documento',
-        'embed_provider',
-        server_default='llm:nomic-embed-text',
-        existing_type=sa.String(255),
-        existing_nullable=False,
-    )
-
+    insp = sa.inspect(op.get_bind())
+    existing_default = insp.get_columns('documento')
+    coluna = next(c for c in existing_default if c['name'] == 'embed_provider')
+    if coluna.get('server_default') is None:
+        op.alter_column(
+            'documento',
+            'embed_provider',
+            server_default='llm:nomic-embed-text',
+            existing_type=sa.String(255),
+            existing_nullable=False,
+        )
 
 def downgrade() -> None:
     """Volta assinaturas llm:<modelo> para ollama:<modelo>."""
