@@ -1,10 +1,13 @@
 """Painel de reconciliações do CMDB.
 
 Detecta discrepâncias entre o CMDB e fontes externas (ativos sem IP, IPs órfãos,
-aplicações sem instância, serviços órfãos), agrega em execuções de reconciliação
-e impõe o workflow de quatro olhos: cada item só pode ser retificado/ratificado
-após parecer de NO MÍNIMO 2 analistas distintos (nunca o próprio autor da
-decisão, e o criador da execução não pode validar sozinho).
+aplicações sem instância, serviços órfãos, alarmes Zabbix via regras Z1–Z3),
+agrega em execuções de reconciliação e impõe o workflow de quatro olhos: cada
+item só pode ser retificado/ratificado após parecer de NO MÍNIMO 2 analistas
+distintos (nunca o próprio autor da decisão, e o criador da execução não pode
+validar sozinho). Na decisão 'retificado' o CMDB é corrigido automaticamente
+quando o item tem regra aplicável (campo de referência, nome, IP, vínculo ou
+criação de ativo); o resultado fica no audit log (CORRECAO).
 
 Todo POST/PUT passa por get_current_actor e grava audit log.
 """
@@ -12,7 +15,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func as sa_func
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, UTC
+import ipaddress
 import models, schemas, auth, audit
 from database import get_db
 import logging
@@ -130,6 +134,297 @@ def detectar_discrepancias(db: Session) -> list[dict]:
 
 
 # ============================================================
+# Integração Zabbix: alarme → discrepância → reconciliação
+# ============================================================
+
+def _ativo_por_nome(db: Session, host: str) -> Optional[models.Ativo]:
+    """Casa o host do Zabbix (FQDN/hostname) com o ativo: primeiro nome exato,
+    depois prefixo curto (hostname sem domínio)."""
+    ativo = db.query(models.Ativo).filter(models.Ativo.nome.ilike(host)).one_or_none()
+    if ativo is None and host:
+        curto = host.split(".")[0]
+        if curto:
+            ativo = (db.query(models.Ativo)
+                     .filter(models.Ativo.nome.ilike(f"{curto}%")).one_or_none())
+    return ativo
+
+
+def _ativo_por_ip(db: Session, ip: str) -> Optional[models.Ativo]:
+    if not ip:
+        return None
+    return (db.query(models.Ativo)
+            .join(models.EnderecoIp, models.EnderecoIp.ativo_id == models.Ativo.id)
+            .filter(models.EnderecoIp.ip == ip).one_or_none())
+
+
+def detectar_discrepancias_zabbix(db: Session, host: str, ip: Optional[str] = None) -> list[dict]:
+    """Regras de consistência Zabbix ↔ CMDB (fonte 'zabbix'):
+
+    Z1: host monitorado no Zabbix sem ativo correspondente no CMDB
+    Z2: host casado apenas pelo IP — nome divergente entre Zabbix e CMDB
+    Z3: host casado pelo nome, mas IP reportado não registrado no ativo
+    """
+    achados: list[dict] = []
+    ativo = _ativo_por_nome(db, host)
+    if ativo is None:
+        ativo = _ativo_por_ip(db, ip)
+
+    if ativo is None:
+        achados.append({
+            "entidade": "ativo", "entidade_id": None, "campo": "host_nao_cadastrado",
+            "valor_cmdb": None, "valor_fonte": host,
+            "detalhe": "Host monitorado no Zabbix sem ativo correspondente no CMDB",
+        })
+        return achados
+
+    ips = db.query(models.EnderecoIp).filter(models.EnderecoIp.ativo_id == ativo.id).all()
+    curto = host.split(".")[0]
+    casa_por_nome = (ativo.nome.lower() == host.lower()
+                     or (curto and ativo.nome.lower().startswith(curto.lower())))
+    if not casa_por_nome:
+        achados.append({
+            "entidade": "ativo", "entidade_id": ativo.id, "campo": "nome",
+            "valor_cmdb": ativo.nome, "valor_fonte": host,
+            "detalhe": "Host casado apenas pelo IP; nome divergente entre "
+                       "Zabbix e CMDB",
+        })
+    elif ip and not any(e.ip == ip for e in ips):
+        primario = next((e.ip for e in ips if e.primario), None)
+        achados.append({
+            "entidade": "ativo", "entidade_id": ativo.id, "campo": "endereco_ip",
+            "valor_cmdb": primario or (", ".join(e.ip for e in ips) or None),
+            "valor_fonte": ip,
+            "detalhe": f"IP reportado pelo Zabbix ausente no ativo {ativo.nome}",
+        })
+    return achados
+
+
+@router.post("/zabbix/alarme", response_model=schemas.ZabbixAlarmeReconciliacaoOut)
+def reportar_alarme_zabbix(
+    payload: schemas.ZabbixAlarmeReconciliacaoIn,
+    db: Session = Depends(get_db),
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
+):
+    """Webhook do Zabbix → reconciliação (fonte 'zabbix').
+
+    Cada alarme é confrontado com o CMDB (Z1–Z3). Itens acumulam em uma única
+    execução fonte=zabbix (dedupe por entidade/campo/valor da fonte) e seguem
+    o workflow de quatro olhos — inclusive a criação de ativo na decisão
+    'retificado' para hosts não cadastrados."""
+    achados = detectar_discrepancias_zabbix(db, payload.host, payload.ip)
+    if not achados:
+        return schemas.ZabbixAlarmeReconciliacaoOut(
+            registrou=False, reconciliacao=None,
+            achados=[], novos_itens=0, duplicados_ignorados=0)
+
+    recon = (db.query(models.Reconciliacao)
+             .filter(models.Reconciliacao.fonte == "zabbix",
+                     models.Reconciliacao.status.in_(("aberta", "em_verificacao")))
+             .order_by(models.Reconciliacao.criado_em.desc())
+             .first())
+    if recon is None:
+        recon = models.Reconciliacao(
+            nome=f"Discrepâncias Zabbix — {datetime.now().strftime('%d/%m/%Y %H:%M')}",
+            fonte="zabbix", status="aberta",
+            criado_por=_nome_ator(current_service))
+        db.add(recon)
+        db.flush()
+
+    prefixo = f"Alarme Zabbix {payload.event_id}"
+    if payload.problema:
+        prefixo += f": {payload.problema}"
+    novos = duplicados = 0
+    for achado in achados:
+        aberto = (db.query(models.ItemReconciliacao)
+                  .filter(models.ItemReconciliacao.reconciliacao_id == recon.id,
+                          models.ItemReconciliacao.entidade == achado["entidade"],
+                          models.ItemReconciliacao.campo == achado["campo"],
+                          models.ItemReconciliacao.valor_fonte == achado["valor_fonte"],
+                          models.ItemReconciliacao.status.in_(("pendente", "em_verificacao")))
+                  .first())
+        if aberto:
+            duplicados += 1
+            continue
+        dados = dict(achado)
+        dados["detalhe"] = f"{prefixo} — {dados.get('detalhe', '')}"
+        db.add(models.ItemReconciliacao(reconciliacao_id=recon.id, **dados))
+        novos += 1
+
+    _audit(db, "reconciliacao", recon.id, "CREATE_ZBX",
+           depois={"event_id": payload.event_id, "host": payload.host,
+                   "ip": payload.ip, "achados": len(achados),
+                   "novos_itens": novos, "duplicados": duplicados},
+           usuario=_nome_ator(current_service))
+    db.commit()
+    db.refresh(recon)
+
+    cont = _contagens(db, recon.id)
+    return schemas.ZabbixAlarmeReconciliacaoOut(
+        registrou=True,
+        reconciliacao=schemas.ReconciliacaoResponse(
+            id=recon.id, nome=recon.nome, fonte=recon.fonte, status=recon.status,
+            criado_por=recon.criado_por, criado_em=recon.criado_em, **cont),
+        achados=[a["detalhe"] for a in achados],
+        novos_itens=novos, duplicados_ignorados=duplicados)
+
+
+# ============================================================
+# Correção automática do CMDB na decisão 'retificar'
+# ============================================================
+
+def _ref_por_nome(db: Session, model, campo: str, valor: str):
+    return (db.query(model)
+            .filter(sa_func.lower(getattr(model, campo)) == valor.strip().lower())
+            .one_or_none())
+
+
+def _corrigir_ativo(db: Session, item: models.ItemReconciliacao,
+                    fonte: str) -> tuple[str, Optional[dict]]:
+    """Regras ativo/*: criação de ativo em análise, campos de referência
+    (ambiente/status/criticidade), nome e associação de IP"""
+    if item.campo == "host_nao_cadastrado":
+        if db.query(models.Ativo).filter(models.Ativo.nome.ilike(fonte)).first():
+            return ("correção automática não aplicável: ativo com esse nome "
+                    "já existe no CMDB", None)
+        tipo = (_ref_por_nome(db, models.TipoAtivo, "nome", "Servidor Virtual")
+                or db.query(models.TipoAtivo).order_by(models.TipoAtivo.id).first())
+        if tipo is None:
+            return ("correção automática não aplicável: nenhum tipo de ativo "
+                    "cadastrado", None)
+        novo = models.Ativo(nome=fonte, tipo_id=tipo.id)
+        db.add(novo)
+        db.flush()
+        item.entidade_id = novo.id
+        return (f"correção automática aplicada: ativo #{novo.id} '{fonte}' criado "
+                f"a partir da fonte (tipo '{tipo.nome}')",
+                {"campo": item.campo, "antes": None,
+                 "depois": {"criado": "ativo", "id": novo.id, "nome": fonte}})
+    ativo = db.query(models.Ativo).get(item.entidade_id) if item.entidade_id else None
+    if ativo is None:
+        return ("correção automática não aplicável: registro alvo não "
+                "encontrado no CMDB", None)
+
+    if item.campo in ("ambiente", "status", "criticidade"):
+        model, campo_ref = {
+            "ambiente": (models.Ambiente, "nome"),
+            "status": (models.StatusAtivo, "nome"),
+            "criticidade": (models.Criticidade, "nivel"),
+        }[item.campo]
+        ref = _ref_por_nome(db, model, campo_ref, fonte)
+        if ref is None:
+            return (f"correção automática não aplicável: "
+                    f"'{fonte}' não cadastrado como {item.campo} de referência", None)
+        antes_val = getattr(ativo, item.campo)
+        antes_nome = getattr(antes_val, campo_ref) if antes_val else None
+        setattr(ativo, f"{item.campo}_id", ref.id)
+        return (f"correção automática aplicada: {item.campo} de "
+                f"'{antes_nome or 'ausente'}' para '{fonte}'",
+                {"campo": item.campo,
+                 "antes": {"id": antes_val.id if antes_val else None, "nome": antes_nome},
+                 "depois": {"id": ref.id, "nome": fonte}})
+
+    if item.campo == "nome":
+        if fonte.lower() == (ativo.nome or "").lower():
+            return "correção automática não aplicável: nome já idêntico ao da fonte", None
+        antes_nome = ativo.nome
+        ativo.nome = fonte
+        return (f"correção automática aplicada: nome de '{antes_nome}' "
+                f"para '{fonte}'",
+                {"campo": "nome", "antes": {"nome": antes_nome},
+                 "depois": {"nome": fonte}})
+
+    if item.campo == "endereco_ip":
+        try:
+            ip_obj = ipaddress.ip_address(fonte)
+        except ValueError:
+            return (f"correção automática não aplicável: valor da fonte "
+                    f"'{fonte}' não é um IP válido", None)
+        existe = (db.query(models.EnderecoIp)
+                  .filter(models.EnderecoIp.ativo_id == ativo.id,
+                          models.EnderecoIp.ip == str(ip_obj)).one_or_none())
+        if existe:
+            return ("correção automática não aplicável: IP já registrado "
+                    "no ativo", None)
+        primario = db.query(models.EnderecoIp).filter(
+            models.EnderecoIp.ativo_id == ativo.id).count() == 0
+        db.add(models.EnderecoIp(ativo_id=ativo.id, ip=str(ip_obj),
+                                 tipo=f"IPv{ip_obj.version}", primario=primario))
+        return (f"correção automática aplicada: IP {ip_obj} associado "
+                f"ao ativo {ativo.nome}" + (" (primário)" if primario else ""),
+                {"campo": "endereco_ip", "antes": None,
+                 "depois": {"adicionado": str(ip_obj), "primario": primario}})
+
+    return (f"correção automática não aplicável: sem regra para "
+            f"ativo/{item.campo}", None)
+
+
+def _vincular_ativo(db: Session, item: models.ItemReconciliacao, fonte: str,
+                    model, etiqueta: str) -> tuple[str, Optional[dict]]:
+    """Regras instancia_aplicacao|cluster / ativo_id: vincula o host
+    identificado, respeitando o vínculo único ativo↔registro."""
+    registro = db.query(model).get(item.entidade_id) if item.entidade_id else None
+    if registro is None:
+        return ("correção automática não aplicável: registro alvo não "
+                "encontrado no CMDB", None)
+    alvo = None
+    if fonte.isdigit():
+        alvo = db.query(models.Ativo).get(int(fonte))
+    if alvo is None:
+        alvo = db.query(models.Ativo).filter(models.Ativo.nome.ilike(fonte)).first()
+    if alvo is None:
+        return (f"correção automática não aplicável: nenhum ativo casando "
+                f"com '{fonte}'", None)
+    if registro.ativo_id == alvo.id:
+        return ("correção automática não aplicável: vínculo já existente", None)
+    conflito = (db.query(model)
+                .filter(getattr(model, "ativo_id") == alvo.id,
+                        getattr(model, "id") != registro.id).first())
+    if conflito:
+        return (f"correção automática não aplicável: {etiqueta} #{conflito.id} "
+                f"já vinculada ao ativo {alvo.nome}", None)
+    antes_id = registro.ativo_id
+    registro.ativo_id = alvo.id
+    return (f"correção automática aplicada: {etiqueta} #{registro.id} vinculada "
+            f"ao ativo {alvo.nome}",
+            {"campo": "ativo_id", "antes": {"ativo_id": antes_id},
+             "depois": {"ativo_id": alvo.id, "nome": alvo.nome}})
+
+
+def aplicar_correcao_cmdb(db: Session,
+                          item: models.ItemReconciliacao) -> tuple[str, Optional[dict]]:
+    """Aplica no CMDB a correção implícita na decisão 'retificado'.
+
+    Regras suportadas:
+      ativo/ambiente|status|criticidade → campo de referência ajustado para o valor da fonte
+      ativo/nome → renomeia o ativo
+      ativo/endereco_ip → associa o IP reportado (primário se for o primeiro)
+      ativo/host_nao_cadastrado → cria ativo em análise
+      instancia_aplicacao|cluster com ativo_id → vincula o host identificado
+
+    Demais casos (ex.: criação de serviço/relacionamento inferida por IA, sem
+    valor estruturado) retornam nota 'não aplicável' que fica registrada no
+    detalhe do item e no audit log — nada escapa da trilha."""
+    fonte = (item.valor_fonte or "").strip()
+    if not fonte:
+        return ("correção automática não aplicável: item sem valor acionável "
+                "na fonte", None)
+    try:
+        if item.entidade == "ativo":
+            return _corrigir_ativo(db, item, fonte)
+        elif (item.entidade == "instancia_aplicacao"
+              and item.campo == "ativo_id"):
+            return _vincular_ativo(db, item, fonte, models.InstanciaAplicacao,
+                                   "instância")
+        elif item.entidade == "cluster" and item.campo == "ativo_id":
+            return _vincular_ativo(db, item, fonte, models.Cluster, "cluster")
+    except Exception:
+        logger.exception("Falha na correção automática do item %s", item.id)
+        return "correção automática falhou: erro interno (verificar logs)", None
+    return (f"correção automática não aplicável: sem regra para "
+            f"{item.entidade}/{item.campo}", None)
+
+
+# ============================================================
 # Endpoints
 # ============================================================
 
@@ -170,11 +465,11 @@ def create_reconciliacao(
     if auto_deteccao:
         for achado in detectar_discrepancias(db):
             db.add(models.ItemReconciliacao(reconciliacao_id=recon.id, **achado))
-    db.commit()
-    db.refresh(recon)
     _audit(db, "reconciliacao", recon.id, "CREATE",
            depois={"nome": recon.nome, "fonte": recon.fonte},
            usuario=_nome_ator(current_service))
+    db.commit()
+    db.refresh(recon)
     cont = _contagens(db, recon.id)
     return schemas.ReconciliacaoResponse(
         id=recon.id, nome=recon.nome, fonte=recon.fonte, status=recon.status,
@@ -217,16 +512,16 @@ def reportar_inferencia_ia(
         else:
             item.status = "ratificado"
             item.resolvido_por = "inferencia_ia"
-            item.resolvido_em = datetime.utcnow()
+            item.resolvido_em = datetime.now(UTC)
             auto_ratificados += 1
         db.add(item)
-    db.commit()
-    db.refresh(recon)
     _audit(db, "reconciliacao", recon.id, "CREATE_IA",
            depois={"nome": recon.nome, "fonte": "ia",
                    "itens": len(payload.itens), "limiar": payload.limiar,
                    "pendentes": abertos, "auto_ratificados": auto_ratificados},
            usuario=_nome_ator(current_service))
+    db.commit()
+    db.refresh(recon)
     cont = _contagens(db, recon.id)
     return schemas.ReconciliacaoInferenciaIAResponse(
         reconciliacao=schemas.ReconciliacaoResponse(
@@ -312,11 +607,11 @@ def registrar_parecer(
                                        parecer=payload.parecer,
                                        comentario=payload.comentario))
     item.status = "em_verificacao"
-    db.commit()
-    db.refresh(item)
     _audit(db, "item_reconciliacao", item.id, "PARECER",
            depois={"analista": analista, "parecer": payload.parecer},
            usuario=analista)
+    db.commit()
+    db.refresh(item)
     resp = schemas.ItemReconciliacaoResponse.model_validate(item)
     resp.analistas = sorted({p.analista for p in item.pareceres})
     return resp
@@ -333,7 +628,11 @@ def decidir_item(
 ):
     """Retifica/ratifica o item. Exige NO MÍNIMO 2 analistas distintos com
     parecer registrado; a decisão final só é aceita se o decisor participou
-    da verificação (registrou parecer) — workflow de quatro olhos."""
+    da verificação (registrou parecer) — workflow de quatro olhos.
+
+    Na decisão 'retificado' o CMDB é corrigido automaticamente (aplicar_regra
+    conforme entidade/campo do item); a nota do resultado fica no detalhe do
+    item e no audit log (ação CORRECAO)."""
     _require_admin(current_service)
     item = (db.query(models.ItemReconciliacao)
             .filter(models.ItemReconciliacao.id == item_id,
@@ -358,14 +657,24 @@ def decidir_item(
                                    "pode registrá-la no item")
 
     antes = {"status": item.status}
+    correcao = mudanca = None
+    if payload.decisao == "retificado":
+        correcao, mudanca = aplicar_correcao_cmdb(db, item)
+        item.detalhe = f"{item.detalhe} — {correcao}" if item.detalhe else correcao
     item.status = payload.decisao
     item.resolvido_por = analista
-    item.resolvido_em = datetime.utcnow()
+    item.resolvido_em = datetime.now(UTC)
+    if mudanca:
+        _audit(db, item.entidade, item.entidade_id, "CORRECAO",
+               antes=mudanca.get("antes"), depois=mudanca.get("depois"),
+               usuario=analista)
+    _audit(db, "item_reconciliacao", item.id, "DECISAO",
+           antes=antes,
+           depois={"status": payload.decisao, "por": analista,
+                   "correcao": correcao},
+           usuario=analista)
     db.commit()
     db.refresh(item)
-    _audit(db, "item_reconciliacao", item.id, "DECISAO",
-           antes=antes, depois={"status": payload.decisao, "por": analista},
-           usuario=analista)
     resp = schemas.ItemReconciliacaoResponse.model_validate(item)
     resp.analistas = analistas
     return resp
@@ -387,10 +696,10 @@ def concluir_reconciliacao(
                             detail=f"Existem {cont['pendentes']} itens pendentes de "
                                    f"verificação por {MIN_ANALISTAS} analistas")
     recon.status = "concluida"
-    recon.concluida_em = datetime.utcnow()
+    recon.concluida_em = datetime.now(UTC)
+    _audit(db, "reconciliacao", recon.id, "CONCLUIR", usuario=_nome_ator(current_service))
     db.commit()
     db.refresh(recon)
-    _audit(db, "reconciliacao", recon.id, "CONCLUIR", usuario=_nome_ator(current_service))
     return schemas.ReconciliacaoResponse(
         id=recon.id, nome=recon.nome, fonte=recon.fonte, status=recon.status,
         criado_por=recon.criado_por, criado_em=recon.criado_em,
@@ -408,5 +717,5 @@ def cancelar_reconciliacao(
     if not recon:
         raise HTTPException(status_code=404, detail="Reconciliação não encontrada")
     recon.status = "cancelada"
-    db.commit()
     _audit(db, "reconciliacao", recon.id, "CANCELAR", usuario=_nome_ator(current_service))
+    db.commit()

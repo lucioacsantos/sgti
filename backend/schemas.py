@@ -537,3 +537,25 @@ class ReconciliacaoInferenciaIAResponse(BaseModel):
     recebidos: int
     pendentes_abertos: int
     auto_ratificados: int
+
+
+# ===== WEBHOOK ZABBIX → RECONCILIAÇÃO =====
+
+class ZabbixAlarmeReconciliacaoIn(BaseModel):
+    """Alarme publicado pelo webhook do Zabbix.
+
+    O host reportado é confrontado com o CMDB (regras Z1–Z3): discrepâncias
+    entram como itens pendentes (fonte 'zabbix') no workflow de quatro olhos."""
+    event_id: str
+    host: str
+    ip: Optional[str] = None
+    problema: Optional[str] = None
+    severidade: Optional[str] = None
+
+
+class ZabbixAlarmeReconciliacaoOut(BaseModel):
+    registrou: bool
+    reconciliacao: Optional[ReconciliacaoResponse] = None
+    achados: List[str] = []
+    novos_itens: int = 0
+    duplicados_ignorados: int = 0
