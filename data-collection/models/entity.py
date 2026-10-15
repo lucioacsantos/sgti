@@ -4,7 +4,7 @@ Collected Entity Models
 Normalized representation of infrastructure entities from various sources.
 """
 from enum import Enum
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Optional, Dict, Any, List
 from pydantic import BaseModel, Field, ConfigDict
 from uuid import UUID, uuid4
@@ -136,10 +136,10 @@ class CollectedEntity(BaseModel):
     raw_data: Dict[str, Any] = Field(default_factory=dict)
     
     # Collection metadata
-    collected_at: datetime = Field(default_factory=datetime.utcnow)
+    collected_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     collection_job_id: UUID
-    first_seen_at: datetime = Field(default_factory=datetime.utcnow)
-    last_seen_at: datetime = Field(default_factory=datetime.utcnow)
+    first_seen_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    last_seen_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     is_deleted: bool = False
     
     # Reconciliation

@@ -5,7 +5,7 @@ Collects data from VMware vCenter Server using pyvmomi.
 """
 import ssl
 from typing import AsyncIterator, Dict, Any, List, Optional, Set
-from datetime import datetime
+from datetime import datetime, UTC
 from uuid import UUID
 
 from pyVmomi import vim, vmodl
@@ -69,10 +69,10 @@ class VCenterConnector(BaseConnector):
     
     async def test_connection(self) -> Dict[str, Any]:
         """Test vCenter connection."""
-        start = datetime.utcnow()
+        start = datetime.now(UTC)
         try:
             success = await self.connect()
-            latency = (datetime.utcnow() - start).total_seconds() * 1000
+            latency = (datetime.now(UTC) - start).total_seconds() * 1000
             if success:
                 about = self.content.about
                 await self.disconnect()
@@ -97,7 +97,7 @@ class VCenterConnector(BaseConnector):
             return {
                 "success": False,
                 "message": str(e),
-                "latency_ms": int((datetime.utcnow() - start).total_seconds() * 1000),
+                "latency_ms": int((datetime.now(UTC) - start).total_seconds() * 1000),
             }
     
     async def get_schema(self) -> Dict[str, Any]:
@@ -255,7 +255,7 @@ class VCenterConnector(BaseConnector):
                 vm_count=sum(len(h.vm) for h in cluster.host),
                 
                 # Collection metadata
-                collected_at=datetime.utcnow(),
+                collected_at=datetime.now(UTC),
                 collection_job_id=job.id,
                 raw_data={
                     "moid": cluster._moId,
@@ -362,7 +362,7 @@ class VCenterConnector(BaseConnector):
                 connection_state=str(summary.runtime.connectionState),
                 
                 # Collection metadata
-                collected_at=datetime.utcnow(),
+                collected_at=datetime.now(UTC),
                 collection_job_id=job.id,
                 raw_data={
                     "moid": host._moId,
@@ -492,7 +492,7 @@ class VCenterConnector(BaseConnector):
                 bios_uuid=config.uuid,
                 
                 # Collection metadata
-                collected_at=datetime.utcnow(),
+                collected_at=datetime.now(UTC),
                 collection_job_id=job.id,
                 raw_data={
                     "moid": vm._moId,
@@ -538,7 +538,7 @@ class VCenterConnector(BaseConnector):
                 # Free space would be summary.freeSpace
                 
                 tags={"type": summary.type},
-                collected_at=datetime.utcnow(),
+                collected_at=datetime.now(UTC),
                 collection_job_id=job.id,
                 raw_data={
                     "moid": ds._moId,
@@ -581,7 +581,7 @@ class VCenterConnector(BaseConnector):
                 parent_source_id=datacenter._moId,
                 
                 tags={"type": type(net).__name__},
-                collected_at=datetime.utcnow(),
+                collected_at=datetime.now(UTC),
                 collection_job_id=job.id,
                 raw_data={
                     "moid": net._moId,

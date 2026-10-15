@@ -5,7 +5,7 @@ Collects data from Red Hat Satellite Server using its REST API.
 """
 import httpx
 from typing import AsyncIterator, Dict, Any, List, Optional
-from datetime import datetime
+from datetime import datetime, UTC
 from uuid import UUID
 
 from .base import BaseConnector, CollectionResult, ConnectorRegistry
@@ -64,10 +64,10 @@ class SatelliteConnector(BaseConnector):
     
     async def test_connection(self) -> Dict[str, Any]:
         """Test Satellite connection."""
-        start = datetime.utcnow()
+        start = datetime.now(UTC)
         try:
             success = await self.connect()
-            latency = (datetime.utcnow() - start).total_seconds() * 1000
+            latency = (datetime.now(UTC) - start).total_seconds() * 1000
             if success:
                 # Get version info
                 response = await self.client.get("/api/v2/about")
@@ -89,7 +89,7 @@ class SatelliteConnector(BaseConnector):
             return {
                 "success": False,
                 "message": str(e),
-                "latency_ms": int((datetime.utcnow() - start).total_seconds() * 1000),
+                "latency_ms": int((datetime.now(UTC) - start).total_seconds() * 1000),
             }
     
     async def get_schema(self) -> Dict[str, Any]:
@@ -314,7 +314,7 @@ class SatelliteConnector(BaseConnector):
                 annotations={p["name"]: p["value"] for p in host.get("host_parameters", [])},
                 
                 # Collection metadata
-                collected_at=datetime.utcnow(),
+                collected_at=datetime.now(UTC),
                 collection_job_id=job.id,
                 raw_data=host,
             )

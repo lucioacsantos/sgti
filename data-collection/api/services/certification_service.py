@@ -4,7 +4,7 @@ Certification Service API Layer
 API service for certification workflow.
 """
 from typing import Dict, Any, List, Optional
-from datetime import datetime
+from datetime import datetime, UTC
 from uuid import UUID
 import logging
 
@@ -46,7 +46,7 @@ class CertificationAPIService:
         ).first()
     
     async def update_request(self, request: CertificationRequest):
-        request.updated_at = datetime.utcnow()
+        request.updated_at = datetime.now(UTC)
         self.db.commit()
         self.db.refresh(request)
     
@@ -92,7 +92,7 @@ class CertificationAPIService:
     
     async def get_overdue(self) -> List[CertificationRequest]:
         return self.db.query(CertificationRequest).filter(
-            CertificationRequest.due_at < datetime.utcnow(),
+            CertificationRequest.due_at < datetime.now(UTC).replace(tzinfo=None),
             CertificationRequest.status.in_([
                 CertificationStatus.PENDING,
                 CertificationStatus.IN_REVIEW_ANALYST,
@@ -163,7 +163,7 @@ class CertificationAPIService:
         ).first()
     
     async def update_entity(self, entity: CollectedEntity):
-        entity.updated_at = datetime.utcnow()
+        entity.updated_at = datetime.now(UTC)
         self.db.commit()
         self.db.refresh(entity)
     

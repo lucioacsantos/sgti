@@ -4,7 +4,7 @@ Certification Service
 Manages the analyst/reviewer certification workflow for conflicted data.
 """
 from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from uuid import UUID, uuid4
 import logging
 
@@ -69,7 +69,7 @@ class CertificationService:
         
         # Set default due date if not provided
         if not request.due_at:
-            request.due_at = datetime.utcnow() + timedelta(hours=sla_hours)
+            request.due_at = datetime.now(UTC) + timedelta(hours=sla_hours)
         
         # Save request
         await self.request_repository.create(request)
@@ -187,7 +187,7 @@ class CertificationService:
             # Calculate SLA remaining
             sla_remaining = None
             if req.due_at:
-                remaining = req.due_at - datetime.utcnow()
+                remaining = req.due_at - datetime.now(UTC).replace(tzinfo=None)
                 sla_remaining = max(0, remaining.total_seconds() / 3600)
             
             queue_items.append(CertificationQueueItem(
@@ -235,22 +235,22 @@ class CertificationService:
         if role == CertificationRole.ANALYST:
             request.analyst_decision = decision
             request.analyst_notes = notes
-            request.analyst_decided_at = datetime.utcnow()
+            request.analyst_decided_at = datetime.now(UTC)
             request.status = CertificationStatus.IN_REVIEW_REVIEWER
         elif role == CertificationRole.REVIEWER:
             request.reviewer_decision = decision
             request.reviewer_notes = notes
-            request.reviewer_decided_at = datetime.utcnow()
+            request.reviewer_decided_at = datetime.now(UTC)
         elif role == CertificationRole.MANAGER:
             request.manager_decision = decision
             request.manager_notes = notes
-            request.manager_decided_at = datetime.utcnow()
+            request.manager_decided_at = datetime.now(UTC)
         
         # Determine next state
         await self._evaluate_outcome(request)
         
         # Update timestamp
-        request.updated_at = datetime.utcnow()
+        request.updated_at = datetime.now(UTC)
         
         # Save
         await self.request_repository.update(request)
@@ -306,8 +306,8 @@ class CertificationService:
                 if request.analyst_decision == CertificationDecision.APPROVE:
                     request.final_decision = CertificationDecision.APPROVE
                     request.status = CertificationStatus.APPROVED
-                    request.completed_at = datetime.utcnow()
-                    request.decided_at = datetime.utcnow()
+                    request.completed_at = datetime.now(UTC)
+                    request.decided_at = datetime.now(UTC)
                     request.decided_by = request.reviewer_id
                 else:
                     # Analyst had different decision - escalate
@@ -317,8 +317,8 @@ class CertificationService:
                 # Rejected by reviewer
                 request.final_decision = CertificationDecision.REJECT
                 request.status = CertificationStatus.REJECTED
-                request.completed_at = datetime.utcnow()
-                request.decided_at = datetime.utcnow()
+                request.completed_at = datetime.now(UTC)
+                request.decided_at = datetime.now(UTC)
                 request.decided_by = request.reviewer_id
             
             elif request.reviewer_decision == CertificationDecision.REQUEST_CHANGES:
@@ -340,8 +340,8 @@ class CertificationService:
                 request.status = CertificationStatus.IN_REVIEW_ANALYST
             
             if request.status in (CertificationStatus.APPROVED, CertificationStatus.REJECTED):
-                request.completed_at = datetime.utcnow()
-                request.decided_at = datetime.utcnow()
+                request.completed_at = datetime.now(UTC)
+                request.decided_at = datetime.now(UTC)
                 request.decided_by = request.manager_id
     
     async def _notify_next_assignee(self, request: CertificationRequest):
@@ -430,7 +430,7 @@ class CertificationService:
             entity = await self.entity_repository.get(entity_id)
             if entity:
                 entity.is_certified = True
-                entity.certified_at = datetime.utcnow()
+                entity.certified_at = datetime.now(UTC)
                 entity.certified_by = request.decided_by
                 entities.append(entity)
         
@@ -442,14 +442,14 @@ class CertificationService:
                     entity = await self.entity_repository.get(conflict.entity_a_id)
                     if entity:
                         entity.is_certified = True
-                        entity.certified_at = datetime.utcnow()
+                        entity.certified_at = datetime.now(UTC)
                         entity.certified_by = request.decided_by
                         entities.append(entity)
                 if conflict.entity_b_id:
                     entity = await self.entity_repository.get(conflict.entity_b_id)
                     if entity:
                         entity.is_certified = True
-                        entity.certified_at = datetime.utcnow()
+                        entity.certified_at = datetime.now(UTC)
                         entity.certified_by = request.decided_by
                         entities.append(entity)
         

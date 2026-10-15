@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, UTC
 from uuid import UUID
 
 from .database import engine, Base, get_db
@@ -76,7 +76,7 @@ async def health_check(db: Session = Depends(get_db)):
     """Health check endpoint."""
     try:
         db.execute("SELECT 1")
-        return {"status": "healthy", "database": "connected", "timestamp": datetime.utcnow().isoformat()}
+        return {"status": "healthy", "database": "connected", "timestamp": datetime.now(UTC).isoformat()}
     except Exception as e:
         return {"status": "degraded", "database": "disconnected"}
 
@@ -87,7 +87,7 @@ async def detailed_health(db: Session = Depends(get_db)):
     connectors = ConnectorRegistry.list_available()
     return {
         "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "connectors_available": connectors,
         "database": "connected",
     }
@@ -163,7 +163,7 @@ async def update_source(source_id: UUID, source: DataSourceUpdate, db: Session =
     for field, value in update_data.items():
         setattr(db_source, field, value)
     
-    db_source.updated_at = datetime.utcnow()
+    db_source.updated_at = datetime.now(UTC)
     db.commit()
     db.refresh(db_source)
     return db_source
@@ -251,7 +251,7 @@ async def update_job_progress(
     job.processed_entities = processed_entities
     if current_entity_type:
         job.current_entity_type = current_entity_type
-    job.updated_at = datetime.utcnow()
+    job.updated_at = datetime.now(UTC)
     
     db.commit()
     return {"status": "updated"}
@@ -269,7 +269,7 @@ async def complete_job(
         raise HTTPException(status_code=404, detail="Collection job not found")
     
     job.status = status
-    job.completed_at = datetime.utcnow()
+    job.completed_at = datetime.now(UTC)
     if job.started_at:
         job.duration_seconds = (job.completed_at - job.started_at).total_seconds()
     
@@ -291,8 +291,8 @@ async def create_entity(entity: CollectedEntity, db: Session = Depends(get_db)):
         # Update existing
         for field, value in entity.model_dump(exclude={"id", "created_at", "first_seen_at"}).items():
             setattr(existing, field, value)
-        existing.last_seen_at = datetime.utcnow()
-        existing.updated_at = datetime.utcnow()
+        existing.last_seen_at = datetime.now(UTC)
+        existing.updated_at = datetime.now(UTC)
         db.commit()
         db.refresh(existing)
         return existing
@@ -317,8 +317,8 @@ async def create_entities_batch(entities: List[CollectedEntity], db: Session = D
         if existing:
             for field, value in entity.model_dump(exclude={"id", "created_at", "first_seen_at"}).items():
                 setattr(existing, field, value)
-            existing.last_seen_at = datetime.utcnow()
-            existing.updated_at = datetime.utcnow()
+            existing.last_seen_at = datetime.now(UTC)
+            existing.updated_at = datetime.now(UTC)
             results.append(existing)
         else:
             db.add(entity)
@@ -443,8 +443,8 @@ async def resolve_conflict(
     conflict.resolved_value = resolved_value
     conflict.resolution_notes = notes
     conflict.resolved_by = resolved_by
-    conflict.resolved_at = datetime.utcnow()
-    conflict.updated_at = datetime.utcnow()
+    conflict.resolved_at = datetime.now(UTC)
+    conflict.updated_at = datetime.now(UTC)
     
     db.commit()
     return {"status": "resolved"}
@@ -511,30 +511,30 @@ async def certification_action(
     if role == "analyst":
         request.analyst_decision = decision
         request.analyst_notes = notes
-        request.analyst_decided_at = datetime.utcnow()
+        request.analyst_decided_at = datetime.now(UTC)
         request.status = "in_review_reviewer"
     elif role == "reviewer":
         request.reviewer_decision = decision
         request.reviewer_notes = notes
-        request.reviewer_decided_at = datetime.utcnow()
+        request.reviewer_decided_at = datetime.now(UTC)
         
         # Evaluate outcome
         if decision == "approve" and request.analyst_decision == "approve":
             request.final_decision = "approve"
             request.status = "approved"
-            request.completed_at = datetime.utcnow()
-            request.decided_at = datetime.utcnow()
+            request.completed_at = datetime.now(UTC)
+            request.decided_at = datetime.now(UTC)
             request.decided_by = decided_by
         elif decision == "reject":
             request.final_decision = "reject"
             request.status = "rejected"
-            request.completed_at = datetime.utcnow()
-            request.decided_at = datetime.utcnow()
+            request.completed_at = datetime.now(UTC)
+            request.decided_at = datetime.now(UTC)
             request.decided_by = decided_by
         else:
             request.status = "in_review_analyst"
     
-    request.updated_at = datetime.utcnow()
+    request.updated_at = datetime.now(UTC)
     db.commit()
     return {"status": request.status}
 

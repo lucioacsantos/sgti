@@ -4,7 +4,7 @@ Reconciliation Engine
 Compares entities from multiple sources, detects conflicts, and applies resolution rules.
 """
 from typing import Dict, Any, List, Optional, Set, Tuple
-from datetime import datetime
+from datetime import datetime, UTC
 from uuid import UUID, uuid4
 from collections import defaultdict
 import logging
@@ -69,7 +69,7 @@ class ReconciliationEngine:
     async def run(self) -> ReconciliationSession:
         """Run the reconciliation process."""
         self.session.status = "running"
-        self.session.started_at = datetime.utcnow()
+        self.session.started_at = datetime.now(UTC)
         
         try:
             # Compare primary vs each secondary
@@ -100,7 +100,7 @@ class ReconciliationEngine:
             self.session.entities_only_in_primary = len(primary_keys) - matched_keys
             
             self.session.status = "completed"
-            self.session.completed_at = datetime.utcnow()
+            self.session.completed_at = datetime.now(UTC)
             self.session.duration_seconds = (self.session.completed_at - self.session.started_at).total_seconds()
             
         except Exception as e:
@@ -357,7 +357,7 @@ class ReconciliationEngine:
                 if self._rule_matches(rule, conflict):
                     conflict.resolution = rule.action
                     conflict.resolved_by = "auto_rule"
-                    conflict.resolved_at = datetime.utcnow()
+                    conflict.resolved_at = datetime.now(UTC)
                     conflict.resolution_notes = f"Applied rule: {rule.name}"
                     
                     # Set resolved value based on action

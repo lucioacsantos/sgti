@@ -4,7 +4,7 @@ Reconciliation Models
 Handles conflict detection and resolution between data sources.
 """
 from enum import Enum
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Optional, Dict, Any, List, Literal
 from pydantic import BaseModel, Field, ConfigDict
 from uuid import UUID, uuid4
@@ -87,9 +87,9 @@ class Conflict(BaseModel):
     certification_request_id: Optional[UUID] = None
     
     # Metadata
-    detected_at: datetime = Field(default_factory=datetime.utcnow)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    detected_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class ReconciliationRule(BaseModel):
@@ -117,8 +117,8 @@ class ReconciliationRule(BaseModel):
     
     # Status
     enabled: bool = True
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class ReconciliationSession(BaseModel):
@@ -168,8 +168,8 @@ class ReconciliationSession(BaseModel):
     triggered_by_user: Optional[str] = None
     correlation_id: Optional[str] = None
     tags: Dict[str, str] = Field(default_factory=dict)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class ReconciliationSessionCreate(BaseModel):
@@ -226,4 +226,4 @@ class ReconciliationReport(BaseModel):
     # Recommendations
     recommendations: List[str]
     
-    generated_at: datetime = Field(default_factory=datetime.utcnow)
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))

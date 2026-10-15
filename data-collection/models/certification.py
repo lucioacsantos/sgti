@@ -4,7 +4,7 @@ Certification Models
 Workflow for data certification by analyst and reviewer.
 """
 from enum import Enum
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Optional, Dict, Any, List
 from pydantic import BaseModel, Field, ConfigDict
 from uuid import UUID, uuid4
@@ -81,8 +81,8 @@ class CertificationRequest(BaseModel):
     decided_by: Optional[str] = None
     
     # Timing
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     due_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     
@@ -131,8 +131,8 @@ class CertificationComment(BaseModel):
     author_id: str
     author_role: CertificationRole
     content: str
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class CertificationCommentCreate(BaseModel):

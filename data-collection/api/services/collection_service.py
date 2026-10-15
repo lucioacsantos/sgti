@@ -4,7 +4,7 @@ Collection Service
 Orchestrates data collection from various sources.
 """
 from typing import Dict, Any, List, Optional
-from datetime import datetime
+from datetime import datetime, UTC
 from uuid import UUID
 import asyncio
 import logging
@@ -42,7 +42,7 @@ class CollectionService:
         
         # Update job status
         job.status = CollectionStatus.RUNNING
-        job.started_at = datetime.utcnow()
+        job.started_at = datetime.now(UTC)
         self.db.commit()
         
         try:
@@ -77,7 +77,7 @@ class CollectionService:
                 
                 # Update progress
                 job.processed_entities += len(result.entities)
-                job.updated_at = datetime.utcnow()
+                job.updated_at = datetime.now(UTC)
                 self.db.commit()
             
             # Update final stats
@@ -89,15 +89,15 @@ class CollectionService:
             job.failed_entities = stats["errors"]
             
             job.status = CollectionStatus.COMPLETED if stats["errors"] == 0 else CollectionStatus.PARTIAL
-            job.completed_at = datetime.utcnow()
+            job.completed_at = datetime.now(UTC)
             job.duration_seconds = (job.completed_at - job.started_at).total_seconds()
             
             # Update source stats
             source.total_collections += 1
-            source.last_collection_at = datetime.utcnow()
+            source.last_collection_at = datetime.now(UTC)
             if stats["errors"] == 0:
                 source.successful_collections += 1
-                source.last_success_at = datetime.utcnow()
+                source.last_success_at = datetime.now(UTC)
             else:
                 source.failed_collections += 1
                 source.last_error = f"{stats['errors']} errors during collection"
@@ -107,7 +107,7 @@ class CollectionService:
         except Exception as e:
             logger.exception(f"Collection job {job_id} failed")
             job.status = CollectionStatus.FAILED
-            job.completed_at = datetime.utcnow()
+            job.completed_at = datetime.now(UTC)
             job.error_message = str(e)
             job.duration_seconds = (job.completed_at - job.started_at).total_seconds() if job.started_at else 0
             
@@ -154,16 +154,16 @@ class CollectionService:
                             exclude={"id", "created_at", "first_seen_at", "collection_job_id"}
                         ).items():
                             setattr(existing, field, value)
-                        existing.last_seen_at = datetime.utcnow()
-                        existing.updated_at = datetime.utcnow()
+                        existing.last_seen_at = datetime.now(UTC)
+                        existing.updated_at = datetime.now(UTC)
                         stats["entities_updated"] += 1
                     else:
                         # Unchanged
-                        existing.last_seen_at = datetime.utcnow()
+                        existing.last_seen_at = datetime.now(UTC)
                         stats["entities_unchanged"] += 1
                 else:
                     # New entity
-                    entity.first_seen_at = datetime.utcnow()
+                    entity.first_seen_at = datetime.now(UTC)
                     self.db.add(entity)
                     stats["entities_created"] += 1
                 
@@ -206,7 +206,7 @@ class CollectionService:
         for source in sources:
             # Check if it's time to run
             if source.last_collection_at:
-                elapsed = datetime.utcnow() - source.last_collection_at
+                elapsed = datetime.now(UTC).replace(tzinfo=None) - source.last_collection_at
                 if elapsed.total_seconds() < source.collection_interval_minutes * 60:
                     continue
             

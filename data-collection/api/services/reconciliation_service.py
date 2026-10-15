@@ -4,7 +4,7 @@ Reconciliation Service
 High-level service for running reconciliations.
 """
 from typing import Dict, Any, List, Optional
-from datetime import datetime
+from datetime import datetime, UTC
 from uuid import UUID
 import logging
 
@@ -118,8 +118,8 @@ class ReconciliationService:
         conflict.resolved_value = resolved_value
         conflict.resolution_notes = notes
         conflict.resolved_by = resolved_by
-        conflict.resolved_at = datetime.utcnow()
-        conflict.updated_at = datetime.utcnow()
+        conflict.resolved_at = datetime.now(UTC)
+        conflict.updated_at = datetime.now(UTC)
         
         self.db.commit()
         return conflict
@@ -141,8 +141,8 @@ class ReconciliationService:
                 conflict.resolved_value = resolved_value
                 conflict.resolution_notes = notes
                 conflict.resolved_by = resolved_by
-                conflict.resolved_at = datetime.utcnow()
-                conflict.updated_at = datetime.utcnow()
+                conflict.resolved_at = datetime.now(UTC)
+                conflict.updated_at = datetime.now(UTC)
                 count += 1
         
         self.db.commit()

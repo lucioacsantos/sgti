@@ -4,7 +4,7 @@ Data Source Models
 Represents external data sources like vCenter, Satellite, etc.
 """
 from enum import Enum
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Optional, Dict, Any
 from pydantic import BaseModel, Field, ConfigDict
 from uuid import UUID, uuid4
@@ -54,8 +54,8 @@ class DataSource(BaseModel):
     # Metadata
     description: Optional[str] = None
     tags: Dict[str, str] = Field(default_factory=dict)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     last_collection_at: Optional[datetime] = None
     last_success_at: Optional[datetime] = None
     last_error: Optional[str] = None

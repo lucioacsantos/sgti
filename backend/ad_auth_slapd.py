@@ -5,7 +5,7 @@ import ldap3
 from ldap3 import Server, Connection, ALL, SUBTREE, SIMPLE, Tls, ALL_ATTRIBUTES
 from ldap3.core.exceptions import LDAPException
 from typing import Optional, List, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from sqlalchemy.orm import Session
 import models
 import schemas
@@ -188,13 +188,13 @@ def create_or_update_local_user(db: Session, ad_user: Dict[str, Any]) -> models.
     
     if local_user:
         local_user.is_active = True
-        local_user.expires_at = datetime.utcnow() + timedelta(days=365)
+        local_user.expires_at = datetime.now(UTC) + timedelta(days=365)
         local_user.token_hash = payload_data
     else:
         local_user = models.ServiceAccount(
             name=username,
             token_hash=payload_data,
-            expires_at=datetime.utcnow() + timedelta(days=365),
+            expires_at=datetime.now(UTC) + timedelta(days=365),
             is_active=True,
         )
         db.add(local_user)
@@ -206,14 +206,14 @@ def create_or_update_local_user(db: Session, ad_user: Dict[str, Any]) -> models.
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta if expires_delta else timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    expire = datetime.now(UTC) + (expires_delta if expires_delta else timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire, "type": "access"})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
 def create_refresh_token(data: dict) -> str:
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    expire = datetime.now(UTC) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     to_encode.update({"exp": expire, "type": "refresh"})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -315,7 +315,7 @@ def create_test_user(db: Session, username: str = "testuser", roles: List[str] =
         local_user = models.ServiceAccount(
             name=username,
             token_hash=json.dumps({"roles": roles, "ad_user": False, "test_user": True}),
-            expires_at=datetime.utcnow() + timedelta(days=365),
+            expires_at=datetime.now(UTC) + timedelta(days=365),
             is_active=True,
         )
         db.add(local_user)
@@ -324,7 +324,7 @@ def create_test_user(db: Session, username: str = "testuser", roles: List[str] =
     else:
         local_user.token_hash = json.dumps({"roles": roles, "ad_user": False, "test_user": True})
         local_user.is_active = True
-        local_user.expires_at = datetime.utcnow() + timedelta(days=365)
+        local_user.expires_at = datetime.now(UTC) + timedelta(days=365)
         db.commit()
         db.refresh(local_user)
     

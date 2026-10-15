@@ -4,7 +4,7 @@ Collection Job Models
 Represents data collection jobs from various sources.
 """
 from enum import Enum
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Optional, Dict, Any, List
 from pydantic import BaseModel, Field, ConfigDict
 from uuid import UUID, uuid4
@@ -68,8 +68,8 @@ class CollectionJob(BaseModel):
     correlation_id: Optional[str] = None
     parent_job_id: Optional[UUID] = None
     tags: Dict[str, str] = Field(default_factory=dict)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class CollectionJobCreate(BaseModel):
