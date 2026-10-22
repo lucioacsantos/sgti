@@ -9,10 +9,15 @@
 | [autenticacao-2fa.md](autenticacao-2fa.md) | Login AD, 2FA TOTP, habilitação e suporte (zerar 2FA) |
 | [inferencias.md](inferencias.md) | Como funcionam a importação e a inferência do mapa de TI |
 | [ia-hibrida.md](ia-hibrida.md) | Engine de IA híbrida: providers llm ↔ local (sem LLM), seleção, config e taxonomia |
+| [comparativo-atlassian.md](comparativo-atlassian.md) | Análise comparativa com o stack Atlassian (Assets, Compass, Rovo, Opsgenie) |
+| [relatorio-gerencial.md](relatorio-gerencial.md) | Relatório executivo: status, entregas, vantagens e indicadores |
+| [apresentacao-gerencial.md](apresentacao-gerencial.md) | Apresentação executiva (slide a slide) |
 
 ## Visão geral em 1 minuto
 
 O SGTI CMDB gerencia **ativos de TI** (servidores físicos e virtuais), seus **endereços IP**, **aplicações** de negócio e a malha de **infraestrutura** que os conecta: clusters, namespaces, serviços técnicos, serviços de negócio, instâncias de aplicação e relacionamentos tipados.
+
+O sistema também mantém o mapa **saudável**: o módulo de **Reconciliação** (fontes `manual` e `zabbix` via webhook) detecta discrepâncias automaticamente e submete cada correção a um **workflow de quatro olhos** (2+ analistas, criador não retifica sozinho) — ver [relatorio-gerencial.md](relatorio-gerencial.md).
 
 O modelo de operação é dividido em dois fluxos:
 

@@ -6,6 +6,8 @@ Sistema de Gerenciamento de TI — Configuration Management Database com backend
 
 - **Backend**: FastAPI + SQLAlchemy + PostgreSQL, autenticação dupla (AD/LDAP via JWT + service tokens), 2FA TOTP, auditoria.
 - **Frontend**: Vue 3 + Vite + Tailwind CSS, Pinia, vue-router.
+- **Reconciliação**: detecção automática de discrepâncias (regras próprias e fonte Zabbix via webhook) com workflow de quatro olhos.
+- **IA híbrida**: LLM on-premise (compatível Ollama) ou engine local em CPU para RAG e inferência assistida.
 - **Documentação de funcionalidades**: veja [`docs/`](docs/README.md).
 - **Referência de API**: Swagger em `http://localhost:8000/docs`.
 
@@ -113,24 +115,26 @@ VITE_API_URL=http://localhost:8000
 ### Dados iniciais (seed)
 
 ```bash
-cd backend
-set -a; source .env; set +a   # Linux/Mac
-../venv/bin/python seed.py    # cria dados mestre + service account 'integracao-zabbix'
+set -a; source backend/.env; set +a       # Linux/Mac
+PYTHONPATH=backend venv/bin/python scripts/seed.py
 ```
 
-O seed imprime o token da service account — guarde-o (header `X-Service-Token`).
+O seed popula dados mestre + ativos de exemplo + service account 'integracao-zabbix' e imprime o token da service account — guarde-o (header `X-Service-Token`).
 
 ### Populando dados de exemplo
 
 Opcional: importa um dump de INSERTs (exportado do pgAdmin) com ativos e aplicações reais:
 
 ```bash
-../venv/bin/python import_test_data.py /caminho/do/dump/ --dry-run   # simula
-../venv/bin/python import_test_data.py /caminho/do/dump/             # grava
+PYTHONPATH=backend venv/bin/python scripts/import_test_data.py /caminho/do/dump/ --dry-run   # simula
+PYTHONPATH=backend venv/bin/python scripts/import_test_data.py /caminho/do/dump/             # grava
 
 # Em seguida, gera mapa de TI por inferência:
-../venv/bin/python infer_infra_map.py --token <service-token> --dry-run
-../venv/bin/python infer_infra_map.py --token <service-token>
+PYTHONPATH=backend venv/bin/python scripts/infer_infra_map.py --token <service-token> --dry-run
+PYTHONPATH=backend venv/bin/python scripts/infer_infra_map.py --token <service-token>
+
+# Variante com IA local (reporta confiabilidade e abre reconciliação quando < 90%):
+PYTHONPATH=backend venv/bin/python scripts/infer_infra_map_ia.py --token <service-token> --dry-run
 ```
 
 Detalhes em [`docs/inferencias.md`](docs/inferencias.md).
@@ -139,7 +143,7 @@ Detalhes em [`docs/inferencias.md`](docs/inferencias.md).
 
 ```bash
 # Backend (usa SQLite de teste, env TESTING=1 automaticamente)
-cd backend && TESTING=1 ../venv/bin/pytest tests/ -q
+cd backend && TESTING=1 ../venv/bin/python -m pytest tests/ -q
 
 # Frontend
 cd frontend && npm run build
@@ -180,11 +184,13 @@ sgti/
 │   ├── routers/                # routers da API
 │   │   ├── assets.py, ip_addresses.py, reference_data.py
 │   │   ├── applications.py, relationships.py, infrastructure.py
-│   │   ├── audit.py, integrations.py, auth.py
+│   │   ├── audit.py, integrations.py, auth.py, reconciliacoes.py
+│   └── tests/
+├── scripts/
 │   ├── seed.py                 # dados mestre iniciais
 │   ├── import_test_data.py     # importa dump de exemplo
 │   ├── infer_infra_map.py      # inferência de mapa de TI (via API)
-│   └── tests/
+│   └── infer_infra_map_ia.py   # variante com LLM local (confiabilidade + reconciliação)
 ├── frontend/
 │   └── src/
 │       ├── views/              # telas (assets, infrastructure, admin...)

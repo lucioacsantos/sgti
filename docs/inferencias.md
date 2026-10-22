@@ -11,10 +11,8 @@ Pré-requisito: service token ativo (criado em Administração → Tokens de Ser
 Importa um diretório com arquivos de INSERTs exportados do pgAdmin (`*.sql`), ex.:
 
 ```bash
-cd backend
-set -a; source .env; set +a
-../venv/bin/python import_test_data.py /caminho/dump/ --dry-run   # simula
-../venv/bin/python import_test_data.py /caminho/dump/             # grava
+PYTHONPATH=backend venv/bin/python scripts/import_test_data.py /caminho/dump/ --dry-run   # simula
+PYTHONPATH=backend venv/bin/python scripts/import_test_data.py /caminho/dump/             # grava
 ```
 
 ### O que importa
@@ -42,7 +40,7 @@ set -a; source .env; set +a
 ## 2. infer_infra_map.py — gerar o mapa por inferência
 
 ```bash
-../venv/bin/python infer_infra_map.py \
+PYTHONPATH=backend venv/bin/python scripts/infer_infra_map.py \
     --api http://localhost:8000 \
     --token <service-token> \
     [--dry-run] [--verbose]
@@ -107,7 +105,7 @@ LLM local (llama3.2 + nomic-embed-text), mantendo o mesmo contrato com a API
 (service token, idempotente, `--dry-run`).
 
 ```bash
-cd backend && ../venv/bin/python infer_infra_map_ia.py \
+PYTHONPATH=backend venv/bin/python scripts/infer_infra_map_ia.py \
     --api http://localhost:8000 \
     --token <service-token> \
     [--dry-run] [--verbose] [--sem-ia]
@@ -153,11 +151,11 @@ resolvidos/criados via API, tudo idempotente.
 ## Ordem recomendada de execução
 
 ```bash
-seed.py                          # dados mestre
-import_test_data.py <dump>/      # ativos + aplicações reais (opcional)
+PYTHONPATH=backend venv/bin/python scripts/seed.py              # dados mestre
+PYTHONPATH=backend venv/bin/python scripts/import_test_data.py <dump>/   # ativos + aplicações reais (opcional)
 # tipos de relacionamento (uma vez):
 #   POST /tipos-relacionamento/ para cada tipo
-infer_infra_map.py --token ...   # serviços, instâncias, relacionamentos
+PYTHONPATH=backend venv/bin/python scripts/infer_infra_map.py --token ...   # serviços, instâncias, relacionamentos
 ```
 
 Reexecutar qualquer script é seguro — só "já existe" no output.
