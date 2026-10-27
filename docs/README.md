@@ -8,6 +8,7 @@
 | [frontend.md](frontend.md) | Guia de usabilidade de cada tela do painel |
 | [autenticacao-2fa.md](autenticacao-2fa.md) | Login AD, 2FA TOTP, habilitação e suporte (zerar 2FA) |
 | [inferencias.md](inferencias.md) | Como funcionam a importação e a inferência do mapa de TI |
+| [diagramas-piloto-descoberta.md](diagramas-piloto-descoberta.md) | Diagramas do piloto: descoberta (AAP ×3 vCenters, Satellite, OpenShift), inferência por IA e triagem de alarmes Zabbix com IA |
 | [ia-hibrida.md](ia-hibrida.md) | Engine de IA híbrida: providers llm ↔ local (sem LLM), seleção, config e taxonomia |
 | [comparativo-atlassian.md](comparativo-atlassian.md) | Análise comparativa com o stack Atlassian (Assets, Compass, Rovo, Opsgenie) |
 | [relatorio-gerencial.md](relatorio-gerencial.md) | Relatório executivo: status, entregas, vantagens e indicadores |

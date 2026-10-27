@@ -1,5 +1,5 @@
 # Apresentação — SGTI CMDB (LUMEN)
-**Gerência Executiva · 21/10/2026 · ~15 slides**
+**Gerência Executiva · 26/10/2026 · ~16 slides**
 
 ---
 
@@ -60,30 +60,50 @@ O mapa vivo da nossa tecnologia: descoberto por IA, validado por especialistas, 
 - **Correção automática auditada**: decisão colegiada vira ação no CMDB sem retrabalho manual
 - **Testes com LDAP real**: validação de verdade, não de brinquedo
 
-## Slide 10 — Benefícios para a organização
+## Slide 10 — Benchmark: SGTI × Atlassian (JSM Assets + Compass + Opsgenie + Rovo)
+Para cobrir o mesmo escopo do SGTI, seria preciso combinar **pelo menos 4 produtos** Atlassian:
+
+| Capacidade | SGTI (LUMEN) | Atlassian |
+|---|---|---|
+| **Reconciliação** | 7 regras automáticas + fonte Zabbix + **four-eyes no backend** + correção automática auditada | Reconciliação de atributos por regra simples, **sem workflow colegiado** |
+| **IA** | LLM **100% local**, confiança calibrada (< 90% vira tarefa humana) | Rovo: SaaS — dados e alarmes trafegam na nuvem |
+| **Governança** | 4 olhos imposto pelo código da API (409/403), não pela boa vontade | Depende do processo do time sobre o produto |
+| **Crypto-lock** | Exclusivo (Cython, desbloqueio pelo dono: nome+CPF) | **Inexistente** em qualquer produto |
+| **Ciclo alarme→correção** | Fechado: Zabbix → discrepância → decisão → CMDB corrigido | Opsgenie cobre alertas, não fecha o ciclo na base |
+| **Auditoria** | Total — inclui decisões de máquina e pareceres | Paridade |
+| **Grafo visual / gestão de mudanças** | No roadmap (próximas entregas) | **Ponto forte do concorrente** (Compass/JSM) — reconhecido e priorizado |
+
+## Slide 11 — Por que o SGTI supera o pacote comercial
+1. **Custo**: sem licença por agente/usuário, anual e crescente — no modelo Atlassian, o mesmo escopo exigiria JSM Assets + Compass + Opsgenie + Guard
+2. **Sigilo**: IA local on-premise — alarmes, contextos e dados sensíveis **nunca saem da rede** (no concorrente, tudo é nuvem)
+3. **Governança que o sistema impõe**: quatro olhos inseparável da API; decisão colegiada **aplica a correção com auditoria** — único do mercado
+4. **Encaixe na realidade da casa**: Zabbix ≥ 7.0, AD/LDAP e regras D1–D7/Z1–Z3 sob medida, evoluindo com o nosso processo
+5. **Soberania**: roadmap interno, sem lock-in, sem dependência de fornecedor
+
+## Slide 12 — Benefícios para a organização
 - ⚡ **Menos surpresas**: impacto visível antes da mudança
 - 🚑 **Incidentes mais rápidos**: mapa mostra serviços afetados na hora — e o alarme do Zabbix já entra no fluxo de correção
 - 🕒 **Menos planilha**: descoberta automática libera a equipe
 - 🔐 **Compliance**: trilha de auditoria + criptografia de nível bancário
 
-## Slide 11 — Maturidade e evolução contínua
+## Slide 13 — Maturidade e evolução contínua
 - **Qualidade mensurável**: suíte de 127 testes automatizados; migrações de banco versionadas e idempotentes
 - **Endurecimento programado**: revogação completa de sessões, rate limiting ampliado nas rotas de login, pipeline de CI
 - **Roadmap de valor**: visualização gráfica do mapa (grafo), análise de impacto "what-if" (o que derruba se este ativo cair?)
 - Transparência: backlog técnico está identificado e priorizado, sem surpresas
 
-## Slide 12 — Próximos passos
+## Slide 14 — Próximos passos
 1. Piloto de reconciliação com dados reais (volume de itens × tempo de verificação)
 2. Grafo visual do mapa + análise de impacto "what-if"
 3. Endurecimento contínuo: ciclo de sessões (revogação), rate limiting de login, CI
 4. Vídeo institucional LUMEN (storyboard pronto)
 
-## Slide 13 — Indicadores
+## Slide 15 — Indicadores
 - **127 testes automatizados** (119 executáveis em qualquer ambiente + 8 de LDAP real com Docker opcional)
 - Build de produção OK (frontend 1,15 s — bundle principal ≈ 156 kB, ≈ 59 kB comprimido)
 - Suíte cobre auth/2FA, cripto, CRUD, auditoria, integrações, IA e reconciliação
 
-## Slide 14 — Fechamento
+## Slide 16 — Fechamento
 **"Antes de tocar em qualquer coisa, eu sei exatamente onde a energia vai."**
 LUMEN: o sistema nervoso digital da nossa TI — proativo, preciso e confiável.
 
@@ -93,3 +113,4 @@ LUMEN: o sistema nervoso digital da nossa TI — proativo, preciso e confiável.
 - *E se a IA errar?* — abaixo de 90% nada entra sem 2 analistas; tudo auditado
 - *E os alarmes do Zabbix?* — viram itens de reconciliação automaticamente, com dedupe, e passam pelo mesmo workflow
 - *Quanto custa operar?* — sem licença de CMDB comercial nem tokens de nuvem; roda em servidor próprio
+- *Por que não comprar uma solução comercial (Atlassian)?* — o mesmo escopo exigiria 4+ assinaturas SaaS com licença por agente/usuário; a IA seria em nuvem (dados saem da casa); a reconciliação do Assets não tem workflow colegiado nem aplica correção automática. As lacunas do SGTI (grafo visual, gestão de mudanças) estão no roadmap — ver `comparativo-atlassian.md`
