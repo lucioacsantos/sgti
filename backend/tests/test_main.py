@@ -1,3 +1,6 @@
+# Objetivo: Testa healthcheck, erros de rota e validação do client FastAPI.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session

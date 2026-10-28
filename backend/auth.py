@@ -1,3 +1,6 @@
+# Objetivo: Autenticação híbrida: Bearer JWT (AD/LDAP) ou X-Service-Token para automações.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 from fastapi import Security, HTTPException, Depends, status, Request, Header
 from fastapi.security.api_key import APIKeyHeader
 from fastapi.security import OAuth2PasswordBearer

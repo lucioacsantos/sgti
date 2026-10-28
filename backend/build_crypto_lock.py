@@ -1,3 +1,6 @@
+# Objetivo: Compila crypto_lock.pyx em .so embutindo hashes do proprietário e selo de integridade.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """Build do crypto_lock: compila Cython -> .so embutindo os hashes do proprietário.
 
 Uso:

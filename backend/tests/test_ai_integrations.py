@@ -1,3 +1,6 @@
+# Objetivo: Testa endpoints de IA: RAG, streaming de respostas e análise de alarmes.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """Testes dos endpoints de integração IA (RAG + análise de alarmes) (RAG + análise de alarmes)."""
 import datetime
 import json

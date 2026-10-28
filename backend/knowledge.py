@@ -1,3 +1,6 @@
+# Objetivo: Base de conhecimento RAG: chunking de Markdown, indexação vetorial e respostas com citações.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """Base de conhecimento RAG: indexação de Markdown + busca vetorial.
 
 Engine híbrida: provider "llm" (LLM local via API compatível com Ollama) ou

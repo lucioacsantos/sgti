@@ -1,3 +1,6 @@
+# Objetivo: Consulta aos logs de auditoria (/audit-logs), filtráveis por entidade e ID.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import Optional

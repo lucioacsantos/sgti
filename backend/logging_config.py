@@ -1,3 +1,6 @@
+# Objetivo: Configuração de logging estruturado em JSON com rotação de arquivos.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 import logging
 import logging.config
 import sys

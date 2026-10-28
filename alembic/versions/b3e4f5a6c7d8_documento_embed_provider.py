@@ -1,3 +1,6 @@
+# Objetivo: Adiciona coluna embed_provider em documento (rastreio do provider de embeddings).
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """documento.embed_provider — provider de embeddings da indexação (engine híbrida)
 
 Permite conviver com dois providers de IA (ollama / local sentence-transformers):

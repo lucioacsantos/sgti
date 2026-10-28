@@ -1,3 +1,6 @@
+// Objetivo: Store Pinia de autenticação: sessão, tokens, 2FA, logout e sincronização do usuário.
+// Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { authService, type AuthUser, type TokenResponse } from '@/services/auth.service'

@@ -1,3 +1,6 @@
+# Objetivo: Infere mapa de TI com LLM/Ollama local, embeddings e reconciliação de baixa confiança.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """Inferência de mapa de TI assistida por IA (LLM local, ex. llama3.2 via Ollama).
 
 Variante de infer_infra_map.py que troca o dicionário lexical e os padrões

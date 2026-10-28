@@ -1,3 +1,6 @@
+// Objetivo: Cliente axios central com interceptores de token, refresh automático e erros.
+// Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 import axios, { AxiosError } from 'axios'
 import { useAuthStore } from '@/stores/auth'
 import router from '@/router'

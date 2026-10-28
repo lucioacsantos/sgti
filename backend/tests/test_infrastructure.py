@@ -1,3 +1,6 @@
+# Objetivo: Testa CRUD de clusters, namespaces e serviços de infraestrutura.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 import pytest
 from tests.test_main import client, db_session
 import models

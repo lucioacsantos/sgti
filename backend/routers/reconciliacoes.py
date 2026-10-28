@@ -1,3 +1,6 @@
+# Objetivo: Reconciliação do CMDB: detecção de discrepâncias, workflow quatro olhos e correções auditadas.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """Painel de reconciliações do CMDB.
 
 Detecta discrepâncias entre o CMDB e fontes externas (ativos sem IP, IPs órfãos,

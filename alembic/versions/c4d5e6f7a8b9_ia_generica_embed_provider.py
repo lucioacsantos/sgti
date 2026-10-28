@@ -1,3 +1,6 @@
+# Objetivo: Renomeia assinaturas de provider de embeddings de 'ollama:' para 'llm:'.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """Normaliza embed_provider legado "ollama:*" → "llm:*"
 
 O provider de IA usado nos nomes de URLs/schemas foi generalizado de

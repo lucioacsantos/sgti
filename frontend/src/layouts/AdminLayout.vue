@@ -1,3 +1,8 @@
+<!--
+  Objetivo: Layout principal com sidebar de navegação, cabeçalho e área de conteúdo.
+  Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+-->
+
 <script setup lang="ts">
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { computed } from 'vue'

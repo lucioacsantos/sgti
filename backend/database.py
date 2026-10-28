@@ -1,3 +1,6 @@
+# Objetivo: Configuração SQLAlchemy: engine, sessões, Base e dependência get_db.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 import os
 from pathlib import Path
 from sqlalchemy import create_engine

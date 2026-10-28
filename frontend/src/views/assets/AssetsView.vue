@@ -1,3 +1,8 @@
+<!--
+  Objetivo: Inventário de ativos com busca, filtros, detalhe, edição e exportação XLSX.
+  Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+-->
+
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import * as XLSX from 'xlsx'

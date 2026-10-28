@@ -1,3 +1,6 @@
+# Objetivo: Gravação de logs de auditoria (antes/depois) e conversão de modelos em dicionário.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 from sqlalchemy.orm import Session
 import models
 from datetime import datetime, timezone

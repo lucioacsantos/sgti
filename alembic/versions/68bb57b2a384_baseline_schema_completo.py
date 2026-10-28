@@ -1,3 +1,6 @@
+# Objetivo: Migração baseline: cria o schema completo do banco.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """baseline schema completo
 
 Revision ID: 68bb57b2a384

@@ -1,3 +1,6 @@
+# Objetivo: Endpoints de IA: chat, RAG da base de conhecimento, análise de alarmes e Zabbix.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 import ai_engine

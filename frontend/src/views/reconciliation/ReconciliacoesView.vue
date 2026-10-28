@@ -1,3 +1,8 @@
+<!--
+  Objetivo: Painel de reconciliações com fluxo de pareceres e decisão de itens.
+  Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+-->
+
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { reconciliacaoService } from '@/services/cmdb.services'

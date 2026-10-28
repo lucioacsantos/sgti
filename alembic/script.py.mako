@@ -1,3 +1,6 @@
+## Objetivo: Template Mako do Alembic para gerar novos arquivos de migração.
+## Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """${message}
 
 Revision ID: ${up_revision}

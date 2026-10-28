@@ -1,3 +1,6 @@
+# Objetivo: Testa autenticação OpenLDAP e mapeamento de grupos para roles.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """Testes de integração LDAP com Docker (backend/tests/ldap).
 
 Requisitos:

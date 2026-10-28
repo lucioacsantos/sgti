@@ -1,3 +1,6 @@
+# Objetivo: Infere serviços, instâncias e relacionamentos de TI via regras lexicais (regex).
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """Inferência de mapa de TI a partir de ativos e aplicações existentes.
 
 Usa SEMPRE a API do backend (nunca acesso direto ao banco) autenticada com

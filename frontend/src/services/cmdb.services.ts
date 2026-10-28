@@ -1,3 +1,6 @@
+// Objetivo: Serviços da API do CMDB: ativos, referência, infraestrutura, auditoria, IA e reconciliações.
+// Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 import { api, apiBaseUrl } from './api'
 import { useAuthStore } from '@/stores/auth'
 import type {

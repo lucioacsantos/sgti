@@ -1,3 +1,6 @@
+# Objetivo: Login AD/LDAP com JWT, 2FA (TOTP), refresh/logout e gestão de usuários e tokens.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """
 Authentication Router - AD/DC Login and JWT Token Management
 """

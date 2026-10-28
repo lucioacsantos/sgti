@@ -1,3 +1,8 @@
+<!--
+  Objetivo: Trilha de auditoria paginada com filtro por entidade e snapshots expansíveis.
+  Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+-->
+
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { auditService } from '@/services/cmdb.services'

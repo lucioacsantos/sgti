@@ -1,3 +1,6 @@
+# Objetivo: Seletor dinâmico entre backends Active Directory e OpenLDAP.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """Seletor de backend LDAP/AD.
 
 LDAP_BACKEND=ad (padrao) -> ad_auth (Active Directory Windows, bind UPN)

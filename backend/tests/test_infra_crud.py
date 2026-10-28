@@ -1,3 +1,6 @@
+# Objetivo: Testa edição/exclusão de infraestrutura e autorização por roles admin.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """Testes dos endpoints de edição manual (PUT/DELETE) da infraestrutura.
 
 O _require_admin lê roles do token_hash (JSON) — service accounts de teste

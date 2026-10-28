@@ -1,3 +1,6 @@
+# Objetivo: Fixtures de banco SQLite em memória e contas de teste para os pytest.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 import pytest
 import os
 from datetime import datetime

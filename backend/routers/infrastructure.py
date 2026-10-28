@@ -1,3 +1,6 @@
+# Objetivo: CRUD de clusters, namespaces, serviços, serviços de negócio e instâncias de aplicação.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import Optional

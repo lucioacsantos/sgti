@@ -1,3 +1,6 @@
+# Objetivo: Importa dados de exemplo de dump SQL de forma idempotente (ativos, IPs, referências).
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """Importa dados de exemplo de um dump pgAdmin (INSERTs) para o banco do SGTI CMDB.
 
 Origem esperada: diretório com arquivos *_*.sql exportados do pgAdmin

@@ -1,3 +1,8 @@
+<!--
+  Objetivo: Painel com estatísticas agregadas do CMDB, saúde da API e auditoria recente.
+  Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+-->
+
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { RouterLink } from 'vue-router'

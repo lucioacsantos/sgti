@@ -1,3 +1,6 @@
+# Objetivo: Aplicação FastAPI: crypto-lock, CORS, rate-limit, logging, exceções, health e roteadores.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 from typing import Optional
 from fastapi import FastAPI, Depends, HTTPException, Response, Request
 from fastapi.responses import JSONResponse

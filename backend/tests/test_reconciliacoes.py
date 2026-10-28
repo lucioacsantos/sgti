@@ -1,3 +1,6 @@
+# Objetivo: Testa o workflow de reconciliação (quatro olhos) com IA e Zabbix.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """Testes do painel de reconciliações (workflow de quatro olhos).
 
 Cenários cobertos:

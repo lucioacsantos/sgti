@@ -1,3 +1,8 @@
+<!--
+  Objetivo: Painel informativo de integrações e status de saúde da API e IA.
+  Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+-->
+
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { healthService } from '@/services/cmdb.services'

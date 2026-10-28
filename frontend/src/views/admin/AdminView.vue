@@ -1,3 +1,8 @@
+<!--
+  Objetivo: Área administrativa: gestão de usuários, tokens de serviço e configuração 2FA.
+  Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+-->
+
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'

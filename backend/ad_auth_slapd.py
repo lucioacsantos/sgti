@@ -1,3 +1,6 @@
+# Objetivo: Autenticação OpenLDAP: busca do DN e bind do usuário.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """
 Active Directory / LDAP Authentication Module
 """

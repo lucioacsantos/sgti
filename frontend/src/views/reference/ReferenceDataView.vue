@@ -1,3 +1,8 @@
+<!--
+  Objetivo: CRUD de tabelas auxiliares (tipos, ambientes, status, criticidades, áreas, SOs).
+  Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+-->
+
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { referenceService } from '@/services/cmdb.services'

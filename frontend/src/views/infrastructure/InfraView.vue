@@ -1,3 +1,8 @@
+<!--
+  Objetivo: Abas de infraestrutura: aplicações, clusters, namespaces, serviços, instâncias, relacionamentos e IPs.
+  Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+-->
+
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import {

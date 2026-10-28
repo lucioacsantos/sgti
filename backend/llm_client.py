@@ -1,3 +1,6 @@
+# Objetivo: Cliente HTTP para LLM local compatível com Ollama: chat, embeddings e streaming.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """Cliente da API de LLM local compatível com a API do Ollama.
 
 Mantém o nome genérico de propósito: a ferramenta servidora (Ollama,

@@ -1,3 +1,6 @@
+// Objetivo: Tipos e interfaces do domínio CMDB, mais utilitário de paginação fetchPage.
+// Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 import { api } from './api'
 
 // ===== Tipos baseados nos schemas do backend (schemas.py) =====

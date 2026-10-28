@@ -1,3 +1,6 @@
+# Objetivo: Esquemas Pydantic de validação e serialização das requisições/respostas da API.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 from pydantic import BaseModel, field_validator, ConfigDict
 from typing import Optional, List
 from datetime import datetime

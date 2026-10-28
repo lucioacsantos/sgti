@@ -1,3 +1,8 @@
+<!--
+  Objetivo: Tela de login com credenciais AD/LDAP e etapa de verificação 2FA.
+  Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+-->
+
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'

@@ -1,3 +1,6 @@
+# Objetivo: Cliente da API Zabbix: consulta de problemas abertos e observações em eventos.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 from fastapi import HTTPException, status
 from urllib import error, request
 import json

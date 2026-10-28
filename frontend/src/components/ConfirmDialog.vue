@@ -1,3 +1,8 @@
+<!--
+  Objetivo: Modal de confirmação de ações com variante de perigo e eventos confirm/cancel.
+  Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+-->
+
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 

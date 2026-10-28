@@ -1,3 +1,6 @@
+# Objetivo: Engine de IA híbrida: provider LLM externo ou local (embeddings e análise determinística).
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """Engine de IA híbrida do SGTI.
 
 Dois providers de inferência selecionáveis:

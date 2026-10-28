@@ -1,3 +1,6 @@
+# Objetivo: CRUD de aplicações (/aplicacoes) do CMDB com autenticação por service token.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 import models, schemas, auth

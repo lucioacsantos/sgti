@@ -1,3 +1,6 @@
+# Objetivo: Wrapper do crypto_lock: desbloqueio por proprietário e cifra/decifra de valores.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """Wrapper de alto nível do crypto_lock para uso pela aplicação SGTI.
 
 Gerencia o estado de desbloqueio (dados do proprietário vêm de variáveis de

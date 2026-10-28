@@ -1,3 +1,6 @@
+# Objetivo: Adiciona coluna confianca em item_reconciliacao (confiança da inferência por IA).
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """adiciona confianca em item_reconciliacao (inferencia IA)
 
 Revision ID: a1f2c3d4e5f6

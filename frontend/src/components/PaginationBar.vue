@@ -1,3 +1,8 @@
+<!--
+  Objetivo: Barra de paginação com navegação entre páginas e contagem de registros.
+  Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+-->
+
 <script setup lang="ts">
 import { computed } from 'vue'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-vue-next'

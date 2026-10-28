@@ -1,3 +1,6 @@
+# Objetivo: Testa CRUD de endereços IP e exclusividade de IP primário.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 import pytest
 from tests.test_main import client, db_session
 import models

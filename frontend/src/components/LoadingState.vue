@@ -1,3 +1,8 @@
+<!--
+  Objetivo: Indicador de carregamento com spinner e texto configurável.
+  Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+-->
+
 <script setup lang="ts">
 withDefaults(
   defineProps<{

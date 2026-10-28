@@ -1,3 +1,6 @@
+# Objetivo: Testa engine de IA híbrida (provider llm/local) e análise determinística local.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """Testes da engine de IA híbrida (providers llm/local) e da análise de
 alarmes com engine local determinística."""
 import datetime

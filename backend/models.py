@@ -1,3 +1,6 @@
+# Objetivo: Modelos SQLAlchemy das tabelas do CMDB, com colunas cifradas via EncryptedText.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime, Boolean, Float, Index, JSON
 from sqlalchemy.dialects.postgresql import INET, JSONB
 from sqlalchemy.orm import relationship

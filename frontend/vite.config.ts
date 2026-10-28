@@ -1,3 +1,6 @@
+// Objetivo: Configuração do Vite: plugins Vue e Tailwind, alias @ e hosts permitidos.
+// Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 import path from 'node:path'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'

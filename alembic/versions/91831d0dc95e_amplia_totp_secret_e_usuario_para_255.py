@@ -1,3 +1,6 @@
+# Objetivo: Amplia colunas totp_secret e usuario para 255 caracteres.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """amplia totp_secret e usuario para 255
 
 Revision ID: 91831d0dc95e

@@ -1,3 +1,6 @@
+# Objetivo: Testa criptografia dependente do proprietário e colunas cifradas no banco.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """Testes do módulo crypto_lock (criptografia dependente do proprietário)."""
 import os
 

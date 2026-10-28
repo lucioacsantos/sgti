@@ -1,3 +1,6 @@
+// Objetivo: Rotas da aplicação com guardas de autenticação e permissão de admin.
+// Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 

@@ -1,3 +1,6 @@
+# Objetivo: Configura o ambiente Alembic: conexão via DATABASE_URL e metadados dos models.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 import os
 import sys
 from pathlib import Path

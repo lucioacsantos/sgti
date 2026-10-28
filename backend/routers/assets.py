@@ -1,3 +1,6 @@
+# Objetivo: CRUD de ativos de TI (/ativos) com busca, filtros, upsert por nome e auditoria.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func, or_

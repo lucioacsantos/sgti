@@ -1,3 +1,6 @@
+# Objetivo: CRUD de tipos de relacionamento e vínculos entre ativos, restritos a admin.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 from typing import Optional

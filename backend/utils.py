@@ -1,3 +1,6 @@
+# Objetivo: Utilitários de banco: upsert ON CONFLICT, get_or_create e busca por campo único.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 from sqlalchemy.orm import Session
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy import inspect

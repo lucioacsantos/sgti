@@ -1,3 +1,6 @@
+// Objetivo: Chamadas à API de autenticação (login, 2FA, refresh) e gestão de usuários.
+// Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 import { api } from './api'
 
 export interface AuthUser {

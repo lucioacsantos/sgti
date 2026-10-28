@@ -1,3 +1,6 @@
+# Objetivo: Gestão de endereços IP dos ativos (/enderecos-ip) com upsert atômico e auditoria.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 from typing import Optional

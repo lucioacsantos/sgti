@@ -1,3 +1,8 @@
+<!--
+  Objetivo: Componente de alerta exibindo mensagem de erro condicional.
+  Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+-->
+
 <script setup lang="ts">
 defineProps<{
   error: string | null

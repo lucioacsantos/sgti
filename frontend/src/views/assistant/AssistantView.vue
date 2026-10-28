@@ -1,3 +1,8 @@
+<!--
+  Objetivo: Chat com assistente IA (RAG) em streaming, com citações e seleção de modelos.
+  Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+-->
+
 <script setup lang="ts">
 import { ref, nextTick, onMounted } from 'vue'
 import { aiService } from '@/services/cmdb.services'

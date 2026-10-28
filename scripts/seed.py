@@ -1,3 +1,6 @@
+# Objetivo: Popula banco inicial: dados de referência, aplicações, ativos de exemplo e service account.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """Seed inicial para banco PostgreSQL recém-instalado do SGTI CMDB.
 
 Popula dados auxiliares, service account, ativos de exemplo e usuários.

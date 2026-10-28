@@ -1,3 +1,6 @@
+# Objetivo: Autenticação Active Directory via bind SIMPLE, JWT e mapeamento de grupos/roles.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 """
 Active Directory / LDAP Authentication Module
 """

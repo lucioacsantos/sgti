@@ -1,3 +1,6 @@
+# Objetivo: Testa criação e consulta de tipos e relacionamentos entre ativos.
+# Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
+
 import pytest
 from tests.test_main import client, db_session
 import models
