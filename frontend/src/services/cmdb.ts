@@ -9,6 +9,8 @@ export interface Ativo {
   id: number
   nome: string
   descricao?: string | null
+  bios_uuid?: string | null
+  fqdn?: string | null
   tipo_id: number
   ambiente_id?: number | null
   status_id?: number | null

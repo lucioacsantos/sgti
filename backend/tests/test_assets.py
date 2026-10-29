@@ -1,4 +1,4 @@
-# Objetivo: Testa CRUD, upsert e filtros de ativos do CMDB.
+# Objetivo: Testa CRUD, upsert, correlação (bios_uuid/fqdn) e filtros de ativos do CMDB.
 # Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
 
 import pytest
@@ -22,6 +22,8 @@ def test_create_ativo(db_session, auth_headers):
         json={
             "nome": "server-01",
             "descricao": "Test server",
+            "bios_uuid": "4210a1b2-c3d4-e5f6-7890-123456789abc",
+            "fqdn": "server-01.corp.local",
             "tipo_id": tipo.id,
             "status_id": status.id,
             "criticidade_id": criticidade.id,
@@ -34,6 +36,8 @@ def test_create_ativo(db_session, auth_headers):
     assert response.status_code == 201
     data = response.json()
     assert data["nome"] == "server-01"
+    assert data["bios_uuid"] == "4210a1b2-c3d4-e5f6-7890-123456789abc"
+    assert data["fqdn"] == "server-01.corp.local"
     assert data["id"] is not None
 
 
@@ -91,6 +95,39 @@ def test_upsert_ativo_update(db_session, auth_headers):
     assert response.status_code == 200
     data = response.json()
     assert data["descricao"] == "Updated description"
+
+
+def test_upsert_ativo_correlacao_vcenter_satellite(db_session, auth_headers):
+    """Garante que vCenter e Satellite atualizam o mesmo Ativo via bios_uuid ou FQDN."""
+    tipo = models.TipoAtivo(nome="Servidor Virtual")
+    db_session.add(tipo)
+    db_session.commit()
+
+    # 1. Playbook vCenter cria a VM pelo nome curto e bios_uuid
+    r1 = client.put(
+        "/ativos/srv-app-01",
+        json={
+            "tipo_id": tipo.id,
+            "bios_uuid": "4200-uuid-vcenter-01",
+            "descricao": "VM vSphere",
+        },
+        headers=auth_headers,
+    )
+    assert r1.status_code == 201
+    ativo_id = r1.json()["id"]
+
+    # 2. Playbook Satellite envia FQDN na rota com o mesmo bios_uuid -> deve atualizar (200) sem duplicar
+    r2 = client.put(
+        "/ativos/srv-app-01.dominio.local",
+        json={
+            "bios_uuid": "4200-uuid-vcenter-01",
+            "descricao": "Host gerenciado Satellite",
+        },
+        headers=auth_headers,
+    )
+    assert r2.status_code == 200
+    assert r2.json()["id"] == ativo_id
+    assert r2.json()["fqdn"] == "srv-app-01.dominio.local"
 
 
 def test_read_ativo(db_session, auth_headers):

@@ -1,10 +1,11 @@
-# Objetivo: CRUD dos dados auxiliares de referência do CMDB (tipos, status, ambientes).
+# Objetivo: CRUD dos dados auxiliares de referência do CMDB (tipos, status, ambientes, SOs).
 # Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import Optional
-import models, schemas, auth
+import models, schemas, auth, audit
 from database import get_db
 import logging
 
@@ -52,14 +53,45 @@ def read_criticidades(
 @router.post("/sistema-operacional/", response_model=schemas.SistemaOperacionalResponse, status_code=201)
 def create_sistema_operacional(
     sistema_operacional: schemas.SistemaOperacionalCreate,
+    response: Response,
     db: Session = Depends(get_db),
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
-    logger.info("Creating OS", extra={"service_account": current_service.name, "os_abbreviation": sistema_operacional.abreviacao})
-    db_sistema_operacional = models.SistemaOperacional(**sistema_operacional.model_dump(exclude_unset=True))
+    logger.info("Upserting OS", extra={"service_account": current_service.name, "os_abbreviation": sistema_operacional.abreviacao})
+    dados = sistema_operacional.model_dump(exclude_unset=True)
+    existente = db.query(models.SistemaOperacional).filter(
+        func.lower(models.SistemaOperacional.abreviacao) == sistema_operacional.abreviacao.strip().lower()
+    ).first()
+    if existente:
+        antes = audit.model_to_dict(existente)
+        for campo, valor in dados.items():
+            setattr(existente, campo, valor)
+        db.commit()
+        db.refresh(existente)
+        try:
+            audit.create_audit_log(
+                db=db, entidade="sor", entidade_id=existente.id, acao="UPDATE",
+                antes=antes, depois=audit.model_to_dict(existente), usuario=current_service.name
+            )
+            db.commit()
+        except Exception:
+            logger.warning("Falha ao gravar audit log de SO", exc_info=True)
+        response.status_code = 200
+        return existente
+
+    db_sistema_operacional = models.SistemaOperacional(**dados)
     db.add(db_sistema_operacional)
     db.commit()
     db.refresh(db_sistema_operacional)
+    try:
+        audit.create_audit_log(
+            db=db, entidade="sor", entidade_id=db_sistema_operacional.id, acao="CREATE",
+            depois=audit.model_to_dict(db_sistema_operacional), usuario=current_service.name
+        )
+        db.commit()
+    except Exception:
+        logger.warning("Falha ao gravar audit log de SO", exc_info=True)
+    response.status_code = 201
     return db_sistema_operacional
 
 

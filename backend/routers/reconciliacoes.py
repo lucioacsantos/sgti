@@ -141,9 +141,11 @@ def detectar_discrepancias(db: Session) -> list[dict]:
 # ============================================================
 
 def _ativo_por_nome(db: Session, host: str) -> Optional[models.Ativo]:
-    """Casa o host do Zabbix (FQDN/hostname) com o ativo: primeiro nome exato,
+    """Casa o host do Zabbix (FQDN/hostname) com o ativo: primeiro nome exato ou fqdn,
     depois prefixo curto (hostname sem domínio)."""
-    ativo = db.query(models.Ativo).filter(models.Ativo.nome.ilike(host)).one_or_none()
+    ativo = (db.query(models.Ativo)
+             .filter((models.Ativo.nome.ilike(host)) | (models.Ativo.fqdn.ilike(host)))
+             .one_or_none())
     if ativo is None and host:
         curto = host.split(".")[0]
         if curto:
@@ -183,6 +185,7 @@ def detectar_discrepancias_zabbix(db: Session, host: str, ip: Optional[str] = No
     ips = db.query(models.EnderecoIp).filter(models.EnderecoIp.ativo_id == ativo.id).all()
     curto = host.split(".")[0]
     casa_por_nome = (ativo.nome.lower() == host.lower()
+                     or (ativo.fqdn and ativo.fqdn.lower() == host.lower())
                      or (curto and ativo.nome.lower().startswith(curto.lower())))
     if not casa_por_nome:
         achados.append({
@@ -364,7 +367,7 @@ def _corrigir_ativo(db: Session, item: models.ItemReconciliacao,
 def _vincular_ativo(db: Session, item: models.ItemReconciliacao, fonte: str,
                     model, etiqueta: str) -> tuple[str, Optional[dict]]:
     """Regras instancia_aplicacao|cluster / ativo_id: vincula o host
-    identificado, respeitando o vínculo único ativo↔registro."""
+    identificado, respeitando as constraints de unicidade."""
     registro = db.query(model).get(item.entidade_id) if item.entidade_id else None
     if registro is None:
         return ("correção automática não aplicável: registro alvo não "
@@ -379,12 +382,25 @@ def _vincular_ativo(db: Session, item: models.ItemReconciliacao, fonte: str,
                 f"com '{fonte}'", None)
     if registro.ativo_id == alvo.id:
         return ("correção automática não aplicável: vínculo já existente", None)
-    conflito = (db.query(model)
-                .filter(getattr(model, "ativo_id") == alvo.id,
-                        getattr(model, "id") != registro.id).first())
-    if conflito:
-        return (f"correção automática não aplicável: {etiqueta} #{conflito.id} "
-                f"já vinculada ao ativo {alvo.nome}", None)
+
+    if model is models.Cluster:
+        conflito = (db.query(model)
+                    .filter(model.ativo_id == alvo.id, model.id != registro.id)
+                    .first())
+        if conflito:
+            return (f"correção automática não aplicável: {etiqueta} #{conflito.id} "
+                    f"já vinculada ao ativo {alvo.nome}", None)
+    elif model is models.InstanciaAplicacao:
+        conflito = (db.query(model)
+                    .filter(model.aplicacao_id == registro.aplicacao_id,
+                            model.ativo_id == alvo.id,
+                            model.porta == registro.porta,
+                            model.id != registro.id)
+                    .first())
+        if conflito:
+            return (f"correção automática não aplicável: {etiqueta} #{conflito.id} "
+                    f"da mesma aplicação já vinculada ao ativo {alvo.nome}", None)
+
     antes_id = registro.ativo_id
     registro.ativo_id = alvo.id
     return (f"correção automática aplicada: {etiqueta} #{registro.id} vinculada "

@@ -1,8 +1,9 @@
-# Objetivo: CRUD de tipos de relacionamento e vínculos entre ativos, restritos a admin.
+# Objetivo: CRUD idempotente e auditado de tipos de relacionamento e vínculos entre ativos.
 # Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import func
 from typing import Optional
 import models, schemas, auth, audit
 from database import get_db
@@ -29,6 +30,7 @@ def _audit_change(db: Session, entidade: str, entidade_id, acao: str,
         audit.create_audit_log(
             db=db, entidade=entidade, entidade_id=entidade_id, acao=acao,
             antes=antes, depois=depois, usuario=usuario)
+        db.commit()
     except Exception:
         logger.warning("Falha ao gravar audit log", exc_info=True)
 
@@ -38,14 +40,33 @@ router = APIRouter(prefix="/tipos-relacionamento", tags=["Tipos de Relacionament
 @router.post("/", response_model=schemas.TipoRelacionamentoResponse, status_code=201)
 def create_tipo_relacionamento(
     tipo: schemas.TipoRelacionamentoCreate,
+    response: Response,
     db: Session = Depends(get_db),
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
-    logger.info("Creating relationship type", extra={"service_account": current_service.name, "tipo_nome": tipo.nome})
-    db_tipo = models.TipoRelacionamento(**tipo.model_dump(exclude_unset=True))
+    logger.info("Upserting relationship type", extra={"service_account": current_service.name, "tipo_nome": tipo.nome})
+    dados = tipo.model_dump(exclude_unset=True)
+    existente = db.query(models.TipoRelacionamento).filter(
+        func.lower(models.TipoRelacionamento.nome) == tipo.nome.strip().lower()
+    ).first()
+    if existente:
+        antes = audit.model_to_dict(existente)
+        for campo, valor in dados.items():
+            setattr(existente, campo, valor)
+        db.commit()
+        db.refresh(existente)
+        _audit_change(db, "tipo_relacionamento", existente.id, "UPDATE", antes=antes,
+                      depois=audit.model_to_dict(existente), usuario=current_service.name)
+        response.status_code = 200
+        return existente
+
+    db_tipo = models.TipoRelacionamento(**dados)
     db.add(db_tipo)
     db.commit()
     db.refresh(db_tipo)
+    _audit_change(db, "tipo_relacionamento", db_tipo.id, "CREATE",
+                  depois=audit.model_to_dict(db_tipo), usuario=current_service.name)
+    response.status_code = 201
     return db_tipo
 
 
@@ -129,10 +150,11 @@ rel_router = APIRouter(prefix="/relacionamentos", tags=["Relacionamentos"])
 @rel_router.post("/", response_model=schemas.RelacionamentoResponse, status_code=201)
 def create_relacionamento(
     rel: schemas.RelacionamentoCreate,
+    response: Response,
     db: Session = Depends(get_db),
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
-    logger.info("Creating relationship", extra={"service_account": current_service.name, "origem_id": rel.origem_id, "destino_id": rel.destino_id})
+    logger.info("Upserting relationship", extra={"service_account": current_service.name, "origem_id": rel.origem_id, "destino_id": rel.destino_id, "tipo_id": rel.tipo_id})
     origem = db.query(models.Ativo).filter(models.Ativo.id == rel.origem_id).first()
     if not origem:
         raise HTTPException(status_code=404, detail=f"Ativo origem id={rel.origem_id} não encontrado")
@@ -142,10 +164,32 @@ def create_relacionamento(
     tipo = db.query(models.TipoRelacionamento).filter(models.TipoRelacionamento.id == rel.tipo_id).first()
     if not tipo:
         raise HTTPException(status_code=404, detail=f"Tipo relacionamento id={rel.tipo_id} não encontrado")
-    db_rel = models.Relacionamento(**rel.model_dump(exclude_unset=True))
+
+    dados = rel.model_dump(exclude_unset=True)
+    existente = db.query(models.Relacionamento).filter(
+        models.Relacionamento.origem_id == rel.origem_id,
+        models.Relacionamento.destino_id == rel.destino_id,
+        models.Relacionamento.tipo_id == rel.tipo_id,
+    ).first()
+
+    if existente:
+        antes = audit.model_to_dict(existente)
+        if "descricao" in dados:
+            existente.descricao = dados["descricao"]
+        db.commit()
+        db.refresh(existente)
+        _audit_change(db, "relacionamento", existente.id, "UPDATE", antes=antes,
+                      depois=audit.model_to_dict(existente), usuario=current_service.name)
+        response.status_code = 200
+        return existente
+
+    db_rel = models.Relacionamento(**dados)
     db.add(db_rel)
     db.commit()
     db.refresh(db_rel)
+    _audit_change(db, "relacionamento", db_rel.id, "CREATE",
+                  depois=audit.model_to_dict(db_rel), usuario=current_service.name)
+    response.status_code = 201
     return db_rel
 
 
@@ -153,12 +197,13 @@ def create_relacionamento(
 def read_relacionamentos(
     origem_id: Optional[int] = None,
     destino_id: Optional[int] = None,
+    tipo_id: Optional[int] = None,
     skip: int = 0,
     limit: int = 50,
     db: Session = Depends(get_db),
     current_service: models.ServiceAccount = Depends(auth.get_current_actor)
 ):
-    logger.debug("Listing relationships", extra={"service_account": current_service.name, "origem_id": origem_id, "destino_id": destino_id})
+    logger.debug("Listing relationships", extra={"service_account": current_service.name, "origem_id": origem_id, "destino_id": destino_id, "tipo_id": tipo_id})
     query = db.query(models.Relacionamento).options(
         joinedload(models.Relacionamento.origem),
         joinedload(models.Relacionamento.destino),
@@ -168,7 +213,9 @@ def read_relacionamentos(
         query = query.filter(models.Relacionamento.origem_id == origem_id)
     if destino_id:
         query = query.filter(models.Relacionamento.destino_id == destino_id)
-    return query.offset(skip).limit(min(limit, 100)).all()
+    if tipo_id:
+        query = query.filter(models.Relacionamento.tipo_id == tipo_id)
+    return query.order_by(models.Relacionamento.id).offset(skip).limit(min(limit, 5000)).all()
 
 
 @rel_router.get("/{rel_id}", response_model=schemas.RelacionamentoResponse)

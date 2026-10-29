@@ -227,11 +227,11 @@ omita o ativo. Não invente serviços que não têm evidência no texto."""
 
 def infer_servicos_ia(ativos: list[dict], ol: LLMClient, lote: int = 40,
                       verbose: bool = False) -> dict[int, list[tuple[str, str, float]]]:
-    """LLM em lotes de ativos; schema impõe UNIQUE(ativo_id) → 1 serviço/ativo.
+    """LLM em lotes de ativos; schema impõe UNIQUE(ativo_id, nome).
 
     Cada serviço vem acompanhado da confiabilidade (0..1) reportada pelo modelo."""
     nome_por_id = {a['nome']: a['id'] for a in ativos}
-    resultado: dict[int, list[tuple[str, str, float]]] = {}
+    resultado: dict[int, list[tuple[str, str, float]]] = defaultdict(list)
     for i in range(0, len(ativos), lote):
         chunk = ativos[i:i + lote]
         linhas = [f"- {a['nome']}: {(a.get('descricao') or '')[:300]}" for a in chunk]
@@ -249,11 +249,12 @@ def infer_servicos_ia(ativos: list[dict], ol: LLMClient, lote: int = 40,
                 (id for nome, id in nome_por_id.items() if norm(nome) == norm(item.get('ativo') or '')), None)
             if aid is None:
                 continue
-            resultado[aid] = [(srv, tipo, conf)]
-            resolvidos += 1
+            if not any(norm(s_nome) == norm(srv) for s_nome, _, _ in resultado[aid]):
+                resultado[aid].append((srv, tipo, conf))
+                resolvidos += 1
         if verbose:
             print(f'  lote {i // lote + 1}: {resolvidos} serviços identificados')
-    return resultado
+    return dict(resultado)
 
 # ============================================================
 # Etapa 2: match ativo ↔ aplicação (embeddings + LLM nos top-K)
@@ -532,14 +533,16 @@ def reportar_reconciliacao(api: Api,
         return
     try:
         resp = api.post('/reconciliacoes/inferencia', payload)
+        if isinstance(resp, tuple):
+            resp = resp[1]
     except error.HTTPError as e:
         print(f'  aviso: falha ao reportar reconciliação de inferência '
               f'(HTTP {e.code}): {e.read().decode(errors="replace")[:200]}')
         return
-    rec = resp.get('reconciliacao', {})
-    print(f'  reconciliação #{rec.get("id")} aberta: {resp.get("pendentes_abertos")} '
+    rec = (resp or {}).get('reconciliacao', {})
+    print(f'  reconciliação #{rec.get("id")} aberta: {(resp or {}).get("pendentes_abertos")} '
           f'item(ns) de baixa confiança (< {limiar:.0%}) aguardando 2+ analistas; '
-          f'{resp.get("auto_ratificados")} auto-ratificados na trilha de auditoria')
+          f'{(resp or {}).get("auto_ratificados")} auto-ratificados na trilha de auditoria')
 
 # ============================================================
 # Pipeline
@@ -576,23 +579,22 @@ def run(api: Api, ol: LLMClient | None, dry: bool, verbose: bool, top_k: int, li
     log(f'\n[1] Serviços inferidos por IA: {total_serv} em {len(servicos_por_ativo)} ativos '
         f'({time.time() - t0:.0f}s)')
     existentes_srv = api_get_all(api, '/servicos/', paginated=False)
-    ativos_com_srv = {s.get('ativo_id') for s in existentes_srv if s.get('ativo_id')}
-    nomes_srv = {norm(s.get('nome', '')) for s in existentes_srv}
+    pares_srv_existentes = {(s.get('ativo_id'), norm(s.get('nome', ''))) for s in existentes_srv}
     for ativo in sorted(ativos, key=lambda x: x['id']):
-        if ativo['id'] in ativos_com_srv:
-            continue
         for nome, tipo, conf in servicos_por_ativo.get(ativo['id'], []):
-            _, criado = get_or_create(api, '/servicos/', 'nome', nome,
-                                      {'nome': nome, 'tipo': tipo, 'ativo_id': ativo['id']}, dry)
+            chave_srv = (ativo['id'], norm(nome))
+            criado = chave_srv not in pares_srv_existentes
             if criado:
+                pares_srv_existentes.add(chave_srv)
+                if not dry:
+                    api.post('/servicos/', {'nome': nome, 'tipo': tipo, 'ativo_id': ativo['id']})
                 acoes_inferidas.append(('criar_servico', 'servico', None, 'nome', nome,
                                         f'ativo_id={ativo["id"]}', conf))
             if verbose:
                 log(f'  {"criado" if criado else "já existe"}: {nome} ({tipo}, conf {conf:.0%}) @ {ativo["nome"]}')
-            break
 
     # --- 2. Instâncias ---
-    pares: list[tuple[dict, dict, str]] = []
+    pares: list[tuple[dict, dict, str, float]] = []
     if ol and apps:
         t1 = time.time()
         try:
@@ -602,22 +604,22 @@ def run(api: Api, ol: LLMClient | None, dry: bool, verbose: bool, top_k: int, li
         log(f'\n[2] Instâncias validadas por IA: {len(pares)} ({time.time() - t1:.0f}s)')
     else:
         log('\n[2] Instâncias via IA: pulada (sem IA ou sem aplicações)')
-    existentes_inst = api_get_all(api, '/instancias-aplicacao/')
-    ocupados = {i.get('ativo_id') for i in existentes_inst if i.get('ativo_id')}
+    existentes_inst = api_get_all(api, '/instancias-aplicacao/', paginated=False)
+    ocupados_par = {(i.get('aplicacao_id'), i.get('ativo_id')) for i in existentes_inst if i.get('ativo_id')}
     inst_por_app = {i.get('aplicacao_id') for i in existentes_inst}
     multi: dict[int, set] = defaultdict(set)
     for ativo, app, *_ in pares:
         multi[app['id']].add(ativo['id'])
     for ativo, app, motivo, conf in pares:
-        if ativo['id'] in ocupados:
+        if (app['id'], ativo['id']) in ocupados_par:
             if verbose:
-                log(f'  conflito unique(ativo_id): {app["sistema"]} @ {ativo["nome"]} ignorado')
+                log(f'  par já existente (app, ativo): {app["sistema"]} @ {ativo["nome"]} ignorado')
             continue
         if app['id'] in inst_por_app and len(multi[app['id']]) <= 1:
             if verbose:
                 log(f'  app já instanciada: {app["sistema"]} ignorado')
             continue
-        ocupados.add(ativo['id'])
+        ocupados_par.add((app['id'], ativo['id']))
         inst_por_app.add(app['id'])
         if not dry:
             api.post('/instancias-aplicacao/', {'aplicacao_id': app['id'], 'ativo_id': ativo['id']})
@@ -659,7 +661,7 @@ def run(api: Api, ol: LLMClient | None, dry: bool, verbose: bool, top_k: int, li
             tipo_por_nome[norm(nome)] = t
         return t['id'] if t else None
 
-    existentes_rel = api_get_all(api, '/relacionamentos/', paginated=False)
+    existentes_rel = api_get_all(api, '/relacionamentos/', paginated=True)
     pares_rel = {(r.get('origem_id'), r.get('destino_id'), r.get('tipo_id')) for r in existentes_rel}
 
     def grava_rel(origem: dict, destino: dict, tipo_nome: str, motivo: str, prefixo: str,

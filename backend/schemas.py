@@ -10,6 +10,8 @@ import ipaddress
 class AtivoBase(BaseModel):
     nome: str
     descricao: Optional[str] = None
+    bios_uuid: Optional[str] = None
+    fqdn: Optional[str] = None
     tipo_id: int
     ambiente_id: Optional[int] = None
     status_id: Optional[int] = None
@@ -20,6 +22,8 @@ class AtivoBase(BaseModel):
 class AtivoCreate(BaseModel):
     nome: str
     descricao: Optional[str] = None
+    bios_uuid: Optional[str] = None
+    fqdn: Optional[str] = None
     areas_id: Optional[int] = None
     ambiente_id: Optional[int] = None
     tipo_id: Optional[int] = None
@@ -33,6 +37,8 @@ class AtivoUpdate(BaseModel):
     """Todos os campos são opcionais — somente os enviados serão atualizados."""
     nome: Optional[str] = None
     descricao: Optional[str] = None
+    bios_uuid: Optional[str] = None
+    fqdn: Optional[str] = None
     areas_id: Optional[int] = None
     ambiente_id: Optional[int] = None
     tipo_id: Optional[int] = None

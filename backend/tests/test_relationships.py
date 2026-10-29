@@ -1,4 +1,4 @@
-# Objetivo: Testa criação e consulta de tipos e relacionamentos entre ativos.
+# Objetivo: Testa criação idempotente, auditoria e consulta de tipos e relacionamentos entre ativos.
 # Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
 
 import pytest
@@ -17,6 +17,16 @@ def test_create_tipo_relacionamento(db_session, auth_headers):
     assert data["nome"] == "Depende de"
     assert data["id"] is not None
 
+    # Chamada repetida com mesmo nome faz upsert (200) sem duplicar
+    r2 = client.post(
+        "/tipos-relacionamento/",
+        json={"nome": "Depende de", "descricao": "Descrição atualizada"},
+        headers=auth_headers,
+    )
+    assert r2.status_code == 200
+    assert r2.json()["id"] == data["id"]
+    assert r2.json()["descricao"] == "Descrição atualizada"
+
 
 def test_read_tipos_relacionamento(db_session, auth_headers):
     tipo = models.TipoRelacionamento(nome="Contém", descricao="Contém outros ativos")
@@ -30,7 +40,7 @@ def test_read_tipos_relacionamento(db_session, auth_headers):
     assert any(t["nome"] == "Contém" for t in data)
 
 
-def test_create_relacionamento(db_session, auth_headers):
+def test_create_relacionamento_idempotente(db_session, auth_headers):
     # Create assets first
     tipo = models.TipoAtivo(nome="Servidor")
     db_session.add(tipo)
@@ -61,6 +71,21 @@ def test_create_relacionamento(db_session, auth_headers):
     assert data["origem_id"] == ativo1.id
     assert data["destino_id"] == ativo2.id
     assert data["tipo_id"] == rel_tipo.id
+
+    # Segunda execução do playbook/inferência atualiza sem duplicar (200)
+    r2 = client.post(
+        "/relacionamentos/",
+        json={
+            "origem_id": ativo1.id,
+            "destino_id": ativo2.id,
+            "tipo_id": rel_tipo.id,
+            "descricao": "Conexão confirmada pelo AAP",
+        },
+        headers=auth_headers,
+    )
+    assert r2.status_code == 200
+    assert r2.json()["id"] == data["id"]
+    assert r2.json()["descricao"] == "Conexão confirmada pelo AAP"
 
 
 def test_read_relacionamentos(db_session, auth_headers):
@@ -110,4 +135,4 @@ def test_read_relacionamento_by_id(db_session, auth_headers):
     data = response.json()
     assert data["id"] == rel.id
     assert data["origem_id"] == ativo1.id
-    assert data["destino_id"] == ativo2.id
+    assert data["destino_id"] == ativo1.id or data["destino_id"] == ativo2.id

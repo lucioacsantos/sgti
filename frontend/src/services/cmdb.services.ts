@@ -26,12 +26,14 @@ export const healthService = {
 
 // ===== Ativos =====
 export const ativosService = {
-  async list(skip = 0, limit = 50, filters?: { search?: string; tipo_id?: number; ambiente_id?: number; areas_id?: number }): Promise<Ativo[]> {
+  async list(skip = 0, limit = 50, filters?: { search?: string; tipo_id?: number; ambiente_id?: number; areas_id?: number; bios_uuid?: string; fqdn?: string }): Promise<Ativo[]> {
     const params: Record<string, unknown> = { skip, limit }
     if (filters?.search) params.search = filters.search
     if (filters?.tipo_id) params.tipo_id = filters.tipo_id
     if (filters?.ambiente_id) params.ambiente_id = filters.ambiente_id
     if (filters?.areas_id) params.areas_id = filters.areas_id
+    if (filters?.bios_uuid) params.bios_uuid = filters.bios_uuid
+    if (filters?.fqdn) params.fqdn = filters.fqdn
     const { data } = await api.get<Ativo[]>('/ativos/', { params })
     return data
   },
@@ -189,12 +191,36 @@ export const infraService = {
     const { data } = await api.get<Cluster[]>('/clusters/')
     return data
   },
-  async namespaces(): Promise<Namespace[]> {
-    const { data } = await api.get<Namespace[]>('/namespaces/')
+  async createCluster(payload: { nome: string; descricao?: string | null; ativo_id?: number | null }): Promise<Cluster> {
+    const { data } = await api.post<Cluster>('/clusters/', payload)
     return data
   },
-  async servicos(): Promise<Servico[]> {
-    const { data } = await api.get<Servico[]>('/servicos/')
+  async updateCluster(id: number, payload: { nome: string; descricao?: string | null; ativo_id?: number | null }): Promise<Cluster> {
+    const { data } = await api.put<Cluster>(`/clusters/${id}`, payload)
+    return data
+  },
+  async deleteCluster(id: number): Promise<void> {
+    await api.delete(`/clusters/${id}`)
+  },
+  async namespaces(clusterId?: number): Promise<Namespace[]> {
+    const params = clusterId ? { cluster_id: clusterId } : undefined
+    const { data } = await api.get<Namespace[]>('/namespaces/', { params })
+    return data
+  },
+  async createNamespace(payload: { nome: string; cluster_id?: number | null; ativo_id?: number | null }): Promise<Namespace> {
+    const { data } = await api.post<Namespace>('/namespaces/', payload)
+    return data
+  },
+  async updateNamespace(id: number, payload: { nome: string; cluster_id?: number | null; ativo_id?: number | null }): Promise<Namespace> {
+    const { data } = await api.put<Namespace>(`/namespaces/${id}`, payload)
+    return data
+  },
+  async deleteNamespace(id: number): Promise<void> {
+    await api.delete(`/namespaces/${id}`)
+  },
+  async servicos(ativoId?: number): Promise<Servico[]> {
+    const params = ativoId ? { ativo_id: ativoId } : undefined
+    const { data } = await api.get<Servico[]>('/servicos/', { params })
     return data
   },
   async createServico(payload: { nome: string; tipo?: string; ativo_id?: number | null }): Promise<Servico> {
@@ -223,8 +249,10 @@ export const infraService = {
   async deleteServicoNegocio(id: number): Promise<void> {
     await api.delete(`/servicos-negocio/${id}`)
   },
-  async instancias(aplicacaoId?: number): Promise<InstanciaAplicacao[]> {
-    const params = aplicacaoId ? { aplicacao_id: aplicacaoId } : undefined
+  async instancias(aplicacaoId?: number, ativoId?: number): Promise<InstanciaAplicacao[]> {
+    const params: Record<string, unknown> = {}
+    if (aplicacaoId) params.aplicacao_id = aplicacaoId
+    if (ativoId) params.ativo_id = ativoId
     const { data } = await api.get<InstanciaAplicacao[]>('/instancias-aplicacao/', { params })
     return data
   },
@@ -243,7 +271,7 @@ export const infraService = {
     const { data } = await api.get<TipoRelacionamento[]>('/tipos-relacionamento/')
     return data
   },
-  async relacionamentos(params?: { origem_id?: number; destino_id?: number; skip?: number; limit?: number }): Promise<Relacionamento[]> {
+  async relacionamentos(params?: { origem_id?: number; destino_id?: number; tipo_id?: number; skip?: number; limit?: number }): Promise<Relacionamento[]> {
     const { data } = await api.get<Relacionamento[]>('/relacionamentos/', { params })
     return data
   },

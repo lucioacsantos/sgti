@@ -116,15 +116,22 @@ def api_get_all(api: Api, path: str, params: dict | None = None, paginated: bool
 def infer_servicos(ativos: list[dict]) -> dict[int, list[tuple[str, str]]]:
     """Estratégia 1: descrição do ativo → serviços (nome, tipo).
 
-    O schema impõe UNIQUE(ativo_id) em servico — 1 serviço por ativo.
-    Mantém apenas o match mais específico (primeiro do dicionário ordenado)."""
+    O schema impõe UNIQUE(ativo_id, nome) em servico — permite múltiplos serviços
+    distintos no mesmo ativo."""
     resultado = {}
     for a in ativos:
         desc = norm(f"{a.get('nome', '')} {a.get('descricao') or ''}")
+        achados = []
+        nomes_vistos = set()
         for padrao, nome, tipo in SERVICO_PADROES:
-            if re.search(padrao, desc, re.I):
-                resultado[a['id']] = [(nome, tipo)]
-                break
+            if re.search(padrao, desc, re.I) and norm(nome) not in nomes_vistos:
+                # Se já encontrou um subtipo específico de Protheus, não adiciona o genérico
+                if nome == 'Protheus' and any(n.startswith('Protheus ') for n, _ in achados):
+                    continue
+                nomes_vistos.add(norm(nome))
+                achados.append((nome, tipo))
+        if achados:
+            resultado[a['id']] = achados
     return resultado
 
 
@@ -230,8 +237,6 @@ def infer_relacionamentos_tecnicos(ativos: list[dict], apps: list[dict],
     """Relacionamentos técnicos determinísticos (dados estruturados, não texto).
 
     Regras:
-      - Ativo executa serviço nele instalado → origem=ativo, destino=ativo (mesma máquina)
-        Não se aplica (relacionamento liga ativos distintos) — usado para validar.
       - Instâncias da mesma aplicação em ativos distintos: primeiro ativo
         (produção/apserver) 'Replica para' os demais (ex.: Protheus dxer01 → dxer02/03).
       - Apps com mesmo SGBD citado + ativo do SGBD conhecido → 'Depende de'
@@ -322,10 +327,16 @@ def run(api: Api, dry: bool, verbose: bool) -> None:
     servicos_por_ativo = infer_servicos(ativos)
     total_serv = sum(len(v) for v in servicos_por_ativo.values())
     log(f'\n[1] Serviços inferidos de descrições: {total_serv} em {len(servicos_por_ativo)} ativos')
+    existentes_srv = api_get_all(api, '/servicos/', paginated=False)
+    pares_srv_existentes = {(s.get('ativo_id'), norm(s.get('nome', ''))) for s in existentes_srv}
     for ativo in sorted(ativos, key=lambda x: x['id']):
         for nome, tipo in servicos_por_ativo.get(ativo['id'], []):
-            _, criado = get_or_create(api, '/servicos/', 'nome', nome,
-                                      {'nome': nome, 'tipo': tipo, 'ativo_id': ativo['id']}, dry)
+            chave_srv = (ativo['id'], norm(nome))
+            criado = chave_srv not in pares_srv_existentes
+            if criado:
+                pares_srv_existentes.add(chave_srv)
+                if not dry:
+                    api.post('/servicos/', {'nome': nome, 'tipo': tipo, 'ativo_id': ativo['id']})
             if verbose:
                 acao = 'criado' if criado else 'já existe (ativo mantido)'
                 log(f'  {acao}: {nome} ({tipo}) @ {ativo["nome"]}')
@@ -333,8 +344,8 @@ def run(api: Api, dry: bool, verbose: bool) -> None:
     # --- Estratégia 2: instâncias de aplicação ---
     pares = infer_instancias(ativos, apps, servicos_por_ativo)
     log(f'\n[2] Instâncias de aplicação inferidas: {len(pares)}')
-    existentes_inst = api_get_all(api, '/instancias-aplicacao/')
-    ocupados = {i.get('ativo_id') for i in existentes_inst if i.get('ativo_id')}
+    existentes_inst = api_get_all(api, '/instancias-aplicacao/', paginated=False)
+    ocupados_par = {(i.get('aplicacao_id'), i.get('ativo_id')) for i in existentes_inst if i.get('ativo_id')}
     inst_por_app = {i.get('aplicacao_id') for i in existentes_inst}
     # apps que casam com múltiplos ativos (ex.: Protheus em dxer01/02/03)
     # podem receber uma instância por ativo; apps single-host só a primeira
@@ -342,15 +353,15 @@ def run(api: Api, dry: bool, verbose: bool) -> None:
     for ativo, app, _ in pares:
         multi[app['id']].add(ativo['id'])
     for ativo, app, motivo in pares:
-        if ativo['id'] in ocupados:
+        if (app['id'], ativo['id']) in ocupados_par:
             if verbose:
-                log(f'  conflito unique(ativo_id): {app["sistema"]} @ {ativo["nome"]} ignorado')
+                log(f'  par já existente (app, ativo): {app["sistema"]} @ {ativo["nome"]} ignorado')
             continue
         if app['id'] in inst_por_app and len(multi[app['id']]) <= 1:
             if verbose:
                 log(f'  app já instanciada: {app["sistema"]} ignorado')
             continue
-        ocupados.add(ativo['id'])
+        ocupados_par.add((app['id'], ativo['id']))
         inst_por_app.add(app['id'])
         if not dry:
             api.post('/instancias-aplicacao/', {'aplicacao_id': app['id'], 'ativo_id': ativo['id']})
@@ -379,6 +390,8 @@ def run(api: Api, dry: bool, verbose: bool) -> None:
             return t['id']
         t, _ = get_or_create(api, '/tipos-relacionamento/', 'nome', nome,
                              {'nome': nome, 'descricao': f'Tipo {nome} (inferido)'}, dry)
+        if isinstance(t, tuple):
+            t = t[1]
         if t:
             tipo_por_nome[norm(nome)] = t
         return t['id'] if t else None
@@ -386,7 +399,7 @@ def run(api: Api, dry: bool, verbose: bool) -> None:
     # 4a. regras técnicas estruturadas
     rels_tec = infer_relacionamentos_tecnicos(ativos, apps, pares, servicos_por_ativo)
     log(f'\n[4] Relacionamentos técnicos inferidos: {len(rels_tec)}')
-    existentes_rel = api_get_all(api, '/relacionamentos/', paginated=False)
+    existentes_rel = api_get_all(api, '/relacionamentos/', paginated=True)
     pares_rel = {(r.get('origem_id'), r.get('destino_id'), r.get('tipo_id')) for r in existentes_rel}
     for origem, destino, tipo_nome, motivo in rels_tec:
         tid = tipo_id(tipo_nome)

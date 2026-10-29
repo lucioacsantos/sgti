@@ -97,15 +97,18 @@ CREATE TABLE public.ativo (
 	id serial4 NOT NULL,
 	nome varchar(255) NOT NULL,
 	descricao text NULL,
+	bios_uuid varchar(100) NULL,
+	fqdn varchar(255) NULL,
 	tipo_id int4 NOT NULL,
 	ambiente_id int4 NULL,
 	status_id int4 NULL,
 	criticidade_id int4 NULL,
-     sor_id int4 NULL,
+	sor_id int4 NULL,
 	areas_id int4 NULL,
 	created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
 	updated_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
 	CONSTRAINT ativo_pkey PRIMARY KEY (id),
+	CONSTRAINT uq_ativo_bios_uuid UNIQUE (bios_uuid),
 	CONSTRAINT ativo_ambiente_id_fkey FOREIGN KEY (ambiente_id) REFERENCES public.ambiente(id),
 	CONSTRAINT ativo_criticidade_id_fkey FOREIGN KEY (criticidade_id) REFERENCES public.criticidade(id),
 	CONSTRAINT ativo_sor_fk FOREIGN KEY (sor_id) REFERENCES public.sor(id),
@@ -114,11 +117,12 @@ CREATE TABLE public.ativo (
 	CONSTRAINT ativo_areas_id_fkey FOREIGN KEY (areas_id) REFERENCES public.areas(id)
 );
 CREATE INDEX idx_ativo_nome ON public.ativo USING btree (nome);
+CREATE INDEX idx_ativo_bios_uuid ON public.ativo USING btree (bios_uuid);
+CREATE INDEX idx_ativo_fqdn ON public.ativo USING btree (fqdn);
 CREATE INDEX idx_ativo_tipo ON public.ativo USING btree (tipo_id);
 CREATE INDEX idx_ativo_ambiente ON public.ativo USING btree (ambiente_id);
 CREATE INDEX idx_ativo_status ON public.ativo USING btree (status_id);
 CREATE INDEX idx_ativo_criticidade ON public.ativo USING btree (criticidade_id);
-
 
 
 CREATE TABLE public.endereco_ip (
@@ -161,10 +165,12 @@ CREATE TABLE public."namespace" (
 	cluster_id int4 NULL,
 	ativo_id int4 NULL,
 	CONSTRAINT namespace_ativo_id_key UNIQUE (ativo_id),
+	CONSTRAINT uq_namespace_cluster_id_nome UNIQUE (cluster_id, nome),
 	CONSTRAINT namespace_pkey PRIMARY KEY (id),
 	CONSTRAINT namespace_ativo_id_fkey FOREIGN KEY (ativo_id) REFERENCES public.ativo(id) ON DELETE SET NULL,
 	CONSTRAINT namespace_cluster_id_fkey FOREIGN KEY (cluster_id) REFERENCES public."cluster"(id) ON DELETE CASCADE
 );
+CREATE INDEX idx_namespace_cluster_id ON public."namespace" USING btree (cluster_id);
 
 
 CREATE TABLE public.relacionamento (
@@ -176,6 +182,7 @@ CREATE TABLE public.relacionamento (
 	descricao text NULL,
 	created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
 	CONSTRAINT relacionamento_pkey PRIMARY KEY (id),
+	CONSTRAINT uq_relacionamento_origem_destino_tipo UNIQUE (origem_id, destino_id, tipo_id),
 	CONSTRAINT relacionamento_destino_id_fkey FOREIGN KEY (destino_id) REFERENCES public.ativo(id) ON DELETE CASCADE,
 	CONSTRAINT relacionamento_origem_id_fkey FOREIGN KEY (origem_id) REFERENCES public.ativo(id) ON DELETE CASCADE,
 	CONSTRAINT relacionamento_tipo_id_fkey FOREIGN KEY (tipo_id) REFERENCES public.tipo_relacionamento(id)
@@ -192,10 +199,11 @@ CREATE TABLE public.servico (
 	host_id int4 NULL,
 	ativo_id int4 NULL,
 	created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
-	CONSTRAINT servico_ativo_id_key UNIQUE (ativo_id),
+	CONSTRAINT uq_servico_ativo_id_nome UNIQUE (ativo_id, nome),
 	CONSTRAINT servico_pkey PRIMARY KEY (id),
 	CONSTRAINT servico_ativo_id_fkey FOREIGN KEY (ativo_id) REFERENCES public.ativo(id) ON DELETE SET NULL
 );
+CREATE INDEX idx_servico_ativo_id ON public.servico USING btree (ativo_id);
 
 
 CREATE TABLE public.servico_negocio (
@@ -229,7 +237,6 @@ CREATE TABLE public.aplicacao_metadado (
 CREATE INDEX idx_metadado_chave ON public.aplicacao_metadado(chave);
 
 
-
 CREATE TABLE public.instancia_aplicacao (
 	id serial4 NOT NULL,
 	aplicacao_id int4 NOT NULL,
@@ -238,11 +245,12 @@ CREATE TABLE public.instancia_aplicacao (
 	path_execucao varchar(255) NULL,
 	comando_execucao text NULL,
 	created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
-	CONSTRAINT instancia_aplicacao_ativo_id_key UNIQUE (ativo_id),
+	CONSTRAINT uq_instancia_aplicacao_app_ativo_porta UNIQUE (aplicacao_id, ativo_id, porta),
 	CONSTRAINT instancia_aplicacao_pkey PRIMARY KEY (id),
 	CONSTRAINT instancia_aplicacao_aplicacao_id_fkey FOREIGN KEY (aplicacao_id) REFERENCES public.aplicacao(id) ON DELETE CASCADE,
 	CONSTRAINT instancia_aplicacao_ativo_id_fkey FOREIGN KEY (ativo_id) REFERENCES public.ativo(id) ON DELETE SET NULL
 );
+CREATE INDEX idx_instancia_aplicacao_ativo_id ON public.instancia_aplicacao USING btree (ativo_id);
 
 
 CREATE TABLE public.usuario (

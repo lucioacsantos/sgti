@@ -1,7 +1,19 @@
 # Objetivo: Modelos SQLAlchemy das tabelas do CMDB, com colunas cifradas via EncryptedText.
 # Author: Lucio A C Santos — GitHub: https://github.com/lucioacsantos
 
-from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime, Boolean, Float, Index, JSON
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    ForeignKey,
+    Text,
+    DateTime,
+    Boolean,
+    Float,
+    Index,
+    JSON,
+    UniqueConstraint,
+)
 from sqlalchemy.dialects.postgresql import INET, JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -97,6 +109,8 @@ class Ativo(Base):
     id = Column(Integer, primary_key=True, index=True)
     nome = Column(String, nullable=False, index=True)
     descricao = Column(Text)
+    bios_uuid = Column(String(100), unique=True, nullable=True, index=True)
+    fqdn = Column(String(255), nullable=True, index=True)
 
     tipo_id = Column(Integer, ForeignKey("tipo_ativo.id"), nullable=False)
     ambiente_id = Column(Integer, ForeignKey("ambiente.id"))
@@ -190,12 +204,16 @@ class Namespace(Base):
     __tablename__ = "namespace"
 
     id = Column(Integer, primary_key=True)
-    nome = Column(String(255), unique=True, nullable=False)
-    cluster_id = Column(Integer, ForeignKey("cluster.id", ondelete="CASCADE"))
+    nome = Column(String(255), nullable=False)
+    cluster_id = Column(Integer, ForeignKey("cluster.id", ondelete="CASCADE"), index=True)
     ativo_id = Column(Integer, ForeignKey("ativo.id", ondelete="SET NULL"), unique=True)
 
     cluster = relationship("Cluster")
     ativo = relationship("Ativo")
+
+    __table_args__ = (
+        UniqueConstraint("cluster_id", "nome", name="uq_namespace_cluster_id_nome"),
+    )
 
 
 # TABELA RELACIONAMENTO
@@ -213,6 +231,10 @@ class Relacionamento(Base):
     destino = relationship("Ativo", foreign_keys=[destino_id])
     tipo = relationship("TipoRelacionamento")
 
+    __table_args__ = (
+        UniqueConstraint("origem_id", "destino_id", "tipo_id", name="uq_relacionamento_origem_destino_tipo"),
+    )
+
 
 # TABELA SERVICO
 class Servico(Base):
@@ -222,9 +244,13 @@ class Servico(Base):
     nome = Column(String(255), nullable=False)
     tipo = Column(String(50))
     host_id = Column(Integer)
-    ativo_id = Column(Integer, ForeignKey("ativo.id", ondelete="SET NULL"), unique=True)
+    ativo_id = Column(Integer, ForeignKey("ativo.id", ondelete="SET NULL"), index=True)
 
     ativo = relationship("Ativo")
+
+    __table_args__ = (
+        UniqueConstraint("ativo_id", "nome", name="uq_servico_ativo_id_nome"),
+    )
 
 
 # TABELA SERVICO NEGOCIO
@@ -245,7 +271,7 @@ class InstanciaAplicacao(Base):
 
     id = Column(Integer, primary_key=True)
     aplicacao_id = Column(Integer, ForeignKey("aplicacao.id", ondelete="CASCADE"), nullable=False, index=True)
-    ativo_id = Column(Integer, ForeignKey("ativo.id", ondelete="SET NULL"), unique=True)
+    ativo_id = Column(Integer, ForeignKey("ativo.id", ondelete="SET NULL"), index=True)
     porta = Column(Integer)
     path_execucao = Column(String(255))
     comando_execucao = Column(Text)
@@ -253,6 +279,10 @@ class InstanciaAplicacao(Base):
 
     aplicacao = relationship("Aplicacao")
     ativo = relationship("Ativo")
+
+    __table_args__ = (
+        UniqueConstraint("aplicacao_id", "ativo_id", "porta", name="uq_instancia_aplicacao_app_ativo_porta"),
+    )
 
 
 # TABELA DOCUMENTO (BASE DE CONHECIMENTO - MANUAIS E PROCEDIMENTOS)
