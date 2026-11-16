@@ -1,0 +1,27 @@
+# Objetivo: Paginação recursiva de endpoints de lista do vRNI (cursor)
+# (GET /api/ni/entities/{vms,flows,hosts}, resposta PagedListResponseWithTime).
+# Variáveis exigidas por quem inclui: lista_endpoint (vms|flows|...), lista_params
+# (query string sem cursor), lista_prefixo (chave do acumulador), lista_max_itens.
+# Efeitos: acumula páginas em vrni_listas[lista_prefixo]; usa/avança vrni_cursor.
+---
+- name: "{{ lista_endpoint }} — página (cursor={{ vrni_cursor | default('', true) | truncate(18, true) }})"
+  uri:
+    url: "{{ vrni_api_base }}/entities/{{ lista_endpoint }}?{{ lista_params }}{{ ('&cursor=' ~ (vrni_cursor | urlencode)) if (vrni_cursor | default('', true) | length > 0) else '' }}"
+    method: GET
+    headers:
+      Authorization: "NetworkInsight {{ vrni_token }}"
+    validate_certs: "{{ vrni_validate_certs | default(false) }}"
+    status_code: 200
+  register: _vrni_pag
+
+- name: "Acumular página de {{ lista_endpoint }}"
+  set_fact:
+    vrni_listas: "{{ vrni_listas | default({}) | combine({lista_prefixo: ((vrni_listas[lista_prefixo] | default([], true)) + (_vrni_pag.json.results | default([], true)))}) }}"
+
+- name: Próxima página
+  include_tasks: vrni_listar.yml
+  vars:
+    vrni_cursor: "{{ _vrni_pag.json.cursor | default('', true) }}"
+  when: >
+    (_vrni_pag.json.cursor | default('', true) | length > 0) and
+    ((vrni_listas[lista_prefixo] | default([], true) | length | int) < (lista_max_itens | default(100000) | int))

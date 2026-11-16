@@ -1,0 +1,27 @@
+# Objetivo: Paginação recursiva da API do CMDB (skip/limit — listas sem cursor).
+# Quem inclui define: cmdb_rota (ativos|enderecos-ip), cmdb_page_size, cmdb_prefixo,
+# cmdb_skip (0 na inclusão inicial) e opcionalmente cmdb_max_itens.
+# Efeito: acumula em cmdb_listas[cmdb_prefixo] e avança cmdb_skip.
+---
+- name: "CMDB {{ cmdb_rota }} — página skip={{ cmdb_skip | default(0, true) }}"
+  uri:
+    url: "{{ cmdb_url }}/{{ cmdb_rota }}/?skip={{ cmdb_skip | default(0, true) | int }}&limit={{ cmdb_page_size | int }}"
+    method: GET
+    headers:
+      X-Service-Token: "{{ cmdb_service_token }}"
+    validate_certs: "{{ cmdb_validate_certs | default(true) }}"
+    status_code: 200
+  register: _cmdb_pag
+
+- name: "Acumular página de {{ cmdb_rota }} e calcular próxima"
+  set_fact:
+    cmdb_listas: "{{ cmdb_listas | default({}) | combine({cmdb_prefixo: ((cmdb_listas[cmdb_prefixo] | default([], true)) + (_cmdb_pag.json | default([], true)))}) }}"
+    _cmdb_prox_skip: "{{ (cmdb_skip | default(0, true) | int) + (_cmdb_pag.json | default([], true) | length) }}"
+
+- name: Próxima página
+  include_tasks: cmdb_listar.yml
+  vars:
+    cmdb_skip: "{{ _cmdb_prox_skip }}"
+  when: >
+    (_cmdb_pag.json | default([], true) | length | int) >= (cmdb_page_size | int) and
+    ((cmdb_listas[cmdb_prefixo] | default([], true) | length | int) < (cmdb_max_itens | default(200000) | int))

@@ -1,0 +1,199 @@
+# Objetivo: Inferir relacionamentos de rede a partir dos fluxos do vRNI e do
+# cadastro do CMDB: casamento por IP (enderecos-ip) cria relacionamentos
+# ("Conecta-se a"); endpoints/VMs sem ativo correspondente abrem reconciliação
+# para os analistas (POST /reconciliacoes/inferencia, workflow de quatro olhos).
+---
+- name: vRNI — inferência de relacionamentos via CMDB
+  hosts: all
+  gather_facts: false
+  vars:
+    vrni_artifacts_dir: /tmp/sgti_vrni
+    cmdb_page_ativos: 5000
+    cmdb_page_ips: 100
+    cmdb_max_itens: 200000
+    cmdb_validate_certs: true
+    vrni_tipo_fluxos: "Conecta-se a"
+    recon_limiar: 0.9
+  tasks:
+    - name: Validar variáveis obrigatórias
+      assert:
+        that:
+          - cmdb_url is defined and (cmdb_url | length) > 10
+          - (cmdb_service_token | default('')) | length > 10
+          - (recon_limiar | float) > 0 and (recon_limiar | float <= 1)
+        fail_msg: Defina cmdb_url e cmdb_service_token (AAP Custom Credential ou group_vars/all/vrni.yml)
+        quiet: true
+
+    - name: Carregar artefatos da coleta vRNI
+      block:
+        - set_fact:
+            vrni_vms: "{{ lookup('file', vrni_artifacts_dir ~ '/vms.json') | from_json }}"
+            vrni_flows: "{{ lookup('file', vrni_artifacts_dir ~ '/flows.json') | from_json }}"
+      rescue:
+        - fail:
+            msg: Artefatos não encontrados em {{ vrni_artifacts_dir }} (vms.json/flows.json) — execute vrni_coleta.yml antes
+
+    - name: Ativos do CMDB (paginado)
+      vars:
+        cmdb_rota: ativos
+        cmdb_prefixo: ativos
+        cmdb_page_size: "{{ cmdb_page_ativos }}"
+        cmdb_skip: "0"
+      include_tasks: tasks/cmdb_listar.yml
+
+    - name: Endereços IP do CMDB (paginado)
+      vars:
+        cmdb_rota: enderecos-ip
+        cmdb_prefixo: ips
+        cmdb_page_size: "{{ cmdb_page_ips }}"
+        cmdb_skip: "0"
+      include_tasks: tasks/cmdb_listar.yml
+
+    - name: Mapa IP → ativo (IP pode ser gravado com máscara)
+      set_fact:
+        cmdb_mapa_ip: >-
+          {%- set _m = {} -%}
+          {%- for _e in cmdb_listas['ips'] | default([], true) -%}
+          {%- if _e.ativo | default(true) -%}
+          {%- set _ip = ((_e.ip | string).split('/')[0]) -%}
+          {%- if _ip in _m -%}
+          {%- set _ = _m[_ip].update({'dup': true}) -%}
+          {%- else -%}
+          {%- set _ = _m.update({_ip: {'ativo_id': _e.ativo_id, 'dup': false}}) -%}
+          {%- endif -%}
+          {%- endif -%}
+          {%- endfor -%}
+          {{ _m }}
+
+    - name: Resolver fluxos → relacionamentos e discrepâncias
+      set_fact:
+        vrni_resolucao: >-
+          {%- set _rels = {} -%}
+          {%- set _disc = {} -%}
+          {%- for _f in vrni_flows -%}
+          {%- set _src = ((_f.source_ip.ip_address | default('', true)) | string) -%}
+          {%- set _dst = ((_f.destination_ip.ip_address | default('', true)) | string) -%}
+          {%- set _src_vm = _f.source_vm.entity_name | default('—', true) | replace('"', '') -%}
+          {%- set _dst_vm = _f.destination_vm.entity_name | default('—', true) | replace('"', '') -%}
+          {%- set _src_id = cmdb_mapa_ip[_src].ativo_id | default(0, true) -%}
+          {%- set _dst_id = cmdb_mapa_ip[_dst].ativo_id | default(0, true) -%}
+          {%- set _dup = (cmdb_mapa_ip[_src].dup | default(false)) or (cmdb_mapa_ip[_dst].dup | default(false)) -%}
+          {%- set _self = (_src_id > 0) and (_src_id == _dst_id) -%}
+          {%- if (_src | length > 0) and (_dst | length > 0) and (_src_id > 0) and (_dst_id > 0) and (not _self) -%}
+          {%- if not _dup -%}
+          {%- set _ = _rels.update({_src_id ~ '>' ~ _dst_id: {'origem_id': _src_id, 'destino_id': _dst_id, 'evidencia': ('vRNI — fluxo ' ~ _src_vm ~ ' (' ~ _src ~ ') <-> ' ~ _dst_vm ~ ' (' ~ _dst ~ ')')}}) -%}
+          {%- else -%}
+          {%- set _ = _disc.update({'dup|' ~ _src ~ '>' ~ _dst: {'acao': 'revisar_ip_duplicado', 'entidade': 'ativo', 'campo': 'ip', 'valor_cmdb': (_src_id ~ ' e ' ~ _dst_id), 'valor_proposto': (_src ~ ' <-> ' ~ _dst ~ ' — fluxo vRNI ' ~ _f.entity_id), 'confianca': 0.0}}) -%}
+          {%- endif -%}
+          {%- else -%}
+          {%- if (_src | length > 0) and (_src_id == 0) -%}
+          {%- set _ = _disc.update({'ip|' ~ _src: {'acao': 'localizar_ativo', 'entidade': 'ativo', 'campo': 'ip', 'valor_cmdb': None, 'valor_proposto': (_src ~ ' — VM "' ~ _src_vm ~ '" (vRNI ' ~ _f.entity_id ~ ')'), 'confianca': 0.0}}) -%}
+          {%- endif -%}
+          {%- if (_dst | length > 0) and (_dst_id == 0) -%}
+          {%- set _ = _disc.update({'ip|' ~ _dst: {'acao': 'localizar_ativo', 'entidade': 'ativo', 'campo': 'ip', 'valor_cmdb': None, 'valor_proposto': (_dst ~ ' — VM "' ~ _dst_vm ~ '" (vRNI ' ~ _f.entity_id ~ ')'), 'confianca': 0.0}}) -%}
+          {%- endif -%}
+          {%- endif -%}
+          {%- endfor -%}
+          {%- for _v in vrni_vms -%}
+          {%- for _ipx in _v.ips | default([], true) -%}
+          {%- set _ip = ((_ipx.ip_address | default('', true)) | string) -%}
+          {%- set _nome = _v.name | default('—', true) | replace('"', '') -%}
+          {%- if (_ip | length > 0) and (_ip not in cmdb_mapa_ip) -%}
+          {%- set _ = _disc.update({'vmip|' ~ _ip: {'acao': 'cadastrar_ip', 'entidade': 'ativo', 'campo': 'ip', 'valor_cmdb': None, 'valor_proposto': (_ip ~ ' — VM "' ~ _nome ~ '" (vRNI ' ~ _v.entity_id ~ ')'), 'confianca': 0.0}}) -%}
+          {%- endif -%}
+          {%- endfor -%}
+          {%- endfor -%}
+          {{ {'relacoes': _rels.values() | list, 'discrepancias': _disc.values() | list} }}
+
+    - name: Tipos de relacionamento do CMDB
+      uri:
+        url: "{{ cmdb_url }}/tipos-relacionamento/"
+        method: GET
+        headers:
+          X-Service-Token: "{{ cmdb_service_token }}"
+        validate_certs: "{{ cmdb_validate_certs }}"
+        status_code: 200
+      register: _tipos
+
+    - name: Resolver tipo de relacionamento dos fluxos
+      set_fact:
+        vrni_tipo_fluxos_id: "{{ _tipos.json | selectattr('nome', 'equalto', vrni_tipo_fluxos) | map(attribute='id') | list | first | default(0, true) }}"
+
+    - name: Falhar se tipo não cadastrado
+      assert:
+        that: (vrni_tipo_fluxos_id | int) > 0
+        fail_msg: "Tipo de relacionamento '{{ vrni_tipo_fluxos }}' não existe no CMDB — cadastre em /tipos-relacionamento"
+        quiet: true
+
+    - name: Criar relacionamentos casados
+      uri:
+        url: "{{ cmdb_url }}/relacionamentos/"
+        method: POST
+        headers:
+          X-Service-Token: "{{ cmdb_service_token }}"
+        validate_certs: "{{ cmdb_validate_certs }}"
+        body_format: json
+        body:
+          origem_id: "{{ item.origem_id }}"
+          destino_id: "{{ item.destino_id }}"
+          tipo_id: "{{ vrni_tipo_fluxos_id }}"
+          descricao: "{{ item.evidencia }}"
+        status_code: [200, 201]
+      loop: "{{ vrni_resolucao.relacoes }}"
+      loop_control:
+        label: "{{ item.origem_id }} -> {{ item.destino_id }}"
+      register: _rels_post
+
+    - name: Itens de reconciliação (novos relacionamentos + discrepâncias)
+      set_fact:
+        recon_itens: >-
+          {%- set _itens = [] -%}
+          {%- for _r in _rels_post.results -%}
+          {%- if _r.status | default(0) | int == 201 -%}
+          {%- set _ = _itens.append({'acao': 'criar_relacionamento', 'entidade': 'relacionamento', 'campo': 'origem_id,destino_id', 'valor_cmdb': None, 'valor_proposto': (_r.item.origem_id ~ ' -> ' ~ _r.item.destino_id ~ ' (' ~ _r.item.evidencia ~ ')'), 'confianca': 1.0}) -%}
+          {%- endif -%}
+          {%- endfor -%}
+          {%- for _d in vrni_resolucao.discrepancias -%}
+          {%- set _ = _itens.append(_d) -%}
+          {%- endfor -%}
+          {{ _itens }}
+
+    - name: Abrir reconciliação no CMDB (baixa confiança gera itens pendentes)
+      uri:
+        url: "{{ cmdb_url }}/reconciliacoes/inferencia"
+        method: POST
+        headers:
+          X-Service-Token: "{{ cmdb_service_token }}"
+        validate_certs: "{{ cmdb_validate_certs }}"
+        body_format: json
+        body:
+          nome: "vRNI — {{ lookup('pipe', 'date +%F_%H:%M') }}"
+          limiar: "{{ recon_limiar | float }}"
+          itens: "{{ recon_itens }}"
+        status_code: 201
+      when: recon_itens | length > 0
+      register: _recon
+
+    - name: Resultado da reconciliação
+      set_fact:
+        recon_resultado: "{{ _recon.json | default({}) }}"
+
+    - name: Resumo
+      debug:
+        msg: >-
+          ativos={{ cmdb_listas['ativos'] | default([], true) | length }};
+          IPs={{ cmdb_listas['ips'] | default([], true) | length }};
+          fluxos={{ vrni_flows | length }};
+          relacionamentos_criados={{ _rels_post.results | default([], true) | selectattr('status', 'equalto', 201) | list | length }};
+          ja_existentes={{ _rels_post.results | default([], true) | selectattr('status', 'equalto', 200) | list | length }};
+          discrepancias={{ vrni_resolucao.discrepancias | length }};
+          reconciliacao={{ (recon_resultado | default({}))['reconciliacao']['id'] | default(0, true) }};
+          pendentes={{ (recon_resultado | default({}))['pendentes_abertos'] | default(0, true) }}
+
+    - name: Estatísticas para o workflow do AAP
+      set_stats:
+        data:
+          vrni_reconciliacao_id: "{{ (recon_resultado | default({}))['reconciliacao']['id'] | default(0, true) }}"
+          vrni_pendentes: "{{ (recon_resultado | default({}))['pendentes_abertos'] | default(0, true) }}"
+          vrni_discrepancias: "{{ vrni_resolucao.discrepancias | length }}"
+          vrni_relacionamentos_criados: "{{ _rels_post.results | default([], true) | selectattr('status', 'equalto', 201) | list | length }}"

@@ -1,0 +1,21 @@
+# Objetivo: Bulk fetch de detalhes de entidades do vRNI em lotes
+# (POST /api/ni/entities/fetch — FetchRequest.entity_ids, máximo 1000 por chamada).
+# Quem inclui define: lista_prefixo (chave do acumulador); loop passa 'item' lote.
+# Efeito: acumula em vrni_fetch[lista_prefixo] (lista de EntityWithTime).
+---
+- name: "Detalhes de {{ lista_prefixo }} — lote de {{ item | length }}"
+  uri:
+    url: "{{ vrni_api_base }}/entities/fetch"
+    method: POST
+    headers:
+      Authorization: "NetworkInsight {{ vrni_token }}"
+    body_format: json
+    body:
+      entity_ids: "{{ item }}"
+    validate_certs: "{{ vrni_validate_certs | default(false) }}"
+    status_code: 200
+  register: _vrni_lote
+
+- name: "Acumular detalhes de {{ lista_prefixo }}"
+  set_fact:
+    vrni_fetch: "{{ vrni_fetch | default({}) | combine({lista_prefixo: ((vrni_fetch[lista_prefixo] | default([], true)) + (_vrni_lote.json.results | default([], true)))}) }}"

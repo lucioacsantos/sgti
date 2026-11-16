@@ -1,0 +1,6 @@
+# Objetivo: Sequência completa da integração vRNI — CMDB (coleta + inferência).
+# Para execução no AAP como Job Template único ou duas chamadas separadas.
+---
+- import_playbook: vrni_coleta.yml
+
+- import_playbook: vrni_reconciliacao.yml

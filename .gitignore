@@ -47,6 +47,7 @@ logs/
 .env.*
 !.env.example
 .seal/
+ansible/group_vars/all/vrni.yml
 
 # =====================================================================
 # Frontend (Node / Vite)

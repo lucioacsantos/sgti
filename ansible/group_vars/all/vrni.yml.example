@@ -1,0 +1,26 @@
+# Objetivo: Exemplo de variáveis da integração vRNI — CMDB.
+# Copie para vrni.yml (mesmo diretório, sem o .example), cifre com ansible-vault
+# ou prefira AAP Credentials (vrni_password + cmdb_service_token como segredos).
+
+# --- vRNI (Aria Operations for Networks) ---
+vrni_url: https://vrni.example.local
+vrni_username: automacao@local
+vrni_password: "{{ lookup('ansible.builtin.env', 'VRNI_PASSWORD') | default('TROQUE-PELA-CREDENTIAL', true) }}"
+vrni_domain_type: "LOCAL"
+
+# --- CMDB (SGTI) ---
+cmdb_url: http://sgti.example.local:8000
+cmdb_service_token: "{{ lookup('ansible.builtin.env', 'CMDB_SERVICE_TOKEN') | default('TROQUE-PELA-CREDENTIAL', true) }}"
+
+# --- Coleta ---
+vrni_flows_days: 3
+vrni_max_flows: 30000
+vrni_page_size: 500
+vrni_fetch_batch: 500
+vrni_artifacts_dir: /tmp/sgti_vrni
+vrni_validate_certs: false
+
+# --- Inferência / reconciliação ---
+vrni_tipo_fluxos: "Conecta-se a"
+recon_limiar: 0.9
+cmdb_validate_certs: true

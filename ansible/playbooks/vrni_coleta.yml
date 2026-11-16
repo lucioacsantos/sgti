@@ -1,0 +1,113 @@
+# Objetivo: Coletar inventário (VMs) e fluxos de tráfego do VMware Aria
+# Operations for Networks (API /api/ni autenticada por token de 5 h) e persistir
+# os artefatos JSON consumidos por vrni_reconciliacao.yml.
+---
+- name: vRNI — coleta de VMs e fluxos
+  hosts: all
+  gather_facts: false
+  vars:
+    vrni_page_size: 500
+    vrni_max_flows: 30000
+    vrni_fetch_batch: 500
+    vrni_flows_days: 3
+    vrni_artifacts_dir: /tmp/sgti_vrni
+    vrni_validate_certs: false
+  tasks:
+    - name: Validar variáveis obrigatórias
+      assert:
+        that:
+          - vrni_url is defined and (vrni_url | length) > 10
+          - vrni_username is defined
+          - (vrni_password | default('')) | length > 2
+        fail_msg: Defina vrni_url, vrni_username e vrni_password (AAP Custom Credential ou group_vars/all/vrni.yml)
+        quiet: true
+
+    - name: Base da API do vRNI
+      set_fact:
+        vrni_api_base: "{{ vrni_url | regex_replace('/+$', '') }}/api/ni"
+
+    - name: Autenticação no vRNI
+      uri:
+        url: "{{ vrni_api_base }}/auth/token"
+        method: POST
+        body_format: json
+        body:
+          username: "{{ vrni_username }}"
+          password: "{{ vrni_password }}"
+          domain:
+            domain_type: "{{ vrni_domain_type | default('LOCAL') }}"
+        validate_certs: "{{ vrni_validate_certs }}"
+        status_code: 200
+      register: _vrni_auth
+      no_log: true
+
+    - name: Guardar token (válido por 5 h)
+      set_fact:
+        vrni_token: "{{ _vrni_auth.json.token }}"
+      no_log: true
+
+    - name: Janela temporal dos fluxos
+      set_fact:
+        vrni_flow_start: "{{ lookup('pipe', 'date -d \"-' ~ (vrni_flows_days | int) ~ ' day\" +%s') | trim }}"
+        vrni_flow_end: "{{ lookup('pipe', 'date +%s') | trim }}"
+
+    - name: Listar VMs (paginado)
+      vars:
+        lista_endpoint: vms
+        lista_prefixo: vms
+        lista_params: "size={{ vrni_page_size }}"
+        lista_max_itens: "100000"
+        vrni_cursor: ""
+      include_tasks: tasks/vrni_listar.yml
+
+    - name: Listar fluxos (paginado, janela de {{ vrni_flows_days }} dia(s))
+      vars:
+        lista_endpoint: flows
+        lista_prefixo: flows
+        lista_params: "size={{ vrni_page_size }}&start_time={{ vrni_flow_start }}&end_time={{ vrni_flow_end }}"
+        lista_max_itens: "{{ vrni_max_flows }}"
+        vrni_cursor: ""
+      include_tasks: tasks/vrni_listar.yml
+
+    - name: Detalhes das VMs (bulk fetch)
+      vars:
+        lista_prefixo: vms
+      include_tasks: tasks/vrni_fetch.yml
+      loop: "{{ vrni_listas['vms'] | default([], true) | batch(vrni_fetch_batch | int) | list }}"
+      loop_control:
+        label: "lote de VMs ({{ item | length }} id(s))"
+
+    - name: Detalhes dos fluxos (bulk fetch)
+      vars:
+        lista_prefixo: flows
+      include_tasks: tasks/vrni_fetch.yml
+      loop: "{{ vrni_listas['flows'] | default([], true) | batch(vrni_fetch_batch | int) | list }}"
+      loop_control:
+        label: "lote de fluxos ({{ item | length }} id(s))"
+
+    - name: Diretório de artefatos
+      file:
+        path: "{{ vrni_artifacts_dir }}"
+        state: directory
+        mode: "0750"
+
+    - name: Artefato — VMs detalhadas
+      copy:
+        dest: "{{ vrni_artifacts_dir }}/vms.json"
+        mode: "0640"
+        content: >-
+          {{ vrni_fetch['vms'] | default([], true) | map(attribute='entity') | reject('none') | list | to_json }}
+
+    - name: Artefato — fluxos detalhados
+      copy:
+        dest: "{{ vrni_artifacts_dir }}/flows.json"
+        mode: "0640"
+        content: >-
+          {{ vrni_fetch['flows'] | default([], true) | map(attribute='entity') | reject('none') | list | to_json }}
+
+    - name: Resumo da coleta
+      debug:
+        msg: >-
+          VMs={{ vrni_fetch['vms'] | default([], true) | length }};
+          fluxos={{ vrni_fetch['flows'] | default([], true) | length }};
+          artefatos={{ vrni_artifacts_dir }}
