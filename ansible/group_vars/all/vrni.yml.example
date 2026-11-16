@@ -24,5 +24,6 @@ vrni_validate_certs: false
 
 # --- Inferência / reconciliação ---
 vrni_tipo_fluxos: "Conecta-se a"
+vrni_ignorar_externos: true
 recon_limiar: 0.9
 cmdb_validate_certs: true

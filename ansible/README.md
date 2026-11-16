@@ -89,7 +89,8 @@ O tipo usado nos fluxos vem de `vrni_tipo_fluxos` (padrão "Conecta-se a", criad
 ## Ajustes e limites conhecidos
 
 - Fluxo direcional: A→B e B→A geram relacionamentos distintos (mesma direção do tráfego).
-- Tráfego VM→"IP externo": o endpoint externo só casará se o IP existir no CMDB; do contrário vira discrepância.
+- **Endpoints externos**: com `vrni_ignorar_externos: true` (padrão), fluxos em que um dos lados não tem VM correspondente no vRNI (típico de tráfego de/para internet) são desconsiderados nesta fase — não geram relacionamento nem discrepância. Em `false`, o comportamento anterior volta: o endpoint sem cassamento vira item `localizar_ativo`.
+- Tráfego VM→"IP externo": o endpoint externo só casará se o IP existir no CMDB; do contrário vira discrepância (apenas com `vrni_ignorar_externos: false`).
 - Fluxos excluídos: origem = destino (mesmo ativo — ruído intra-host) não gera relacionamento.
 - Janela padrão de fluxos: 3 dias (`vrni_flows_days`); limite de itens: `vrni_max_flows` (guardas de paginação embutidas).
 - `vrni_validate_certs=false` por padrão (vRNI costuma ter certificado interno); ajuste em `group_vars/all/vrni.yml` em produção.

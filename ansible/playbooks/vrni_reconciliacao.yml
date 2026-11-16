@@ -13,6 +13,7 @@
     cmdb_max_itens: 200000
     cmdb_validate_certs: true
     vrni_tipo_fluxos: "Conecta-se a"
+    vrni_ignorar_externos: true
     recon_limiar: 0.9
   tasks:
     - name: Validar variáveis obrigatórias
@@ -71,6 +72,10 @@
           {%- set _rels = {} -%}
           {%- set _disc = {} -%}
           {%- for _f in vrni_flows -%}
+          {%- set _tem_src_vm = (_f.source_vm is defined) and (_f.source_vm is not none) -%}
+          {%- set _tem_dst_vm = (_f.destination_vm is defined) and (_f.destination_vm is not none) -%}
+          {%- set _externo = ((vrni_ignorar_externos | default(true)) | bool) and ((not _tem_src_vm) or (not _tem_dst_vm)) -%}
+          {%- if not _externo -%}
           {%- set _src = ((_f.source_ip.ip_address | default('', true)) | string) -%}
           {%- set _dst = ((_f.destination_ip.ip_address | default('', true)) | string) -%}
           {%- set _src_vm = _f.source_vm.entity_name | default('—', true) | replace('"', '') -%}
@@ -91,6 +96,7 @@
           {%- endif -%}
           {%- if (_dst | length > 0) and (_dst_id == 0) -%}
           {%- set _ = _disc.update({'ip|' ~ _dst: {'acao': 'localizar_ativo', 'entidade': 'ativo', 'campo': 'ip', 'valor_cmdb': None, 'valor_proposto': (_dst ~ ' — VM "' ~ _dst_vm ~ '" (vRNI ' ~ _f.entity_id ~ ')'), 'confianca': 0.0}}) -%}
+          {%- endif -%}
           {%- endif -%}
           {%- endif -%}
           {%- endfor -%}
