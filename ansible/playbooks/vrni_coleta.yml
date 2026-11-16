@@ -34,8 +34,10 @@
         body:
           username: "{{ vrni_username }}"
           password: "{{ vrni_password }}"
-          domain:
-            domain_type: "{{ vrni_domain_type | default('LOCAL') }}"
+          domain: >-
+            {{ {'domain_type': (vrni_domain_type | default('LOCAL'))}
+               | combine({'value': vrni_domain_value} if (vrni_domain_value | default(''))
+               | length > 0 else {}) }}
         validate_certs: "{{ vrni_validate_certs }}"
         status_code: 200
       register: _vrni_auth

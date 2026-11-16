@@ -4,9 +4,11 @@
 
 # --- vRNI (Aria Operations for Networks) ---
 vrni_url: https://vrni.example.local
-vrni_username: automacao@local
+vrni_username: automacao@energia.org.br
 vrni_password: "{{ lookup('ansible.builtin.env', 'VRNI_PASSWORD') | default('TROQUE-PELA-CREDENTIAL', true) }}"
-vrni_domain_type: "LOCAL"
+# LOCAL: apenas domain_type. LDAP: informe também vrni_domain_value (ex.: enegia.org.br).
+vrni_domain_type: "LDAP"        # LOCAL | LDAP
+vrni_domain_value: "energia.org.br"
 
 # --- CMDB (SGTI) ---
 cmdb_url: http://sgti.example.local:8000

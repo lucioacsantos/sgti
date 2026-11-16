@@ -41,6 +41,8 @@ ansible-playbook playbooks/vrni_reconciliacao.yml
 
 Parâmetros úteis (`-e`): `vrni_flows_days=7 vrni_max_flows=50000 vrni_page_size=1000 vrni_artifacts_dir=/tmp/vrni recon_limiar=0.95 vrni_tipo_fluxos="Conecta-se a"`.
 
+Domínio de autenticação: `vrni_domain_type` (padrão `LOCAL`) e, para LDAP, também `vrni_domain_value` — o corpo enviado ao `/auth/token` vira `{"domain": {"domain_type": "LDAP", "value": "seu.dominio"}}`; sem `vrni_domain_value`, envia só `{"domain_type": "LOCAL"}`.
+
 Pré-requisitos no control node / EE: `ansible-core` 2.15+ (nada além dos builtins `ansible.builtin.*`).
 
 ## Automatizando no AAP (Automation Platform)
