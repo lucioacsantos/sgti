@@ -13,6 +13,12 @@ const router = createRouter({
       component: () => import('@/views/auth/LoginView.vue')
     },
     {
+      path: '/mapa',
+      name: 'mapa',
+      component: () => import('@/views/mapa/MapaView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/',
       component: () => import('@/layouts/AdminLayout.vue'),
       meta: { requiresAuth: true },

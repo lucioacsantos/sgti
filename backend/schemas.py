@@ -349,6 +349,58 @@ class RelacionamentoResponse(RelacionamentoBase):
     model_config = ConfigDict(from_attributes=True)
 
 
+# --- Grafo de relacionamentos (Mapa de TI) ---
+class GrafoOpcao(BaseModel):
+    id: int
+    nome: str
+
+
+class GrafoOpcoes(BaseModel):
+    ambientes: List[GrafoOpcao] = []
+    tipos_ativo: List[GrafoOpcao] = []
+    criticidades: List[GrafoOpcao] = []
+    status: List[GrafoOpcao] = []
+    tipos_relacionamento: List[GrafoOpcao] = []
+
+
+class GrafoNo(BaseModel):
+    id: int
+    nome: str
+    descricao: Optional[str] = None
+    fqdn: Optional[str] = None
+    tipo_id: Optional[int] = None
+    tipo: Optional[str] = None
+    ambiente_id: Optional[int] = None
+    ambiente: Optional[str] = None
+    status_id: Optional[int] = None
+    status: Optional[str] = None
+    criticidade_id: Optional[int] = None
+    criticidade: Optional[str] = None
+    grau: int = 0
+
+
+class GrafoAresta(BaseModel):
+    id: int
+    origem_id: int
+    destino_id: int
+    tipo_id: Optional[int] = None
+    tipo_nome: Optional[str] = None
+    descricao: Optional[str] = None
+
+
+class GrafoMeta(BaseModel):
+    total_nos: int = 0
+    total_arestas: int = 0
+    nos_truncados: bool = False
+    opcoes: GrafoOpcoes = GrafoOpcoes()
+
+
+class GrafoResponse(BaseModel):
+    nodes: List[GrafoNo] = []
+    edges: List[GrafoAresta] = []
+    meta: GrafoMeta = GrafoMeta()
+
+
 class ServicoBase(BaseModel):
     nome: str
     tipo: Optional[str] = None

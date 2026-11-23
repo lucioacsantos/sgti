@@ -18,7 +18,9 @@ import {
   ShieldCheck,
   LogOut,
   KeyRound,
-  GitCompareArrows
+  GitCompareArrows,
+  Waypoints,
+  SquareArrowOutUpRight
 } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
@@ -29,6 +31,7 @@ const menuItems = computed(() => {
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Ativos', path: '/assets', icon: Server },
     { name: 'Infraestrutura', path: '/infrastructure', icon: Network },
+    { name: 'Mapa de TI (grafo)', path: '/mapa', icon: Waypoints, novaAba: true },
     { name: 'Reconciliações', path: '/reconciliacoes', icon: GitCompareArrows },
     { name: 'Dados Mestres', path: '/reference-data', icon: Database },
     { name: 'Integrações', path: '/integrations', icon: Layers },
@@ -71,11 +74,14 @@ const pageTitle = computed(() => {
           v-for="item in menuItems"
           :key="item.path"
           :to="item.path"
+          :target="item.novaAba ? '_blank' : undefined"
+          :rel="item.novaAba ? 'noopener' : undefined"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800 text-slate-400 hover:text-slate-100"
           active-class="!bg-emerald-600/10 !text-emerald-400 border border-emerald-500/20"
         >
           <component :is="item.icon" class="w-4 h-4" />
-          {{ item.name }}
+          <span class="flex-1">{{ item.name }}</span>
+          <SquareArrowOutUpRight v-if="item.novaAba" class="w-3 h-3 text-slate-600" />
         </RouterLink>
       </nav>
 

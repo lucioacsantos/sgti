@@ -147,6 +147,187 @@ def delete_tipo_relacionamento(
 rel_router = APIRouter(prefix="/relacionamentos", tags=["Relacionamentos"])
 
 
+@rel_router.get("/grafo", response_model=schemas.GrafoResponse)
+def read_grafo_relacionamentos(
+    ambiente_id: Optional[int] = None,
+    tipo_ativo_id: Optional[int] = None,
+    criticidade_id: Optional[int] = None,
+    status_id: Optional[int] = None,
+    tipo_relacionamento_id: Optional[int] = None,
+    q: Optional[str] = None,
+    grau_minimo: int = 0,
+    incluir_isolados: bool = False,
+    limite: int = 500,
+    db: Session = Depends(get_db),
+    current_service: models.ServiceAccount = Depends(auth.get_current_actor)
+):
+    """Mapa de TI em grafo: nós = ativos, arestas = relacionamentos, com metadados e filtros.
+
+    Filtros por atributo do ativo (ambiente/tipo/criticidade/status/busca), por tipo de
+    relacionamento, grau mínimo de conexões, inclusão de nós isolados e limite de nós.
+    Arestanda só permanece quando os dois extremos sobrevivem aos filtros de nós.
+    """
+    logger.debug(
+        "Loading relationship graph",
+        extra={
+            "service_account": current_service.name,
+            "ambiente_id": ambiente_id,
+            "tipo_ativo_id": tipo_ativo_id,
+            "tipo_relacionamento_id": tipo_relacionamento_id,
+            "q": q,
+        },
+    )
+
+    limite = max(1, min(limite, 5000))
+    grau_minimo = max(0, grau_minimo)
+    termo = q.strip().lower() if q and q.strip() else None
+
+    # 1. Nós (ativos) com metadados para filtros/legenda
+    ativos_query = db.query(models.Ativo).options(
+        joinedload(models.Ativo.tipo),
+        joinedload(models.Ativo.ambiente),
+        joinedload(models.Ativo.status),
+        joinedload(models.Ativo.criticidade),
+    )
+    if ambiente_id:
+        ativos_query = ativos_query.filter(models.Ativo.ambiente_id == ambiente_id)
+    if tipo_ativo_id:
+        ativos_query = ativos_query.filter(models.Ativo.tipo_id == tipo_ativo_id)
+    if criticidade_id:
+        ativos_query = ativos_query.filter(models.Ativo.criticidade_id == criticidade_id)
+    if status_id:
+        ativos_query = ativos_query.filter(models.Ativo.status_id == status_id)
+    if termo:
+        padrao = f"%{termo}%"
+        ativos_query = ativos_query.filter(
+            func.lower(models.Ativo.nome).like(padrao)
+            | func.lower(func.coalesce(models.Ativo.fqdn, "")).like(padrao)
+            | func.lower(func.coalesce(models.Ativo.descricao, "")).like(padrao)
+        )
+
+    nos: dict[int, dict] = {}
+    for ativo in ativos_query.all():
+        nos[ativo.id] = {
+            "id": ativo.id,
+            "nome": ativo.nome,
+            "descricao": ativo.descricao,
+            "fqdn": ativo.fqdn,
+            "tipo_id": ativo.tipo_id,
+            "tipo": ativo.tipo.nome if ativo.tipo else None,
+            "ambiente_id": ativo.ambiente_id,
+            "ambiente": ativo.ambiente.nome if ativo.ambiente else None,
+            "status_id": ativo.status_id,
+            "status": ativo.status.nome if ativo.status else None,
+            "criticidade_id": ativo.criticidade_id,
+            "criticidade": ativo.criticidade.nivel if ativo.criticidade else None,
+        }
+
+    # 2. Arestas (relacionamentos) — filtro por tipo + corte pelos extremos sobreviventes
+    rels_query = db.query(models.Relacionamento).options(
+        joinedload(models.Relacionamento.tipo)
+    )
+    if tipo_relacionamento_id:
+        rels_query = rels_query.filter(models.Relacionamento.tipo_id == tipo_relacionamento_id)
+
+    edges: list[dict] = []
+    for rel in rels_query.all():
+        if rel.origem_id not in nos or rel.destino_id not in nos:
+            continue
+        edges.append({
+            "id": rel.id,
+            "origem_id": rel.origem_id,
+            "destino_id": rel.destino_id,
+            "tipo_id": rel.tipo_id,
+            "tipo_nome": rel.tipo.nome if rel.tipo else None,
+            "descricao": rel.descricao,
+        })
+
+    # 3. Corte iterativo por grau mínimo (remover um nó pode baixar o grau de outro)
+    if grau_minimo > 0:
+        for _ in range(10):
+            graus: dict[int, int] = {no_id: 0 for no_id in nos}
+            for aresta in edges:
+                graus[aresta["origem_id"]] = graus.get(aresta["origem_id"], 0) + 1
+                graus[aresta["destino_id"]] = graus.get(aresta["destino_id"], 0) + 1
+            removidos = {no_id for no_id, grau in graus.items() if grau < grau_minimo}
+            if not removidos:
+                break
+            nos = {no_id: dados for no_id, dados in nos.items() if no_id not in removidos}
+            edges = [
+                aresta for aresta in edges
+                if aresta["origem_id"] in nos and aresta["destino_id"] in nos
+            ]
+
+    # 4. Isolados (sem vínculos) — opcional
+    graus = {no_id: 0 for no_id in nos}
+    for aresta in edges:
+        graus[aresta["origem_id"]] = graus.get(aresta["origem_id"], 0) + 1
+        graus[aresta["destino_id"]] = graus.get(aresta["destino_id"], 0) + 1
+    if not incluir_isolados:
+        nos = {no_id: dados for no_id, dados in nos.items() if graus[no_id] > 0}
+        edges = [
+            aresta for aresta in edges
+            if aresta["origem_id"] in nos and aresta["destino_id"] in nos
+        ]
+
+    # 5. Limite de nós priorizando hubs (maior grau) e remoção das arestas órfãs
+    nos_truncados = False
+    if len(nos) > limite:
+        ordenados = sorted(nos.items(), key=lambda item: (-graus.get(item[0], 0), item[1]["nome"]))
+        nos = dict(ordenados[:limite])
+        nos_truncados = True
+        edges = [
+            aresta for aresta in edges
+            if aresta["origem_id"] in nos and aresta["destino_id"] in nos
+        ]
+
+    nodes_payload = []
+    for no_id, dados in nos.items():
+        nodes_payload.append({**dados, "grau": graus.get(no_id, 0)})
+    nodes_payload.sort(key=lambda item: (-item["grau"], item["nome"]))
+    edges.sort(key=lambda aresta: aresta["id"])
+
+    # 6. Opções para os controles de filtro
+    opcoes = schemas.GrafoOpcoes(
+        ambientes=[
+            schemas.GrafoOpcao(id=item.id, nome=item.nome)
+            for item in db.query(models.Ambiente).order_by(models.Ambiente.nome).all()
+        ],
+        tipos_ativo=[
+            schemas.GrafoOpcao(id=item.id, nome=item.nome)
+            for item in db.query(models.TipoAtivo).order_by(models.TipoAtivo.nome).all()
+        ],
+        criticidades=[
+            schemas.GrafoOpcao(id=item.id, nome=item.nivel)
+            for item in db.query(models.Criticidade).order_by(models.Criticidade.nivel).all()
+        ],
+        status=[
+            schemas.GrafoOpcao(id=item.id, nome=item.nome)
+            for item in db.query(models.StatusAtivo).order_by(models.StatusAtivo.nome).all()
+        ],
+        tipos_relacionamento=[
+            schemas.GrafoOpcao(id=item.id, nome=item.nome)
+            for item in db.query(models.TipoRelacionamento).order_by(models.TipoRelacionamento.nome).all()
+        ],
+    )
+
+    meta = schemas.GrafoMeta(
+        total_nos=len(nodes_payload),
+        total_arestas=len(edges),
+        nos_truncados=nos_truncados,
+        opcoes=opcoes,
+    )
+    logger.info(
+        "Relationship graph ready",
+        extra={
+            "service_account": current_service.name,
+            "nodes": len(nodes_payload),
+            "edges": len(edges),
+        },
+    )
+    return schemas.GrafoResponse(nodes=nodes_payload, edges=edges, meta=meta)
+
+
 @rel_router.post("/", response_model=schemas.RelacionamentoResponse, status_code=201)
 def create_relacionamento(
     rel: schemas.RelacionamentoCreate,
